@@ -3,7 +3,7 @@ import sublime_plugin
 
 import json
 
-from ..lib import deferred, logger
+from ..lib import deferred, logger, requests
 
 
 __all__ = ['EditorEventListener', 'EditorCompletionsListener']
@@ -31,6 +31,9 @@ class EditorEventListener(sublime_plugin.EventListener):
     def _handle(cls, view, action):
         if not _is_view_supported(view):
             return
+
+        deferred.defer(requests.kited_post, '/clientapi/editor/event',
+                       data=cls._event_data(view, action))
 
         if action == 'selection':
             cls._last_selection_region = cls._view_region(view)
@@ -72,6 +75,21 @@ class EditorEventListener(sublime_plugin.EventListener):
 
         return no_info
 
+    @staticmethod
+    def _event_data(view, action):
+        text = view.substr(sublime.Region(0, view.size()))
+
+        if len(text) > (1 << 20):
+            action = 'skip'
+            text = ''
+
+        return {
+            'source': 'sublime3',
+            'filename': view.file_name(),
+            'text': text,
+            'action': action,
+            'selections': [{'start': r.a, 'end': r.b} for r in view.sel()],
+        }
 
 
 class EditorCompletionsListener(sublime_plugin.EventListener):
