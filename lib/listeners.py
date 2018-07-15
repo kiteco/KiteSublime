@@ -154,7 +154,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     @staticmethod
     def _run_auto_complete(view):
-        view.run_command('hide_auto_complete')
+        # view.run_command('hide_auto_complete')
         view.run_command('auto_complete', {
             'api_completions_only': True,
             'disable_auto_insert': True,
