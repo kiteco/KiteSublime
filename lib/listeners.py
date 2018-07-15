@@ -166,8 +166,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
         # return ('{}\t{} ⓚ'.format(symbol, hint) if hint
         #         else '{}\tⓚ'.format(symbol))
 
-        return ('{}\t{} ⟠'.format(symbol, hint) if hint
-                else '{}\t⟠'.format(symbol))
+        return ('{}\t{} (𝕜)'.format(symbol, hint) if hint
+                else '{}\t(𝕜)'.format(symbol))
+
+        # return ('{}\t{} ⟠'.format(symbol, hint) if hint
+        #         else '{}\t⟠'.format(symbol))
 
     @staticmethod
     def _event_data(view, location):
