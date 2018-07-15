@@ -105,8 +105,8 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         cls = self.__class__
-        logger.log("running on_query_completions with {} completions"
-                   .format(len(cls._received_completions)))
+        logger.log("on_query_completions with {} completions (prefix: '{}')"
+                   .format(len(cls._received_completions), prefix))
 
         if not _is_view_supported(view):
             return None
@@ -118,13 +118,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
             return None
 
         with cls._lock:
-            completions = []
-            if len(cls._received_completions) > 0:
-                completions = [
-                    (self._brand_completion(c['display'], c['hint']),
-                     c['insert']) for c in cls._received_completions
-                ]
-                cls._received_completions = []
+            completions = [
+                (self._brand_completion(c['display'], c['hint']),
+                 c['insert']) for c in cls._received_completions
+            ]
+            cls._received_completions = []
             logger.log("displaying {} completions".format(len(completions)))
             return completions
 
@@ -146,9 +144,9 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
             if body:
                 resp_data = json.loads(body.decode('utf-8'))
                 completions = resp_data['completions'] or []
-                with cls._lock:
-                    cls._received_completions = completions
                 if len(completions) > 0:
+                    with cls._lock:
+                        cls._received_completions = completions
                     logger.log("running auto_complete with {} completions"
                                .format(len(cls._received_completions)))
                     cls._run_auto_complete(view)
@@ -166,10 +164,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     @staticmethod
     def _brand_completion(symbol, hint=None):
-        return ('{}\t{} ⓚ'.format(symbol, hint) if hint
-                else '{}\tⓚ'.format(symbol))
-        # return ('{}\t{} ♢'.format(symbol, hint) if hint
-        #         else '{}\t♢'.format(symbol))
+        # return ('{}\t{} ⓚ'.format(symbol, hint) if hint
+        #         else '{}\tⓚ'.format(symbol))
+
+        return ('{}\t{} ⟠'.format(symbol, hint) if hint
+                else '{}\t⟠'.format(symbol))
 
     @staticmethod
     def _event_data(view, location):

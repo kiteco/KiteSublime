@@ -2,8 +2,10 @@ import time
 from queue import Empty, Full, Queue
 from threading import Lock, Thread
 
+from ..lib import logger
 
-_queue = Queue(maxsize=16)
+
+_queue = Queue(maxsize=32)
 
 def _handler(payload):
     func = payload.get('func')
@@ -58,7 +60,7 @@ def defer(func, *args, **kwargs):
         }
         _queue.put(payload, block=False)
     except Full:
-        print("skipping defer because queue is full")
+        logger.log("skipping defer because queue is full")
 
 def consume():
     c = Consumer(_queue, _handler)
