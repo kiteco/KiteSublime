@@ -53,7 +53,7 @@ class EditorEventListener(sublime_plugin.EventListener):
 
     @staticmethod
     def _view_region(view):
-        if view is None or view.sel() is None or len(view.sel()) != 1:
+        if len(view.sel()) != 1:
             return None
 
         r = view.sel()[0]
