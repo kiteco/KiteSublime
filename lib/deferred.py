@@ -46,7 +46,7 @@ class Consumer:
                 self.handler(payload)
             except Empty:
                 pass
-            time.sleep(0.1)
+            time.sleep(0.01)
 
 
 def defer(func, *args, **kwargs):

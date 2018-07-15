@@ -144,12 +144,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
             if body:
                 resp_data = json.loads(body.decode('utf-8'))
                 completions = resp_data['completions'] or []
-                if len(completions) > 0:
-                    with cls._lock:
-                        cls._received_completions = completions
-                    logger.log("running auto_complete with {} completions"
-                               .format(len(cls._received_completions)))
-                    cls._run_auto_complete(view)
+                with cls._lock:
+                    cls._received_completions = completions
+                logger.log("running auto_complete with {} completions"
+                           .format(len(cls._received_completions)))
+                cls._run_auto_complete(view)
         except ValueError as ex:
             logger.log("error decoding json: {}".format(ex))
 
