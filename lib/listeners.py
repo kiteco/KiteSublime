@@ -136,14 +136,13 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     @classmethod
     def _request_completions(cls, view, data):
-        resp = requests.kited_post('/clientapi/editor/completions', data)
+        resp, body = requests.kited_post('/clientapi/editor/completions', data)
 
         logger.log("completions returned {} status code".format(resp.status))
         if resp.status != 200:
             return
 
         try:
-            body = resp.read()
             if body:
                 resp_data = json.loads(body.decode('utf-8'))
                 completions = resp_data['completions'] or []

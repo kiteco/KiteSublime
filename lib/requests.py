@@ -10,4 +10,7 @@ def kited_post(path, data=None):
     conn = HTTPConnection(_KITED_HOST, port=_KITED_PORT)
     conn.request('POST', path,
                  body=(json.dumps(data) if data is not None else None))
-    return conn.getresponse()
+    resp = conn.getresponse()
+    body = resp.read()
+    conn.close()
+    return resp, body
