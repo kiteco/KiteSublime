@@ -43,7 +43,7 @@ class EditorEventListener(sublime_plugin.EventListener):
         if action == 'selection':
             cls._last_selection_region = cls._view_region(view)
 
-        if action == 'edit':
+        if action == 'edit' and _check_view_size(view):
             edit_region = cls._view_region(view)
             edit_type, num_chars = cls._edit_info(cls._last_selection_region,
                                                   edit_region)
