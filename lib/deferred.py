@@ -45,8 +45,7 @@ class Consumer:
                 payload = self.queue.get(block=False)
                 self.handler(payload)
             except Empty:
-                pass
-            time.sleep(0.01)
+                time.sleep(0.01)
 
 
 def defer(func, *args, **kwargs):

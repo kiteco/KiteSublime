@@ -50,6 +50,9 @@ class EditorEventListener(sublime_plugin.EventListener):
             if num_chars == 1:
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
+                if view.match_selector(edit_region['end'],
+                                       'meta.function-call.python'):
+                    logger.log("inside function call")
 
     @staticmethod
     def _view_region(view):
@@ -166,8 +169,8 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
         # return ('{}\t{} ⓚ'.format(symbol, hint) if hint
         #         else '{}\tⓚ'.format(symbol))
 
-        return ('{}\t{} (𝕜)'.format(symbol, hint) if hint
-                else '{}\t(𝕜)'.format(symbol))
+        return ('{}\t{} -𝕜𝕚𝕥𝕖-'.format(symbol, hint) if hint
+                else '{}\t-𝕜𝕚𝕥𝕖-'.format(symbol))
 
         # return ('{}\t{} ⟠'.format(symbol, hint) if hint
         #         else '{}\t⟠'.format(symbol))
