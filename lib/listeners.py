@@ -52,7 +52,8 @@ class EditorEventListener(sublime_plugin.EventListener):
                     view, edit_region['end'])
                 if view.match_selector(edit_region['end'],
                                        'meta.function-call.python'):
-                    logger.log("inside function call")
+                    view.show_popup('function call',
+                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
 
     @staticmethod
     def _view_region(view):
