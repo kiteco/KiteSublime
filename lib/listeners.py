@@ -47,9 +47,10 @@ class EditorEventListener(sublime_plugin.EventListener):
             edit_region = cls._view_region(view)
             edit_type, num_chars = cls._edit_info(cls._last_selection_region,
                                                   edit_region)
-            if num_chars == 1:
+            if edit_type == 'addition' and num_chars == 1:
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
+            if num_chars == 1:
                 if view.match_selector(edit_region['end'],
                                        'meta.function-call.python'):
                     view.show_popup('function call',
