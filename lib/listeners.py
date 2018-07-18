@@ -47,7 +47,7 @@ class EditorEventListener(sublime_plugin.EventListener):
             edit_region = cls._view_region(view)
             edit_type, num_chars = cls._edit_info(cls._last_selection_region,
                                                   edit_region)
-            if edit_type == 'addition' and num_chars == 1:
+            if edit_type == 'insertion' and num_chars == 1:
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
             if num_chars == 1:
@@ -77,7 +77,7 @@ class EditorEventListener(sublime_plugin.EventListener):
             return no_info
 
         if (edit['end'] > selection['end']):
-            return ('addition', edit['end'] - selection['end'])
+            return ('insertion', edit['end'] - selection['end'])
         if (edit['end'] < selection['end']):
             return ('deletion', selection['end'] - edit['end'])
 
