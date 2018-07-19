@@ -20,8 +20,8 @@ def _check_view_size(view):
 
 class EditorEventListener(sublime_plugin.EventListener):
     """Listener which forwards editor events to the event endpoint and also
-    runs Sublime's `auto_complete` command when the buffer has been modified
-    by a single character
+    fetches completions and function signature information when the proper
+    edit triggers are fired
     """
 
     _last_selection_region = None
@@ -50,11 +50,11 @@ class EditorEventListener(sublime_plugin.EventListener):
             if edit_type == 'insertion' and num_chars == 1:
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
-            if num_chars == 1:
-                if view.match_selector(edit_region['end'],
-                                       'meta.function-call.python'):
-                    view.show_popup('function call',
-                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
+            if (num_chars == 1 and
+                view.match_selector(edit_region['end'],
+                                    'meta.function-call.python')):
+                    EditorSignaturesListener.queue_signatures(
+                        view, edit_region['end'])
 
     @staticmethod
     def _view_region(view):
@@ -101,8 +101,9 @@ class EditorEventListener(sublime_plugin.EventListener):
 
 
 class EditorCompletionsListener(sublime_plugin.EventListener):
-    """Listener which handles completions by hooking into Sublime's builtin
-    triggers and forwarding requests to the completions endpoint
+    """Listener which handles completions by preemptively forwarding requests
+    to the completions endpoint and then running the Sublime `auto_complete`
+    command
     """
 
     _received_completions = []
@@ -110,7 +111,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         cls = self.__class__
-        logger.log("on_query_completions with {} completions (prefix: '{}')"
+        logger.log('on_query_completions with {} completions (prefix: "{}")'
                    .format(len(cls._received_completions), prefix))
 
         if not _is_view_supported(view):
@@ -128,7 +129,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
                  c['insert']) for c in cls._received_completions
             ]
             cls._received_completions = []
-            logger.log("displaying {} completions".format(len(completions)))
+            logger.log('displaying {} completions'.format(len(completions)))
             return completions
 
     @classmethod
@@ -140,7 +141,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
     def _request_completions(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/completions', data)
 
-        logger.log("completions returned {} status code".format(resp.status))
+        logger.log('completions returned {} status code'.format(resp.status))
         if resp.status != 200:
             return
 
@@ -150,11 +151,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
                 completions = resp_data['completions'] or []
                 with cls._lock:
                     cls._received_completions = completions
-                logger.log("running auto_complete with {} completions"
+                logger.log('running auto_complete with {} completions'
                            .format(len(cls._received_completions)))
                 cls._run_auto_complete(view)
         except ValueError as ex:
-            logger.log("error decoding json: {}".format(ex))
+            logger.log('error decoding json: {}'.format(ex))
 
     @staticmethod
     def _run_auto_complete(view):
@@ -175,6 +176,56 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
         # return ('{}\t{} ⟠'.format(symbol, hint) if hint
         #         else '{}\t⟠'.format(symbol))
+
+    @staticmethod
+    def _event_data(view, location):
+        return {
+            'filename': realpath(view.file_name()),
+            'editor': 'sublime3',
+            'text': view.substr(sublime.Region(0, view.size())),
+            'cursor_runes': location,
+        }
+
+
+class EditorSignaturesListener(sublime_plugin.EventListener):
+    """
+    """
+
+    _template_path = 'Packages/KPP/lib/assets/function-signature.html'
+    _template = None
+    _css = ''
+
+    @classmethod
+    def queue_signatures(cls, view, location):
+        deferred.defer(cls._request_signatures,
+                       view, cls._event_data(view, location))
+
+    @classmethod
+    def _request_signatures(cls, view, data):
+        resp, body = requests.kited_post('/clientapi/editor/signatures', data)
+
+        logger.log('signatures returned {} status code'.format(resp.status))
+        if resp.status != 200:
+            return
+
+        try:
+            if body:
+                resp_data = json.loads(body.decode('utf-8'))
+                calls = resp_data['calls'] or []
+                logger.log('got {} calls'.format(len(calls)))
+                if len(calls):
+                    call = calls[0]
+                    view.show_popup(cls._render(call),
+                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
+        except ValueError as ex:
+            logger.log('error decoding json: {}'.format(ex))
+
+    @classmethod
+    def _render(cls, call):
+        if cls._template is None:
+            cls._template = sublime.load_resource(cls._template_path)
+        html = cls._template.format(css=cls._css, call=call)
+        return html
 
     @staticmethod
     def _event_data(view, location):
