@@ -50,9 +50,8 @@ class EditorEventListener(sublime_plugin.EventListener):
             if edit_type == 'insertion' and num_chars == 1:
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
-            if (num_chars == 1 and
-                view.match_selector(edit_region['end'],
-                                    'meta.function-call.python')):
+            if view.match_selector(edit_region['end'],
+                                   'meta.function-call.python'):
                     EditorSignaturesListener.queue_signatures(
                         view, edit_region['end'])
 
