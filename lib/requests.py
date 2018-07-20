@@ -1,5 +1,5 @@
 import json
-from http.client import HTTPConnection
+from http.client import CannotSendRequest, HTTPConnection
 
 from ..lib import logger
 
@@ -10,12 +10,23 @@ _conn = None
 def kited_post(path, data=None):
     if _conn is None:
         _init_connection()
-    _conn.request('POST', path, headers={'Connection': 'keep-alive'},
-                  body=(json.dumps(data) if data is not None else None))
-    resp = _conn.getresponse()
-    body = resp.read()
-    return resp, body
+
+    try:
+        _conn.request('POST', path, headers={'Connection': 'keep-alive'},
+                      body=(json.dumps(data) if data is not None else None))
+    except (ConnectionRefusedError, CannotSendRequest) as ex:
+        _reset_connection()
+        raise ex
+    else:
+        resp = _conn.getresponse()
+        body = resp.read()
+        return resp, body
 
 def _init_connection():
     global _conn
-    _conn = HTTPConnection(_KITED_HOST, port=_KITED_PORT)
+    _conn = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.1)
+
+def _reset_connection():
+    global _conn
+    _conn.close()
+    _conn = None
