@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 import json
+from mako.template import Template
 from os.path import realpath
 from threading import Lock
 
@@ -190,7 +191,7 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     """
     """
 
-    _template_path = 'Packages/KPP/lib/assets/function-signature.html'
+    _template_path = 'Packages/KPP/lib/assets/function-signature-panel.html'
     _template = None
     _css = ''
 
@@ -222,8 +223,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     @classmethod
     def _render(cls, call):
         if cls._template is None:
-            cls._template = sublime.load_resource(cls._template_path)
-        html = cls._template.format(css=cls._css, call=call)
+            cls._template = Template(sublime.load_resource(cls._template_path))
+        html = cls._template.render(css=cls._css, call=call)
         return html
 
     @staticmethod

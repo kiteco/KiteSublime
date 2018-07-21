@@ -1,3 +1,5 @@
+from .setup import setup_all; setup_all()
+
 import sublime
 
 from .lib import deferred, logger
