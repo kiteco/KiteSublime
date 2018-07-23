@@ -1,12 +1,25 @@
 <body id="function-signature-panel">
   <style>
-    ${ css }
+    ${css}
   </style>
   <div class="content">
     <div class="function-signature">
-      <div class="function-name">
-        ${ call['callee']['repr'] }
-      </div>
+      <span class="function-name">
+        ${call['callee']['repr']}(
+      </span>
+      <%
+        params = call['callee']['details']['function']['parameters']
+      %>
+      % for param in params:
+        % if loop.index != len(params) - 1:
+          <span>${param['name']},</span>
+        % else:
+          <span>${param['name']}</span>
+        % endif
+      % endfor
+      <span class="function-name">
+        )
+      </span>
     </div>
   </div>
 </body>

@@ -193,6 +193,7 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     _template_path = 'Packages/KPP/lib/assets/function-signature-panel.html'
     _template = None
+    _css_path = 'Packages/KPP/lib/assets/styles.css'
     _css = ''
 
     @classmethod
@@ -224,6 +225,9 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     def _render(cls, call):
         if cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
+            cls._css = sublime.load_resource(cls._css_path)
+        params = call['callee']['details']['function']['parameters']
+        logger.log('params ====\n{}'.format(logger.jsonstr(params)))
         html = cls._template.render(css=cls._css, call=call)
         return html
 
