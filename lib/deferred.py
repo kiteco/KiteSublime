@@ -62,7 +62,7 @@ def defer(func, *args, **kwargs):
         }
         _queue.put(payload, block=False)
     except Full:
-        logger.log("skipping defer because queue is full")
+        logger.log('skipping defer because queue is full')
 
 def consume():
     c = Consumer(_queue, _handler)
