@@ -6,6 +6,7 @@ from ..lib import logger
 
 def setup_all():
     _setup_path()
+    os.environ['SUBLIME_DEV'] = '1'
 
 def _setup_path():
     root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

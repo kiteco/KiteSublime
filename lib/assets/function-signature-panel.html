@@ -4,20 +4,27 @@
   </style>
   <div class="content">
     <div class="function-signature">
-      <span class="function-name">
-        ${call['callee']['repr']}(
-      </span>
-      <%
-        params = call['callee']['details']['function']['parameters']
-      %>
-      % for param in params:
-        % if loop.index != len(params) - 1:
-          <span>${param['name']},</span>
-        % else:
-          <span>${param['name']}</span>
-        % endif
-      % endfor
-      <span class="function-name">
+      <span class="function-name">${call['callee']['repr']}</span><span class="parens open-parens">(</span>
+      <span class="parameters">
+        <%
+          params = call['callee']['details']['function']['parameters']
+          arg_idx = call['arg_index']
+        %>
+        % for param in params:
+          <%
+            class_name = '%s%s' % (' first-parameter' if loop.index == 0 else '',
+                                   ' current-argument' if loop.index == arg_idx else '')
+            default_value = param['language_details']['python'].get('default_value')
+            annotation = '<span class="default-value">={}</span>'.format(default_value[0]['repr']) if default_value is not None else ''
+          %>
+          % if loop.index != len(params) - 1:
+            <span class="${class_name}"><span class="parameter-name">${param['name']}</span><span class="parameter-annotation">${annotation}</span><span class="parameter-separator">,</span></span>
+          % else:
+            <span class="${class_name}"><span class="parameter-name">${param['name']}</span><span class="parameter-annotation">${annotation}</span></span>
+          % endif
+        % endfor
+        </span>
+      <span class="parens close-parens">
         )
       </span>
     </div>

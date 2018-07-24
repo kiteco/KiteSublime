@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 import json
+import os
 from mako.template import Template
 from os.path import realpath
 from threading import Lock
@@ -11,6 +12,8 @@ from ..lib import deferred, logger, requests
 
 __all__ = ['EditorEventListener', 'EditorCompletionsListener']
 
+
+_DEBUG = os.getenv('SUBLIME_DEV')
 
 def _is_view_supported(view):
     return view.file_name() is not None and view.file_name().endswith('.py')
@@ -48,13 +51,15 @@ class EditorEventListener(sublime_plugin.EventListener):
             edit_region = cls._view_region(view)
             edit_type, num_chars = cls._edit_info(cls._last_selection_region,
                                                   edit_region)
+
             if edit_type == 'insertion' and num_chars == 1:
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
+
             if view.match_selector(edit_region['end'],
                                    'meta.function-call.python'):
-                    EditorSignaturesListener.queue_signatures(
-                        view, edit_region['end'])
+                EditorSignaturesListener.queue_signatures(
+                    view, edit_region['end'])
 
     @staticmethod
     def _view_region(view):
@@ -223,11 +228,10 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def _render(cls, call):
-        if cls._template is None:
+        if _DEBUG or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
         params = call['callee']['details']['function']['parameters']
-        logger.log('params ====\n{}'.format(logger.jsonstr(params)))
         html = cls._template.render(css=cls._css, call=call)
         return html
 

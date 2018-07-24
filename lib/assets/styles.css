@@ -1,4 +1,20 @@
-.function-signature span {
+html, body {
   margin: 0;
   padding: 0;
+}
+
+.content {
+  margin: 0;
+  padding: 0;
+}
+
+.function-signature {
+  background-color: color(var(--background) blend(var(--foreground) 95%));
+  font-size: 0.9em;
+  padding: 0.4em 0.6em;
+}
+
+.function-signature .parameters .current-argument .parameter-name {
+  background-color: color(var(--background) blend(var(--foreground) 75%));
+  font-style: italic;
 }
