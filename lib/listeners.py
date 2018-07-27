@@ -1,11 +1,14 @@
 import sublime
 import sublime_plugin
 
+import htmlmin
 import json
 import os
-from mako.template import Template
+from jinja2 import Template
+# from mako.template import Template
 from os.path import realpath
 from threading import Lock
+
 
 from ..lib import deferred, logger, requests
 
@@ -176,11 +179,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
         # return ('{}\t{} ⓚ'.format(symbol, hint) if hint
         #         else '{}\tⓚ'.format(symbol))
 
-        return ('{}\t{} -𝕜𝕚𝕥𝕖-'.format(symbol, hint) if hint
-                else '{}\t-𝕜𝕚𝕥𝕖-'.format(symbol))
+        # return ('{}\t{} -𝕜𝕚𝕥𝕖-'.format(symbol, hint) if hint
+        #         else '{}\t-𝕜𝕚𝕥𝕖-'.format(symbol))
 
-        # return ('{}\t{} ⟠'.format(symbol, hint) if hint
-        #         else '{}\t⟠'.format(symbol))
+        return ('{}\t{} ⟠'.format(symbol, hint) if hint
+                else '{}\t⟠'.format(symbol))
 
     @staticmethod
     def _event_data(view, location):
@@ -231,8 +234,9 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
         if _DEBUG or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
-        params = call['callee']['details']['function']['parameters']
-        html = cls._template.render(css=cls._css, call=call)
+        html = htmlmin.minify(cls._template.render(css=cls._css, call=call),
+                              remove_all_empty_space=True)
+        logger.log(html)
         return html
 
     @staticmethod
