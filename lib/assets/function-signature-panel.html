@@ -10,7 +10,7 @@
           {% for param in params %}
             {% with default_value = param.language_details.python.default_value %}
               {% if not loop.last %}
-                <span{% if loop.index == arg_idx %} class="current-argument"{% endif %}>
+                <span{% if loop.index0 == arg_idx %} class="current-argument"{% endif %}>
                   <span class="parameter-name">{{ param.name }}</span>
                   <span class="parameter-annotation">
                     {% if default_value %}
