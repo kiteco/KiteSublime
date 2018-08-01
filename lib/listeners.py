@@ -63,6 +63,8 @@ class EditorEventListener(sublime_plugin.EventListener):
                                    'meta.function-call.python'):
                 EditorSignaturesListener.queue_signatures(
                     view, edit_region['end'])
+            else:
+                EditorSignaturesListener.hide_signatures(view)
 
     @staticmethod
     def _view_region(view):
@@ -210,6 +212,10 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                        view, cls._event_data(view, location))
 
     @classmethod
+    def hide_signatures(cls, view):
+        view.hide_popup()
+
+    @classmethod
     def _request_signatures(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/signatures', data)
 
@@ -234,10 +240,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
         if _DEBUG or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
-        html = htmlmin.minify(cls._template.render(css=cls._css, call=call),
+        return htmlmin.minify(cls._template.render(css=cls._css, call=call),
                               remove_all_empty_space=True)
-        logger.log(html)
-        return html
 
     @staticmethod
     def _event_data(view, location):

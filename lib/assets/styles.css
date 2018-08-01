@@ -14,7 +14,18 @@ html, body {
   padding: 0.4em 0.6em;
 }
 
+.function-signature .function-name {
+  color: var(--bluish);
+  font-weight: bold;
+}
+
+.function-signature .parameters .default-value {
+  color: color(var(--foreground) blend(var(--background) 67%));
+  font-style: italic;
+}
+
 .function-signature .parameters .current-argument .parameter-name {
   background-color: color(var(--background) blend(var(--foreground) 75%));
   font-style: italic;
+  text-decoration: underline;
 }
