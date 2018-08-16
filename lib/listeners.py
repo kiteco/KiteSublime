@@ -5,7 +5,6 @@ import htmlmin
 import json
 import os
 from jinja2 import Template
-# from mako.template import Template
 from os.path import realpath
 from threading import Lock
 
@@ -23,6 +22,10 @@ def _is_view_supported(view):
 
 def _check_view_size(view):
     return view.size() <= (1 << 20)
+
+def _in_function_call(view, point):
+    return (view.match_selector(point, 'meta.function-call.python') and
+            not view.match_selector(point, 'variable.function.python'))
 
 
 class EditorEventListener(sublime_plugin.EventListener):
@@ -48,7 +51,15 @@ class EditorEventListener(sublime_plugin.EventListener):
                        data=cls._event_data(view, action))
 
         if action == 'selection':
-            cls._last_selection_region = cls._view_region(view)
+            select_region = cls._view_region(view)
+            cls._last_selection_region = select_region
+
+            if _in_function_call(view, select_region['end']):
+                if EditorSignaturesListener.is_activated():
+                    EditorSignaturesListener.queue_signatures(
+                        view, select_region['end'])
+            else:
+                EditorSignaturesListener.hide_signatures(view)
 
         if action == 'edit' and _check_view_size(view):
             edit_region = cls._view_region(view)
@@ -59,8 +70,7 @@ class EditorEventListener(sublime_plugin.EventListener):
                 EditorCompletionsListener.queue_completions(
                     view, edit_region['end'])
 
-            if view.match_selector(edit_region['end'],
-                                   'meta.function-call.python'):
+            if _in_function_call(view, edit_region['end']):
                 EditorSignaturesListener.queue_signatures(
                     view, edit_region['end'])
             else:
@@ -201,6 +211,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     """
     """
 
+    _activated = False
+
     _template_path = 'Packages/KPP/lib/assets/function-signature-panel.html'
     _template = None
     _css_path = 'Packages/KPP/lib/assets/styles.css'
@@ -208,12 +220,18 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def queue_signatures(cls, view, location):
+        cls._activated = True
         deferred.defer(cls._request_signatures,
                        view, cls._event_data(view, location))
 
     @classmethod
     def hide_signatures(cls, view):
+        cls._activated = False
         view.hide_popup()
+
+    @classmethod
+    def is_activated(cls):
+        return cls._activated
 
     @classmethod
     def _request_signatures(cls, view, data):
@@ -230,8 +248,11 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                 logger.log('got {} calls'.format(len(calls)))
                 if len(calls):
                     call = calls[0]
-                    view.show_popup(cls._render(call),
-                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
+                    if not view.is_popup_visible():
+                        flags = sublime.COOPERATE_WITH_AUTO_COMPLETE
+                        view.show_popup(cls._render(call), flags=flags)
+                    else:
+                        view.update_popup(cls._render(call))
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
