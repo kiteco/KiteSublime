@@ -31,7 +31,7 @@ def _in_function_call(view, point):
 class EditorEventListener(sublime_plugin.EventListener):
     """Listener which forwards editor events to the event endpoint and also
     fetches completions and function signature information when the proper
-    edit triggers are fired
+    event triggers are fired
     """
 
     _last_selection_region = None
