@@ -208,7 +208,8 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
 
 class EditorSignaturesListener(sublime_plugin.EventListener):
-    """
+    """Listener which handles signatures by sending requests to the signatures
+    endpoint and rendering the returned data
     """
 
     _activated = False
