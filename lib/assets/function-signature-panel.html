@@ -9,26 +9,17 @@
         {% with params = call.callee.details.function.parameters, arg_idx = call.arg_index %}
           {% for param in params %}
             {% with default_value = param.language_details.python.default_value %}
-              {% if not loop.last %}
-                <span{% if loop.index0 == arg_idx %} class="current-argument"{% endif %}>
-                  <span class="parameter-name">{{ param.name }}</span>
-                  <span class="parameter-annotation">
-                    {% if default_value %}
-                      <span class="default-value">={{ default_value.0.repr }}</span>
-                    {% endif %}
-                  </span>
+              <span{% if loop.index0 == arg_idx %} class="current-argument"{% endif %}>
+                <span class="parameter-name">{{ param.name }}</span>
+                <span class="parameter-annotation">
+                  {% if default_value %}
+                    <span class="default-value">={{ default_value.0.repr }}</span>
+                  {% endif %}
+                </span>
+                {% if not loop.last %}
                   <span class="parameter-separator">, </span>
-                </span>
-              {% else %}
-                <span{% if loop.index == arg_idx %} class="current-argument"{% endif %}>
-                  <span class="parameter-name">{{ param.name }}</span>
-                  <span class="parameter-annotation">
-                    {% if default_value %}
-                      <span class="default-value">={{ default_value.0.repr }}</span>
-                    {% endif %}
-                  </span>
-                </span>
-              {% endif %}
+                {% endif %}
+              </span>
             {% endwith %}
           {% endfor %}
         {% endwith %}

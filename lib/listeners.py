@@ -131,8 +131,6 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         cls = self.__class__
-        logger.log('on_query_completions with {} completions (prefix: "{}")'
-                   .format(len(cls._received_completions), prefix))
 
         if not _is_view_supported(view):
             return None
@@ -149,7 +147,6 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
                  c['insert']) for c in cls._received_completions
             ]
             cls._received_completions = []
-            logger.log('displaying {} completions'.format(len(completions)))
             return completions
 
     @classmethod
@@ -161,7 +158,6 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
     def _request_completions(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/completions', data)
 
-        logger.log('completions returned {} status code'.format(resp.status))
         if resp.status != 200:
             return
 
@@ -171,8 +167,6 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
                 completions = resp_data['completions'] or []
                 with cls._lock:
                     cls._received_completions = completions
-                logger.log('running auto_complete with {} completions'
-                           .format(len(cls._received_completions)))
                 cls._run_auto_complete(view)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
@@ -213,6 +207,7 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     """
 
     _activated = False
+    _lock = Lock()
 
     _template_path = 'Packages/KPP/lib/assets/function-signature-panel.html'
     _template = None
@@ -221,14 +216,16 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def queue_signatures(cls, view, location):
-        cls._activated = True
-        deferred.defer(cls._request_signatures,
-                       view, cls._event_data(view, location))
+        with cls._lock:
+            cls._activated = True
+            deferred.defer(cls._request_signatures,
+                           view, cls._event_data(view, location))
 
     @classmethod
     def hide_signatures(cls, view):
-        cls._activated = False
-        view.hide_popup()
+        with cls._lock:
+            cls._activated = False
+            view.hide_popup()
 
     @classmethod
     def is_activated(cls):
@@ -238,7 +235,6 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     def _request_signatures(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/signatures', data)
 
-        logger.log('signatures returned {} status code'.format(resp.status))
         if resp.status != 200:
             return
 
@@ -246,7 +242,6 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
             if body:
                 resp_data = json.loads(body.decode('utf-8'))
                 calls = resp_data['calls'] or []
-                logger.log('got {} calls'.format(len(calls)))
                 if len(calls):
                     call = calls[0]
                     if not view.is_popup_visible():

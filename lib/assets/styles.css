@@ -26,6 +26,7 @@ html, body {
 
 .function-signature .parameters .current-argument .parameter-name {
   background-color: color(var(--background) blend(var(--foreground) 75%));
-  font-style: italic;
-  text-decoration: underline;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+  /* text-decoration: underline; */
 }
