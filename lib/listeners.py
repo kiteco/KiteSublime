@@ -162,12 +162,11 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
             return
 
         try:
-            if body:
-                resp_data = json.loads(body.decode('utf-8'))
-                completions = resp_data['completions'] or []
-                with cls._lock:
-                    cls._received_completions = completions
-                cls._run_auto_complete(view)
+            resp_data = json.loads(body.decode('utf-8'))
+            completions = resp_data['completions'] or []
+            with cls._lock:
+                cls._received_completions = completions
+            cls._run_auto_complete(view)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
@@ -238,29 +237,28 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
             return
 
         try:
-            if body:
-                resp_data = json.loads(body.decode('utf-8'))
-                calls = resp_data['calls'] or []
-                if len(calls):
-                    call = calls[0]
+            resp_data = json.loads(body.decode('utf-8'))
+            calls = resp_data['calls'] or []
+            if len(calls):
+                call = calls[0]
 
-                    # Separate out the keyword-only parameters
-                    func = call['callee']['details']['function']
-                    func.update({
-                        'positional_parameters': [],
-                        'keyword_only_parameters': [],
-                    })
-                    for _, param in enumerate(func['parameters']):
-                        param_details = param['language_details']['python']
-                        if not param_details['keyword_only']:
-                            func['positional_parameters'].append(param)
-                        else:
-                            func['keyword_only_parameters'].append(param)
+                # Separate out the keyword-only parameters
+                func = call['callee']['details']['function']
+                func.update({
+                    'positional_parameters': [],
+                    'keyword_only_parameters': [],
+                })
+                for _, param in enumerate(func['parameters']):
+                    param_details = param['language_details']['python']
+                    if not param_details['keyword_only']:
+                        func['positional_parameters'].append(param)
+                    else:
+                        func['keyword_only_parameters'].append(param)
 
-                    logger.log('call: arg index = {}'.format(call['arg_index']))
+                logger.log('call: arg index = {}'.format(call['arg_index']))
 
-                    view.show_popup(cls._render(call),
-                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
+                view.show_popup(cls._render(call),
+                                flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
