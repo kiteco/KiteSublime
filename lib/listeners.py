@@ -173,7 +173,6 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     @staticmethod
     def _run_auto_complete(view):
-        # view.run_command('hide_auto_complete')
         view.run_command('auto_complete', {
             'api_completions_only': True,
             'disable_auto_insert': True,
@@ -244,11 +243,24 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                 calls = resp_data['calls'] or []
                 if len(calls):
                     call = calls[0]
-                    if not view.is_popup_visible():
-                        flags = sublime.COOPERATE_WITH_AUTO_COMPLETE
-                        view.show_popup(cls._render(call), flags=flags)
-                    else:
-                        view.update_popup(cls._render(call))
+
+                    # Separate out the keyword-only parameters
+                    func = call['callee']['details']['function']
+                    func.update({
+                        'positional_parameters': [],
+                        'keyword_only_parameters': [],
+                    })
+                    for _, param in enumerate(func['parameters']):
+                        param_details = param['language_details']['python']
+                        if not param_details['keyword_only']:
+                            func['positional_parameters'].append(param)
+                        else:
+                            func['keyword_only_parameters'].append(param)
+
+                    logger.log('call: arg index = {}'.format(call['arg_index']))
+
+                    view.show_popup(cls._render(call),
+                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 

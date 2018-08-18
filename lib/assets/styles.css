@@ -4,13 +4,9 @@ html, body {
 }
 
 .content {
-  margin: 0;
-  padding: 0;
-}
-
-.function-signature {
   background-color: color(var(--background) blend(var(--foreground) 95%));
   font-size: 0.9em;
+  margin: 0;
   padding: 0.4em 0.6em;
 }
 
@@ -20,13 +16,20 @@ html, body {
 }
 
 .function-signature .parameters .default-value {
-  color: color(var(--foreground) blend(var(--background) 67%));
+  color: color(var(--orangish) blend(var(--background) 67%));
   font-style: italic;
 }
 
+.function-signature .parameters .parameter-name {
+  color: color(var(--foreground) blend(var(--background) 67%));
+}
+
 .function-signature .parameters .current-argument .parameter-name {
-  background-color: color(var(--background) blend(var(--foreground) 75%));
-  padding-left: 0.25em;
-  padding-right: 0.25em;
-  /* text-decoration: underline; */
+  color: color(var(--foreground));
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.footer {
+  margin-top: 0.75rem;
 }

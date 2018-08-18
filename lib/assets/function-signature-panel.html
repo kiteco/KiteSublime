@@ -6,7 +6,10 @@
     <div class="function-signature">
       <span class="function-name">{{ call.callee.repr }}</span><span class="parens open-parens">(</span>
       <span class="parameters">
-        {% with params = call.callee.details.function.parameters, arg_idx = call.arg_index %}
+        {% with params = call.callee.details.function.positional_parameters,
+                kw_only_params = call.callee.details.function.keyword_only_parameters,
+                arg_idx = call.arg_index,
+                python_details = call.callee.details.function.language_details.python %}
           {% for param in params %}
             {% with default_value = param.language_details.python.default_value %}
               <span{% if loop.index0 == arg_idx %} class="current-argument"{% endif %}>
@@ -16,15 +19,51 @@
                     <span class="default-value">={{ default_value.0.repr }}</span>
                   {% endif %}
                 </span>
-                {% if not loop.last %}
+                {% if not loop.last or python_details.vararg or kw_only_params or python_details.kwarg %}
                   <span class="parameter-separator">, </span>
                 {% endif %}
               </span>
             {% endwith %}
           {% endfor %}
+          {% if python_details.vararg %}
+            <span{% if params|length == arg_idx %} class="current-argument"{% endif %}>
+              <span class="parameter-name">*{{ python_details.vararg.name }}</span>
+              {% if python_details.kwarg %}
+                <span class="parameter-separator">, </span>
+              {% endif %}
+            </span>
+          {% elif kw_only_params %}
+            <span>
+              <span class="parameter-name">*</span>
+              <span class="parameter-separator">, </span>
+            </span>
+          {% endif %}
+          {% for param in kw_only_params %}
+            {% with default_value = param.language_details.python.default_value %}
+              <span{% if params|length + (python_details.vararg is defined) + loop.index0 == arg_idx %} class="current-argument"{% endif %}>
+                <span class="parameter-name">{{ param.name }}</span>
+                <span class="parameter-annotation">
+                  {% if default_value %}
+                    <span class="default-value">={{ default_value.0.repr }}</span>
+                  {% endif %}
+                </span>
+                {% if not loop.last or python_details.kwarg %}
+                  <span class="parameter-separator">, </span>
+                {% endif %}
+              </span>
+            {% endwith %}
+          {% endfor %}
+          {% if python_details.kwarg %}
+            <span{% if call.language_details.python.in_kwargs %} class="current-argument"{% endif %}>
+              <span class="parameter-name">**{{ python_details.kwarg.name }}</span>
+            </span>
+          {% endif %}
         {% endwith %}
       </span>
       <span class="parens close-parens">)</span>
+    </div>
+    <div class="footer">
+      <div class="logo">𝕜𝕚𝕥𝕖</div>
     </div>
   </div>
 </body>
