@@ -158,7 +158,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
     def _request_completions(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/completions', data)
 
-        if resp.status != 200:
+        if resp.status != 200 or not body:
             return
 
         try:
@@ -233,7 +233,7 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     def _request_signatures(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/signatures', data)
 
-        if resp.status != 200:
+        if resp.status != 200 or not body:
             return
 
         try:
