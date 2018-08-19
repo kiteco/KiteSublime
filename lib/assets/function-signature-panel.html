@@ -28,7 +28,7 @@
           {% if python_details.vararg %}
             <span{% if params|length == arg_idx %} class="current-argument"{% endif %}>
               <span class="parameter-name">*{{ python_details.vararg.name }}</span>
-              {% if python_details.kwarg %}
+              {% if kw_only_params or python_details.kwarg %}
                 <span class="parameter-separator">, </span>
               {% endif %}
             </span>

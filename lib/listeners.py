@@ -12,7 +12,11 @@ from threading import Lock
 from ..lib import deferred, logger, requests
 
 
-__all__ = ['EditorEventListener', 'EditorCompletionsListener']
+__all__ = [
+    'EditorEventListener',
+    'EditorCompletionsListener',
+    'EditorSignaturesListener',
+]
 
 
 _DEBUG = os.getenv('SUBLIME_DEV')
@@ -31,7 +35,7 @@ def _in_function_call(view, point):
 class EditorEventListener(sublime_plugin.EventListener):
     """Listener which forwards editor events to the event endpoint and also
     fetches completions and function signature information when the proper
-    event triggers are fired
+    event triggers are fired.
     """
 
     _last_selection_region = None
@@ -123,7 +127,7 @@ class EditorEventListener(sublime_plugin.EventListener):
 class EditorCompletionsListener(sublime_plugin.EventListener):
     """Listener which handles completions by preemptively forwarding requests
     to the completions endpoint and then running the Sublime `auto_complete`
-    command
+    command.
     """
 
     _received_completions = []
@@ -180,12 +184,6 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
     @staticmethod
     def _brand_completion(symbol, hint=None):
-        # return ('{}\t{} ⓚ'.format(symbol, hint) if hint
-        #         else '{}\tⓚ'.format(symbol))
-
-        # return ('{}\t{} -𝕜𝕚𝕥𝕖-'.format(symbol, hint) if hint
-        #         else '{}\t-𝕜𝕚𝕥𝕖-'.format(symbol))
-
         return ('{}\t{} ⟠'.format(symbol, hint) if hint
                 else '{}\t⟠'.format(symbol))
 
@@ -201,7 +199,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
 
 class EditorSignaturesListener(sublime_plugin.EventListener):
     """Listener which handles signatures by sending requests to the signatures
-    endpoint and rendering the returned data
+    endpoint and rendering the returned data.
     """
 
     _activated = False
