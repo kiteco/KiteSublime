@@ -85,6 +85,9 @@ def defer(func, *args, **kwargs):
         func: The function to execute.
         args: The positional arguments to pass to the function.
         kwargs: The keyword arguments to pass to the function.
+
+    Returns:
+        True if the function was queued successfully, False otherwise.
     """
     try:
         done = kwargs.pop('_done', None)
@@ -95,8 +98,10 @@ def defer(func, *args, **kwargs):
             'done': done,
         }
         _queue.put(payload, block=False)
+        return True
     except Full:
         logger.log('skipping defer because queue is full')
+        return False
 
 def consume():
     """Create a consumer and start the consumption loop. This function needs
