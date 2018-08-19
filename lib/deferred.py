@@ -74,8 +74,8 @@ class Consumer:
 
 
 def defer(func, *args, **kwargs):
-    """Defer a function to be executed asynchronously in the background. If
-    the queue is full, then this function call will be ignored.
+    """Defer a function call to be executed asynchronously in the background.
+    If the queue is full, then this function call will be ignored.
 
     A `_done` callback can be passed into the keyword arguments. If this
     callback is present, it will be called on the return value of the executed
@@ -87,7 +87,7 @@ def defer(func, *args, **kwargs):
         kwargs: The keyword arguments to pass to the function.
 
     Returns:
-        True if the function was queued successfully, False otherwise.
+        True if the function call was queued successfully, False otherwise.
     """
     try:
         done = kwargs.pop('_done', None)
