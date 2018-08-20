@@ -5,9 +5,9 @@ html, body {
 
 .content {
   background-color: color(var(--background) blend(var(--foreground) 95%));
-  font-size: 0.9em;
+  font-size: 0.9rem;
   margin: 0;
-  padding: 0.4em 0.6em;
+  padding: 0.4rem 0.6rem;
 }
 
 .function-signature .function-name {
