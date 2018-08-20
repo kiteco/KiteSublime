@@ -212,10 +212,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def queue_signatures(cls, view, location):
-        with cls._lock:
-            cls._activated = True
-            deferred.defer(cls._request_signatures,
-                           view, cls._event_data(view, location))
+        deferred.defer(cls._request_signatures,
+                       view, cls._event_data(view, location))
 
     @classmethod
     def hide_signatures(cls, view):
@@ -255,8 +253,10 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
                 logger.log('call: arg index = {}'.format(call['arg_index']))
 
-                view.show_popup(cls._render(call),
-                                flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
+                with cls._lock:
+                    cls._activated = True
+                    view.show_popup(cls._render(call),
+                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
