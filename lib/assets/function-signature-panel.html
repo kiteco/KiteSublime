@@ -63,7 +63,14 @@
     </div>
     {% if call.signatures %}
     <div class="popular-patterns">
-      <div class="section-title">HOW OTHERS USED THIS</div>
+      <div class="section-title">
+        <span class="title">HOW OTHERS USED THIS</span>
+        {% if show_popular_patterns %}
+          <a class="toggle-link" href="hide_popular_patterns">[Hide]</a>
+        {% else %}
+          <a class="toggle-link" href="show_popular_patterns">[Show]</a>
+        {% endif %}
+      </div>
       {% for signature in call.signatures %}
         {% if loop.index0 < 5 %}
           {% with python_details = signature.language_details.python %}

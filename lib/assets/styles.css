@@ -43,6 +43,14 @@ html, body {
   color: color(var(--foreground) blend(var(--background) 80%));
 }
 
+.popular-patterns .section-title a.toggle-link {
+  bottom: 0.025rem;
+  font-size: 0.8rem;
+  padding-left: 1rem;
+  position: relative;
+  text-decoration: none;
+}
+
 .popular-patterns .pattern {
   margin-left: 0.5em;
   margin-bottom: 0.33em;

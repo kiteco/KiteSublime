@@ -261,23 +261,26 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
                 logger.log('call: arg index = {}'.format(call['arg_index']))
 
-                logger.log('show popular patterns? {}'
-                           .format(settings.get('show_popular_patterns')))
+                opts = {
+                    'show_popular_patterns': settings.get(
+                                                'show_popular_patterns'),
+                }
 
                 with cls._lock:
                     cls._activated = True
-                    view.show_popup(cls._render(call),
+                    view.show_popup(cls._render(call, **opts),
                                     flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                     max_width=400)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
     @classmethod
-    def _render(cls, call):
+    def _render(cls, call, **opts):
         if _DEBUG or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
-        return htmlmin.minify(cls._template.render(css=cls._css, call=call),
+        return htmlmin.minify(cls._template.render(css=cls._css, call=call,
+                                                   **opts),
                               remove_all_empty_space=True)
 
     @staticmethod
