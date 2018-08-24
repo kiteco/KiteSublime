@@ -30,7 +30,8 @@ html, body {
   text-decoration: underline;
 }
 
-.popular-patterns, .footer {
+.popular-patterns,
+.footer {
   margin-top: 1rem;
 }
 
