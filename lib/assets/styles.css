@@ -56,3 +56,8 @@ html, body {
   color: var(--orangish);
   font-style: italic;
 }
+
+.popular-patterns .pattern .keyword-arguments .default-value.value-type {
+  color: color(var(--foreground) blend(var(--background) 67%));
+  font-style: italic;
+}
