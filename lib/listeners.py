@@ -9,7 +9,7 @@ from os.path import realpath
 from threading import Lock
 
 
-from ..lib import deferred, logger, requests
+from ..lib import deferred, logger, settings, requests
 
 
 __all__ = [
@@ -260,6 +260,9 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                         func['keyword_only_parameters'].append(param)
 
                 logger.log('call: arg index = {}'.format(call['arg_index']))
+
+                logger.log('show popular patterns? {}'
+                           .format(settings.get('show_popular_patterns')))
 
                 with cls._lock:
                     cls._activated = True
