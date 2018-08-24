@@ -25,9 +25,13 @@ html, body {
 }
 
 .function-signature .parameters .current-argument .parameter-name {
-  color: color(var(--foreground));
+  color: var(--foreground);
   font-weight: bold;
   text-decoration: underline;
+}
+
+.function-signature .parameters .current-argument .default-value {
+  color: var(--orangish);
 }
 
 .popular-patterns,
