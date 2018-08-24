@@ -30,6 +30,19 @@ html, body {
   text-decoration: underline;
 }
 
+.popular-patterns {
+  margin-top: 0.75rem;
+}
+
+.popular-patterns .section-title {
+  color: color(var(--foreground) blend(var(--background) 80%));
+}
+
+.popular-patterns .pattern .keyword-arguments .parameter-name {
+  color: var(--orangish);
+  font-style: italic;
+}
+
 .footer {
   margin-top: 0.75rem;
 }

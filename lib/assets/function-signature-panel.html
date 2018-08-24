@@ -4,7 +4,8 @@
   </style>
   <div class="content">
     <div class="function-signature">
-      <span class="function-name">{{ call.callee.repr }}</span><span class="parens open-parens">(</span>
+      <span class="function-name">{{ call.callee.repr }}</span>
+      <span class="parens open-parens">(</span>
       <span class="parameters">
         {% with params = call.callee.details.function.positional_parameters,
                 kw_only_params = call.callee.details.function.keyword_only_parameters,
@@ -62,6 +63,36 @@
       </span>
       <span class="parens close-parens">)</span>
     </div>
+    {% if call.signatures %}
+    <div class="popular-patterns">
+      <div class="section-title">HOW OTHERS USED THIS</div>
+      {% for signature in call.signatures %}
+        {% if loop.index0 < 5 %}
+          {% with python_details = signature.language_details.python %}
+            <div class="pattern function-signature">
+              <span class="function-name">{{ call.func_name }}</span>
+              <span class="parens open-parens">(</span>
+              {% for arg in signature.args %}
+                <span class="parameter-name">{{ arg.name }}</span>
+                {% if not loop.last or python_details.kwargs %}
+                  <span class="parameter-separator">, </span>
+                {% endif %}
+              {% endfor %}
+              {% if python_details.kwargs %}
+                <span class="keyword-arguments">
+                  {% for arg in python_details.kwargs %}
+                    <span class="parameter-name">{{ arg.name }}=</span>
+                    <span class="default-value">{{ arg.types.0.examples.0 }}</span>
+                  {% endfor %}
+                </span>
+              {% endif %}
+              <span class="parens close-parens">)</span>
+            {% endwith %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
     <div class="footer">
       <div class="logo">𝕜𝕚𝕥𝕖</div>
     </div>
