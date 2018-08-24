@@ -30,19 +30,24 @@ html, body {
   text-decoration: underline;
 }
 
-.popular-patterns {
-  margin-top: 0.75rem;
+.popular-patterns, .footer {
+  margin-top: 1rem;
 }
 
 .popular-patterns .section-title {
   color: color(var(--foreground) blend(var(--background) 80%));
 }
 
+.popular-patterns .pattern {
+  margin-left: 0.5rem;
+  margin-bottom: 0.33rem;
+}
+
+.popular-patterns .pattern.last {
+  margin-bottom: 0;
+}
+
 .popular-patterns .pattern .keyword-arguments .parameter-name {
   color: var(--orangish);
   font-style: italic;
-}
-
-.footer {
-  margin-top: 0.75rem;
 }
