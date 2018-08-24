@@ -252,7 +252,7 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                     'positional_parameters': [],
                     'keyword_only_parameters': [],
                 })
-                for _, param in enumerate(func['parameters']):
+                for _, param in enumerate(func['parameters'] or []):
                     param_details = param['language_details']['python']
                     if not param_details['keyword_only']:
                         func['positional_parameters'].append(param)

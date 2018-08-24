@@ -15,11 +15,9 @@
             {% with default_value = param.language_details.python.default_value %}
               <span{% if loop.index0 == arg_idx %} class="current-argument"{% endif %}>
                 <span class="parameter-name">{{ param.name }}</span>
-                <span class="parameter-annotation">
-                  {% if default_value %}
-                    <span class="default-value">={{ default_value.0.repr }}</span>
-                  {% endif %}
-                </span>
+                {% if default_value %}
+                  <span class="default-value">={{ default_value.0.repr }}</span>
+                {% endif %}
                 {% if not loop.last or python_details.vararg or kw_only_params or python_details.kwarg %}
                   <span class="parameter-separator">, </span>
                 {% endif %}
