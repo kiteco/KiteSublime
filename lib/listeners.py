@@ -71,12 +71,14 @@ class EditorEventListener(sublime_plugin.EventListener):
                                                   edit_region)
 
             if edit_type == 'insertion' and num_chars == 1:
-                EditorCompletionsListener.queue_completions(
-                    view, edit_region['end'])
+                EditorCompletionsListener.queue_completions(view,
+                                                            edit_region['end'])
+            elif edit_type == 'deletion' and num_chars > 1:
+                EditorCompletionsListener.hide_completions(view)
 
             if _in_function_call(view, edit_region['end']):
-                EditorSignaturesListener.queue_signatures(
-                    view, edit_region['end'])
+                EditorSignaturesListener.queue_signatures(view,
+                                                          edit_region['end'])
             else:
                 EditorSignaturesListener.hide_signatures(view)
 
@@ -157,6 +159,12 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
     def queue_completions(cls, view, location):
         deferred.defer(cls._request_completions,
                        view, cls._event_data(view, location))
+
+    @classmethod
+    def hide_completions(cls, view):
+        with cls._lock:
+            cls._received_completions = []
+        view.run_command('hide_auto_complete')
 
     @classmethod
     def _request_completions(cls, view, data):
