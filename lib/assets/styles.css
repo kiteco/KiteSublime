@@ -32,7 +32,7 @@ html, body {
 
 .popular-patterns,
 .footer {
-  margin-top: 1rem;
+  margin-top: 1em;
 }
 
 .popular-patterns .section-title {
@@ -40,8 +40,8 @@ html, body {
 }
 
 .popular-patterns .pattern {
-  margin-left: 0.5rem;
-  margin-bottom: 0.33rem;
+  margin-left: 0.5em;
+  margin-bottom: 0.33em;
 }
 
 .popular-patterns .pattern.last {

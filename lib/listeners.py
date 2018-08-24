@@ -256,7 +256,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                 with cls._lock:
                     cls._activated = True
                     view.show_popup(cls._render(call),
-                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE)
+                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
+                                    max_width=400)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
