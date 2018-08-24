@@ -3,6 +3,7 @@
 .idea
 *.swp
 *.pkg
+.vscode/
 
 # Python artifacts
 *.pyc
