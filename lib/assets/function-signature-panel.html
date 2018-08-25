@@ -10,10 +10,11 @@
         {% with params = call.callee.details.function.positional_parameters,
                 kw_only_params = call.callee.details.function.keyword_only_parameters,
                 arg_idx = call.arg_index,
+                in_kwargs = call.language_details.python.in_kwargs,
                 python_details = call.callee.details.function.language_details.python %}
           {% for param in params %}
             {% with default_value = param.language_details.python.default_value %}
-              <span{% if loop.index0 == arg_idx %} class="current-argument"{% endif %}>
+              <span{% if loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
                 <span class="parameter-name">{{ param.name }}</span>
                 {% if default_value %}
                   <span class="default-value">={{ default_value.0.repr }}</span>
@@ -25,7 +26,7 @@
             {% endwith %}
           {% endfor %}
           {% if python_details.vararg %}
-            <span{% if params|length == arg_idx %} class="current-argument"{% endif %}>
+            <span{% if params|length == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
               <span class="parameter-name">*{{ python_details.vararg.name }}</span>
               {% if kw_only_params or python_details.kwarg %}
                 <span class="parameter-separator">, </span>
@@ -39,7 +40,7 @@
           {% endif %}
           {% for param in kw_only_params %}
             {% with default_value = param.language_details.python.default_value %}
-              <span{% if params|length + (python_details.vararg is defined) + loop.index0 == arg_idx %} class="current-argument"{% endif %}>
+              <span{% if params|length + (python_details.vararg is defined) + loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
                 <span class="parameter-name">{{ param.name }}</span>
                 <span class="parameter-annotation">
                   {% if default_value %}
@@ -53,7 +54,7 @@
             {% endwith %}
           {% endfor %}
           {% if python_details.kwarg %}
-            <span{% if call.language_details.python.in_kwargs %} class="current-argument"{% endif %}>
+            <span{% if in_kwargs %} class="current-argument"{% endif %}>
               <span class="parameter-name">**{{ python_details.kwarg.name }}</span>
             </span>
           {% endif %}
@@ -61,6 +62,32 @@
       </span>
       <span class="parens close-parens">)</span>
     </div>
+    {% if call.callee.details.function.language_details.python.kwarg_parameters %}
+      {% with kwarg_params = call.callee.details.function.language_details.python.kwarg_parameters,
+              arg_idx = call.arg_index,
+              in_kwargs = call.language_details.python.in_kwargs %}
+        <div class="inferred-keyword-argument-parameters">
+          <div class="section-title">
+            <span class="title">**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>
+          </div>
+          {% for param in kwarg_params %}
+            <div class="parameter{% if loop.index0 == arg_idx and in_kwargs %} current-argument{% endif %}">
+              <span class="parameter-name">{{ param.name }}</span>
+              <span class="parameter-types">
+                <span class="bracket open-bracket">: [</span>
+                  {% for value in param.inferred_value %}
+                    <span class="parameter-type">{{ value.repr }}</span>
+                    {% if not loop.last %}
+                      <span class="parameter-type-separator">, </span>
+                    {% endif %}
+                  {% endfor %}
+                <span class="bracket close-bracket">]</span>
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endwith %}
+    {% endif %}
     {% if call.signatures %}
     <div class="popular-patterns">
       <div class="section-title">
@@ -75,7 +102,7 @@
         {% for signature in call.signatures %}
           {% if loop.index0 < 5 %}
             {% with python_details = signature.language_details.python %}
-              <div class="pattern function-signature{% if loop.last %} last{% endif %}">
+              <div class="pattern function-signature">
                 <span class="function-name">{{ call.func_name }}</span>
                 <span class="parens open-parens">(</span>
                 {% for arg in signature.args %}

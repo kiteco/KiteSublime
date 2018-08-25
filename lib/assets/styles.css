@@ -15,16 +15,20 @@ html, body {
   font-weight: bold;
 }
 
-.function-signature .parameters .default-value {
+.function-signature .parameters .default-value,
+.inferred-keyword-argument-parameters .parameter .parameter-types .parameter-type {
   color: color(var(--orangish) blend(var(--background) 67%));
   font-style: italic;
 }
 
-.function-signature .parameters .parameter-name {
+.function-signature .parameters .parameter-name,
+.inferred-keyword-argument-parameters .parameter .parameter-name,
+.inferred-keyword-argument-parameters .parameter .parameter-types {
   color: color(var(--foreground) blend(var(--background) 67%));
 }
 
-.function-signature .parameters .current-argument .parameter-name {
+.function-signature .parameters .current-argument .parameter-name,
+.inferred-keyword-argument-parameters .parameter.current-argument .parameter-name {
   color: var(--foreground);
   font-weight: bold;
   text-decoration: underline;
@@ -35,29 +39,28 @@ html, body {
 }
 
 .popular-patterns,
+.inferred-keyword-argument-parameters,
 .footer {
   margin-top: 1em;
 }
 
-.popular-patterns .section-title {
+.popular-patterns .section-title,
+.inferred-keyword-argument-parameters .section-title {
   color: color(var(--foreground) blend(var(--background) 80%));
 }
 
 .popular-patterns .section-title a.toggle-link {
-  bottom: 0.025rem;
+  bottom: 0.05rem;
   font-size: 0.8rem;
   padding-left: 1rem;
   position: relative;
   text-decoration: none;
 }
 
-.popular-patterns .pattern {
+.popular-patterns .pattern,
+.inferred-keyword-argument-parameters .parameter {
   margin-left: 0.5em;
-  margin-bottom: 0.33em;
-}
-
-.popular-patterns .pattern.last {
-  margin-bottom: 0;
+  margin-top: 0.33em;
 }
 
 .popular-patterns .pattern .keyword-arguments .parameter-name {
