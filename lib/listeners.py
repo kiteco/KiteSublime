@@ -229,6 +229,9 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     def hide_signatures(cls, view):
         with cls._lock:
             cls._activated = False
+            cls._view = None
+            cls._call = None
+            cls._show_kwargs = False
             view.hide_popup()
 
     @classmethod
@@ -261,7 +264,10 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                     else:
                         func['keyword_only_parameters'].append(param)
 
-                logger.log('call: arg index = {}'.format(call['arg_index']))
+                in_kwargs = call['language_details']['python']['in_kwargs']
+                logger.log('call: {} index = {}'
+                           .format('kwarg' if in_kwargs else 'arg',
+                                   call['arg_index']))
 
                 with cls._lock:
                     cls._activated = True
@@ -282,6 +288,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
         opts = {
             'show_popular_patterns': settings.get('show_popular_patterns'),
+            'show_keyword_arguments': settings.get('show_keyword_arguments'),
+            'keyword_argument_highlighted': cls._kwarg_highlighted(),
         }
 
         return htmlmin.minify(cls._template.render(css=cls._css, call=call,
@@ -304,6 +312,18 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
         elif target == 'show_popular_patterns':
             settings.set('show_popular_patterns', True)
             cls._rerender()
+        elif target == 'hide_keyword_arguments':
+            settings.set('show_keyword_arguments', False)
+            cls._rerender()
+        elif target == 'show_keyword_arguments':
+            settings.set('show_keyword_arguments', True)
+            cls._rerender()
+
+    @classmethod
+    def _kwarg_highlighted(cls):
+        return (cls._activated and
+                cls._call['language_details']['python']['in_kwargs'] and
+                cls._call['arg_index'] != -1)
 
     @staticmethod
     def _event_data(view, location):

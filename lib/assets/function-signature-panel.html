@@ -67,28 +67,35 @@
               arg_idx = call.arg_index,
               in_kwargs = call.language_details.python.in_kwargs %}
         <div class="inferred-keyword-argument-parameters">
-          <div class="section-title">
+          <div class="section-title{% if not show_keyword_arguments and keyword_argument_highlighted %} highlighted{% endif %}">
             <span class="title">**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>
+            {% if show_keyword_arguments %}
+              <a class="toggle-link" href="hide_keyword_arguments">[Hide]</a>
+            {% else %}
+              <a class="toggle-link" href="show_keyword_arguments">[Show]</a>
+            {% endif %}
           </div>
-          {% for param in kwarg_params %}
-            <div class="parameter{% if loop.index0 == arg_idx and in_kwargs %} current-argument{% endif %}">
-              <span class="parameter-name">{{ param.name }}</span>
-              <span class="parameter-types">
-                <span class="bracket open-bracket">: [</span>
-                  {% if param.inferred_value %}
-                    {% for value in param.inferred_value %}
-                      <span class="parameter-type">{{ value.repr }}</span>
-                      {% if not loop.last %}
-                        <span class="parameter-type-separator">, </span>
-                      {% endif %}
-                    {% endfor %}
-                  {% else %}
-                    <span class="parameter-type unknown">&lt;unknown&gt;</span>
-                  {% endif %}
-                <span class="bracket close-bracket">]</span>
-              </span>
-            </div>
-          {% endfor %}
+          {% if show_keyword_arguments %}
+            {% for param in kwarg_params %}
+              <div class="parameter{% if loop.index0 == arg_idx and in_kwargs %} current-argument{% endif %}">
+                <span class="parameter-name">{{ param.name }}</span>
+                <span class="parameter-types">
+                  <span class="bracket open-bracket">: [</span>
+                    {% if param.inferred_value %}
+                      {% for value in param.inferred_value %}
+                        <span class="parameter-type">{{ value.repr }}</span>
+                        {% if not loop.last %}
+                          <span class="parameter-type-separator">, </span>
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      <span class="parameter-type unknown">&lt;unknown&gt;</span>
+                    {% endif %}
+                  <span class="bracket close-bracket">]</span>
+                </span>
+              </div>
+            {% endfor %}
+          {% endif %}
         </div>
       {% endwith %}
     {% endif %}

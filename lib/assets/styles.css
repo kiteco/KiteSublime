@@ -28,7 +28,8 @@ html, body {
 }
 
 .function-signature .parameters .current-argument .parameter-name,
-.inferred-keyword-argument-parameters .parameter.current-argument .parameter-name {
+.inferred-keyword-argument-parameters .parameter.current-argument .parameter-name,
+.inferred-keyword-argument-parameters .section-title.highlighted {
   color: var(--foreground);
   font-weight: bold;
   text-decoration: underline;
@@ -54,7 +55,8 @@ html, body {
   color: color(var(--foreground) blend(var(--background) 80%));
 }
 
-.popular-patterns .section-title a.toggle-link {
+.popular-patterns .section-title a.toggle-link,
+.inferred-keyword-argument-parameters .section-title a.toggle-link {
   bottom: 0.05rem;
   font-size: 0.8rem;
   padding-left: 1rem;
