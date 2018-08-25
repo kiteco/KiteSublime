@@ -68,7 +68,8 @@ html, body {
   font-style: italic;
 }
 
-.popular-patterns .pattern .keyword-arguments .default-value.value-type {
+.popular-patterns .pattern .keyword-arguments .default-value.value-type,
+.inferred-keyword-argument-parameters .parameter .parameter-types .parameter-type.unknown {
   color: color(var(--foreground) blend(var(--background) 67%));
   font-style: italic;
 }

@@ -75,12 +75,16 @@
               <span class="parameter-name">{{ param.name }}</span>
               <span class="parameter-types">
                 <span class="bracket open-bracket">: [</span>
-                  {% for value in param.inferred_value %}
-                    <span class="parameter-type">{{ value.repr }}</span>
-                    {% if not loop.last %}
-                      <span class="parameter-type-separator">, </span>
-                    {% endif %}
-                  {% endfor %}
+                  {% if param.inferred_value %}
+                    {% for value in param.inferred_value %}
+                      <span class="parameter-type">{{ value.repr }}</span>
+                      {% if not loop.last %}
+                        <span class="parameter-type-separator">, </span>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <span class="parameter-type unknown">&lt;unknown&gt;</span>
+                  {% endif %}
                 <span class="bracket close-bracket">]</span>
               </span>
             </div>
