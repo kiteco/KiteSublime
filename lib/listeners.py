@@ -298,8 +298,6 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def _handle_link_click(cls, target):
-        logger.log('clicked on href: {}'.format(target))
-
         if target == 'hide_popular_patterns':
             settings.set('show_popular_patterns', False)
             cls._rerender()
