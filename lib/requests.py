@@ -24,7 +24,7 @@ def kited_post(path, data=None):
 
 def _init_connection():
     global _conn
-    _conn = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.1)
+    _conn = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.25)
 
 def _reset_connection():
     global _conn

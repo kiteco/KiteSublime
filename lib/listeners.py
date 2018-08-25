@@ -211,6 +211,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     """
 
     _activated = False
+    _view = None
+    _call = None
     _lock = Lock()
 
     _template_path = 'Packages/KPP/lib/assets/function-signature-panel.html'
@@ -261,27 +263,49 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
                 logger.log('call: arg index = {}'.format(call['arg_index']))
 
-                opts = {
-                    'show_popular_patterns': settings.get(
-                                                'show_popular_patterns'),
-                }
-
                 with cls._lock:
                     cls._activated = True
-                    view.show_popup(cls._render(call, **opts),
+                    cls._view = view
+                    cls._call = call
+                    view.show_popup(cls._render(call),
                                     flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
-                                    max_width=400)
+                                    max_width=400,
+                                    on_navigate=cls._handle_link_click)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
     @classmethod
-    def _render(cls, call, **opts):
+    def _render(cls, call):
         if _DEBUG or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
+
+        opts = {
+            'show_popular_patterns': settings.get('show_popular_patterns'),
+        }
+
         return htmlmin.minify(cls._template.render(css=cls._css, call=call,
                                                    **opts),
                               remove_all_empty_space=True)
+
+    @classmethod
+    def _rerender(cls):
+        with cls._lock:
+            cls._view.show_popup(cls._render(cls._call),
+                                 flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
+                                 max_width=400,
+                                 on_navigate=cls._handle_link_click)
+
+    @classmethod
+    def _handle_link_click(cls, target):
+        logger.log('clicked on href: {}'.format(target))
+
+        if target == 'hide_popular_patterns':
+            settings.set('show_popular_patterns', False)
+            cls._rerender()
+        elif target == 'show_popular_patterns':
+            settings.set('show_popular_patterns', True)
+            cls._rerender()
 
     @staticmethod
     def _event_data(view, location):

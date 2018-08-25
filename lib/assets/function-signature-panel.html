@@ -71,38 +71,40 @@
           <a class="toggle-link" href="show_popular_patterns">[Show]</a>
         {% endif %}
       </div>
-      {% for signature in call.signatures %}
-        {% if loop.index0 < 5 %}
-          {% with python_details = signature.language_details.python %}
-            <div class="pattern function-signature{% if loop.last %} last{% endif %}">
-              <span class="function-name">{{ call.func_name }}</span>
-              <span class="parens open-parens">(</span>
-              {% for arg in signature.args %}
-                <span class="parameter-name">{{ arg.name }}</span>
-                {% if not loop.last or python_details.kwargs %}
-                  <span class="parameter-separator">, </span>
+      {% if show_popular_patterns %}
+        {% for signature in call.signatures %}
+          {% if loop.index0 < 5 %}
+            {% with python_details = signature.language_details.python %}
+              <div class="pattern function-signature{% if loop.last %} last{% endif %}">
+                <span class="function-name">{{ call.func_name }}</span>
+                <span class="parens open-parens">(</span>
+                {% for arg in signature.args %}
+                  <span class="parameter-name">{{ arg.name }}</span>
+                  {% if not loop.last or python_details.kwargs %}
+                    <span class="parameter-separator">, </span>
+                  {% endif %}
+                {% endfor %}
+                {% if python_details.kwargs %}
+                  <span class="keyword-arguments">
+                    {% for arg in python_details.kwargs %}
+                      <span class="parameter-name">{{ arg.name }}=</span>
+                      {% if arg.types.0.examples %}
+                        <span class="default-value">{{ arg.types.0.examples.0 }}</span>
+                      {% else %}
+                        <span class="default-value value-type">&lt;{{ arg.types.0.name }}&gt;</span>
+                      {% endif %}
+                      {% if not loop.last %}
+                        <span class="parameter-separator">, </span>
+                      {% endif %}
+                    {% endfor %}
+                  </span>
                 {% endif %}
-              {% endfor %}
-              {% if python_details.kwargs %}
-                <span class="keyword-arguments">
-                  {% for arg in python_details.kwargs %}
-                    <span class="parameter-name">{{ arg.name }}=</span>
-                    {% if arg.types.0.examples %}
-                      <span class="default-value">{{ arg.types.0.examples.0 }}</span>
-                    {% else %}
-                      <span class="default-value value-type">&lt;{{ arg.types.0.name }}&gt;</span>
-                    {% endif %}
-                    {% if not loop.last %}
-                      <span class="parameter-separator">, </span>
-                    {% endif %}
-                  {% endfor %}
-                </span>
-              {% endif %}
-              <span class="parens close-parens">)</span>
-            {% endwith %}
-          </div>
-        {% endif %}
-      {% endfor %}
+                <span class="parens close-parens">)</span>
+              {% endwith %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
     </div>
     {% endif %}
     <div class="footer">
