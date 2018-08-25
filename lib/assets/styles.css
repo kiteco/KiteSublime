@@ -34,7 +34,12 @@ html, body {
   text-decoration: underline;
 }
 
-.function-signature .parameters .current-argument .default-value {
+.inferred-keyword-argument-parameters .parameter.current-argument .parameter-types {
+  color: var(--foreground);
+}
+
+.function-signature .parameters .current-argument .default-value,
+.inferred-keyword-argument-parameters .parameter.current-argument .parameter-types .parameter-type {
   color: var(--orangish);
 }
 
