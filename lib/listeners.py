@@ -9,7 +9,7 @@ from os.path import realpath
 from threading import Lock
 
 
-from ..lib import deferred, logger, settings, requests
+from ..lib import deferred, link_opener, logger, settings, requests
 
 
 __all__ = [
@@ -335,12 +335,16 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
             cls._rerender()
         elif (target.startswith('open_browser') or
               target.startswith('open_copilot')):
-            parts = target.split(':')
-            if len(parts) == 1:
+            idx = target.find(':')
+            if idx == -1:
                 logger.log('invalid open link format: {}'.format(target))
                 return
-            ident = ''.join(parts[1:])
-            logger.log('opening id: {}'.format(ident))
+            action = target[:idx]
+            ident = target[idx+1:]
+            if action == 'open_browser':
+                link_opener.open_browser(ident)
+            else:
+                link_opener.open_copilot(ident)
 
     @classmethod
     def _kwarg_highlighted(cls):
