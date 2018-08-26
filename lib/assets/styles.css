@@ -56,7 +56,8 @@ html, body {
 }
 
 .popular-patterns .section-title a.toggle-link,
-.inferred-keyword-argument-parameters .section-title a.toggle-link {
+.inferred-keyword-argument-parameters .section-title a.toggle-link,
+.footer .open-link {
   bottom: 0.05rem;
   font-size: 0.8rem;
   padding-left: 1rem;
