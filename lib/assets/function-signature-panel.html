@@ -147,8 +147,10 @@
     {% endif %}
     <div class="footer">
       <span class="logo">𝕜𝕚𝕥𝕖</span>
-      <a class="open-link" href="open_browser:{{ call.callee.id }}">[Web]</a>
-      <a class="open-link" href="open_copilot:{{ call.callee.id }}">[More]</a>
+      {% if call.callee.id %}
+        <a class="open-link" href="open_browser:{{ call.callee.id }}">[Web]</a>
+        <a class="open-link" href="open_copilot:{{ call.callee.id }}">[More]</a>
+      {% endif %}
     </div>
   </div>
 </body>

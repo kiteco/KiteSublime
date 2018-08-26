@@ -227,12 +227,16 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def hide_signatures(cls, view):
+        reset = False
         if cls._lock.acquire(blocking=False):
             cls._activated = False
             cls._view = None
             cls._call = None
+            reset = True
             cls._lock.release()
-        view.hide_popup()
+
+        if reset:
+            view.hide_popup()
 
     @classmethod
     def is_activated(cls):
@@ -329,6 +333,14 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
         elif target == 'show_keyword_arguments':
             settings.set('show_keyword_arguments', True)
             cls._rerender()
+        elif (target.startswith('open_browser') or
+              target.startswith('open_copilot')):
+            parts = target.split(':')
+            if len(parts) == 1:
+                logger.log('invalid open link format: {}'.format(target))
+                return
+            ident = ''.join(parts[1:])
+            logger.log('opening id: {}'.format(ident))
 
     @classmethod
     def _kwarg_highlighted(cls):
