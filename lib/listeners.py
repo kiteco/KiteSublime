@@ -227,12 +227,12 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def hide_signatures(cls, view):
-        with cls._lock:
+        if cls._lock.acquire(blocking=False):
             cls._activated = False
             cls._view = None
             cls._call = None
-            cls._show_kwargs = False
-            view.hide_popup()
+            cls._lock.release()
+        view.hide_popup()
 
     @classmethod
     def is_activated(cls):
@@ -269,14 +269,20 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                            .format('kwarg' if in_kwargs else 'arg',
                                    call['arg_index']))
 
-                with cls._lock:
+                content = None
+                if cls._lock.acquire(blocking=False):
                     cls._activated = True
                     cls._view = view
                     cls._call = call
-                    view.show_popup(cls._render(call),
+                    content = cls._render(call)
+                    cls._lock.release()
+
+                if content is not None:
+                    view.show_popup(content,
                                     flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                     max_width=400,
                                     on_navigate=cls._handle_link_click)
+
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
@@ -298,8 +304,13 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
 
     @classmethod
     def _rerender(cls):
-        with cls._lock:
-            cls._view.show_popup(cls._render(cls._call),
+        content = None
+        if cls._lock.acquire(blocking=True):
+            content = cls._render(cls._call)
+            cls._lock.release()
+
+        if content is not None:
+            cls._view.show_popup(content,
                                  flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                  max_width=400,
                                  on_navigate=cls._handle_link_click)
