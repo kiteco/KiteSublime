@@ -255,6 +255,11 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
             if len(calls):
                 call = calls[0]
 
+                if call['callee']['kind'] == 'type':
+                    call['callee']['details']['function'] = \
+                        call['callee']['details']['type']['language_details']\
+                            ['python']['constructor']
+
                 # Separate out the keyword-only parameters
                 func = call['callee']['details']['function']
                 func.update({
