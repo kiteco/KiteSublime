@@ -17,7 +17,7 @@
               <span{% if loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
                 <span class="parameter-name">{{ param.name }}</span>
                 {% if default_value %}
-                  <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"") }}</span>
+                  <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"")|replace("&#39;", "'") }}</span>
                 {% endif %}
                 {% if not loop.last or python_details.vararg or kw_only_params or python_details.kwarg %}
                   <span class="parameter-separator">, </span>
@@ -44,7 +44,7 @@
                 <span class="parameter-name">{{ param.name }}</span>
                 <span class="parameter-annotation">
                   {% if default_value %}
-                    <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"") }}</span>
+                    <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"")|replace("&#39;", "'") }}</span>
                   {% endif %}
                 </span>
                 {% if not loop.last or python_details.kwarg %}
@@ -127,7 +127,7 @@
                     {% for arg in python_details.kwargs %}
                       <span class="parameter-name">{{ arg.name }}=</span>
                       {% if arg.types.0.examples %}
-                        <span class="default-value">{{ arg.types.0.examples.0|e }}</span>
+                        <span class="default-value">{{ arg.types.0.examples.0|e|replace("&#34;", "\"")|replace("&#39;", "'") }}</span>
                       {% else %}
                         <span class="default-value value-type">&lt;{{ arg.types.0.name }}&gt;</span>
                       {% endif %}
