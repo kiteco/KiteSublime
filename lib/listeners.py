@@ -247,6 +247,8 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
         resp, body = requests.kited_post('/clientapi/editor/signatures', data)
 
         if resp.status != 200 or not body:
+            if resp.status in (400, 404):
+                cls.hide_signatures(view)
             return
 
         try:
