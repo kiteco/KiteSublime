@@ -7,6 +7,7 @@ _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
 _conn = None
 
+
 def kited_get(path):
     if _conn is None:
         _init_connection()
@@ -35,6 +36,7 @@ def kited_post(path, data=None):
         resp = _conn.getresponse()
         body = resp.read()
         return resp, body
+
 
 def _init_connection():
     global _conn
