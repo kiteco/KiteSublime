@@ -7,6 +7,20 @@ _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
 _conn = None
 
+def kited_get(path):
+    if _conn is None:
+        _init_connection()
+
+    try:
+        _conn.request('GET', path, headers={'Connection': 'keep-alive'})
+    except (ConnectionRefusedError, CannotSendRequest) as ex:
+        _reset_connection()
+        raise ex
+    else:
+        resp = _conn.getresponse()
+        body = resp.read()
+        return resp, body
+
 def kited_post(path, data=None):
     if _conn is None:
         _init_connection()

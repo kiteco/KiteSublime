@@ -1,6 +1,7 @@
 import sublime
 import sublime_plugin
 
+import hashlib
 import htmlmin
 import json
 import os
@@ -13,9 +14,10 @@ from ..lib import deferred, link_opener, logger, settings, requests
 
 
 __all__ = [
-    'EditorEventListener',
-    'EditorCompletionsListener',
-    'EditorSignaturesListener',
+    'EventDispatcher',
+    'CompletionsHandler',
+    'SignaturesHandler',
+    'HoverHandler',
 ]
 
 
@@ -31,8 +33,11 @@ def _in_function_call(view, point):
     return (view.match_selector(point, 'meta.function-call.python') and
             not view.match_selector(point, 'variable.function.python'))
 
+def md5(text):
+    return hashlib.md5(str.encode(text)).hexdigest()
 
-class EditorEventListener(sublime_plugin.EventListener):
+
+class EventDispatcher(sublime_plugin.EventListener):
     """Listener which forwards editor events to the event endpoint and also
     fetches completions and function signature information when the proper
     event triggers are fired.
@@ -59,11 +64,11 @@ class EditorEventListener(sublime_plugin.EventListener):
             cls._last_selection_region = select_region
 
             if _in_function_call(view, select_region['end']):
-                if EditorSignaturesListener.is_activated():
-                    EditorSignaturesListener.queue_signatures(
+                if SignaturesHandler.is_activated():
+                    SignaturesHandler.queue_signatures(
                         view, select_region['end'])
             else:
-                EditorSignaturesListener.hide_signatures(view)
+                SignaturesHandler.hide_signatures(view)
 
         if action == 'edit' and _check_view_size(view):
             edit_region = cls._view_region(view)
@@ -71,16 +76,16 @@ class EditorEventListener(sublime_plugin.EventListener):
                                                   edit_region)
 
             if edit_type == 'insertion' and num_chars == 1:
-                EditorCompletionsListener.queue_completions(view,
+                CompletionsHandler.queue_completions(view,
                                                             edit_region['end'])
             elif edit_type == 'deletion' and num_chars > 1:
-                EditorCompletionsListener.hide_completions(view)
+                CompletionsHandler.hide_completions(view)
 
             if _in_function_call(view, edit_region['end']):
-                EditorSignaturesListener.queue_signatures(view,
+                SignaturesHandler.queue_signatures(view,
                                                           edit_region['end'])
             else:
-                EditorSignaturesListener.hide_signatures(view)
+                SignaturesHandler.hide_signatures(view)
 
     @staticmethod
     def _view_region(view):
@@ -126,7 +131,7 @@ class EditorEventListener(sublime_plugin.EventListener):
         }
 
 
-class EditorCompletionsListener(sublime_plugin.EventListener):
+class CompletionsHandler(sublime_plugin.EventListener):
     """Listener which handles completions by preemptively forwarding requests
     to the completions endpoint and then running the Sublime `auto_complete`
     command.
@@ -205,7 +210,7 @@ class EditorCompletionsListener(sublime_plugin.EventListener):
         }
 
 
-class EditorSignaturesListener(sublime_plugin.EventListener):
+class SignaturesHandler(sublime_plugin.EventListener):
     """Listener which handles signatures by sending requests to the signatures
     endpoint and rendering the returned data.
     """
@@ -258,9 +263,9 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
                 call = calls[0]
 
                 if call['callee']['kind'] == 'type':
-                    call['callee']['details']['function'] = \
-                        call['callee']['details']['type']['language_details']\
-                            ['python']['constructor']
+                    call['callee']['details']['function'] = (
+                        call['callee']['details']['type']['language_details']
+                            ['python']['constructor'])
 
                 # Separate out the keyword-only parameters
                 func = call['callee']['details']['function']
@@ -362,8 +367,45 @@ class EditorSignaturesListener(sublime_plugin.EventListener):
     @staticmethod
     def _event_data(view, location):
         return {
-            'filename': realpath(view.file_name()),
             'editor': 'sublime3',
+            'filename': realpath(view.file_name()),
             'text': view.substr(sublime.Region(0, view.size())),
             'cursor_runes': location,
+        }
+
+
+class HoverHandler(sublime_plugin.EventListener):
+    """Listener which listens to the user's mouse position and forwards
+    requests to the hover endpoint.
+    """
+
+    def on_hover(self, view, point, hover_zone):
+        if len(view.sel()) != 1:
+            return
+        cls = self.__class__
+        deferred.defer(cls._request_hover, view, point, cls._event_data(view))
+
+    @classmethod
+    def _request_hover(cls, view, point, data):
+        url = ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
+               .format(data['editor'], data['filename'], data['hash'],
+                       point))
+
+        resp, body = requests.kited_get(url)
+
+        if resp.status != 200 or not body:
+            return
+
+        try:
+            resp_data = json.loads(body.decode('utf-8'))
+            logger.log('hover ====\n{}'.format(logger.jsonstr(resp_data)))
+        except ValueError as ex:
+            logger.log('error decoding json: {}'.format(ex))
+
+    @staticmethod
+    def _event_data(view):
+        return {
+            'editor': 'sublime3',
+            'filename': realpath(view.file_name()).replace('/', ':'),
+            'hash': md5(view.substr(sublime.Region(0, view.size()))),
         }

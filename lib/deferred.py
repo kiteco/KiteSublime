@@ -5,7 +5,7 @@ from threading import Lock, Thread
 from ..lib import logger
 
 # A global queue that is used for the convenience methods provided below.
-_queue = Queue(maxsize=32)
+_queue = Queue(maxsize=8)
 
 def _handler(payload):
     func = payload.get('func')
