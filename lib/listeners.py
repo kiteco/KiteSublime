@@ -383,15 +383,11 @@ class HoverHandler(sublime_plugin.EventListener):
         if len(view.sel()) != 1:
             return
         cls = self.__class__
-        deferred.defer(cls._request_hover, view, point, cls._event_data(view))
+        deferred.defer(cls._request_hover, view, point)
 
     @classmethod
-    def _request_hover(cls, view, point, data):
-        url = ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
-               .format(data['editor'], data['filename'], data['hash'],
-                       point))
-
-        resp, body = requests.kited_get(url)
+    def _request_hover(cls, view, point):
+        resp, body = requests.kited_get(cls._event_url(view, point))
 
         if resp.status != 200 or not body:
             return
@@ -403,9 +399,9 @@ class HoverHandler(sublime_plugin.EventListener):
             logger.log('error decoding json: {}'.format(ex))
 
     @staticmethod
-    def _event_data(view):
-        return {
-            'editor': 'sublime3',
-            'filename': realpath(view.file_name()).replace('/', ':'),
-            'hash': md5(view.substr(sublime.Region(0, view.size()))),
-        }
+    def _event_url(view, point):
+        editor = 'sublime3'
+        filename = realpath(view.file_name()).replace('/', ':')
+        hash_ = md5(view.substr(sublime.Region(0, view.size())))
+        return ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
+                .format(editor, filename, hash_, point))
