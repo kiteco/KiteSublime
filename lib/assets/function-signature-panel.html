@@ -70,9 +70,9 @@
           <div class="section-title{% if not show_keyword_arguments and keyword_argument_highlighted %} highlighted{% endif %}">
             <span class="title">**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>
             {% if show_keyword_arguments %}
-              <a class="toggle-link" href="hide_keyword_arguments">[Hide]</a>
+              <a class="toggle-link" href="hide_keyword_arguments">Hide</a>
             {% else %}
-              <a class="toggle-link" href="show_keyword_arguments">[Show]</a>
+              <a class="toggle-link" href="show_keyword_arguments">Show</a>
             {% endif %}
           </div>
           {% if show_keyword_arguments %}
@@ -104,9 +104,9 @@
       <div class="section-title">
         <span class="title">HOW OTHERS USED THIS</span>
         {% if show_popular_patterns %}
-          <a class="toggle-link" href="hide_popular_patterns">[Hide]</a>
+          <a class="toggle-link" href="hide_popular_patterns">Hide</a>
         {% else %}
-          <a class="toggle-link" href="show_popular_patterns">[Show]</a>
+          <a class="toggle-link" href="show_popular_patterns">Show</a>
         {% endif %}
       </div>
       {% if show_popular_patterns %}
@@ -148,8 +148,8 @@
     <div class="footer">
       <span class="logo">𝕜𝕚𝕥𝕖</span>
       {% if call.callee.id %}
-        <a class="open-link" href="open_browser:{{ call.callee.id }}">[Web]</a>
-        <a class="open-link" href="open_copilot:{{ call.callee.id }}">[More]</a>
+        <a class="open-link" href="open_browser:{{ call.callee.id }}">Web</a>
+        <a class="open-link" href="open_copilot:{{ call.callee.id }}">More</a>
       {% endif %}
     </div>
   </div>

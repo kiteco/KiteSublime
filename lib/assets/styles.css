@@ -57,12 +57,20 @@ html, body {
 
 .popular-patterns .section-title a.toggle-link,
 .inferred-keyword-argument-parameters .section-title a.toggle-link,
-.footer .open-link {
-  bottom: 0.05rem;
+.footer a.open-link {
   font-size: 0.8rem;
   padding-left: 1rem;
   position: relative;
   text-decoration: none;
+}
+
+.inferred-keyword-argument-parameters .section-title a.toggle-link {
+  bottom: 0.05rem;
+}
+
+.popular-patterns .section-title a.toggle-link,
+.footer a.open-link {
+  bottom: 0.1rem;
 }
 
 .popular-patterns .pattern,
