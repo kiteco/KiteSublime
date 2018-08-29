@@ -379,6 +379,11 @@ class HoverHandler(sublime_plugin.EventListener):
     requests to the hover endpoint.
     """
 
+    _template_path = 'Packages/KPP/lib/assets/hover-panel.html'
+    _template = None
+    _css_path = 'Packages/KPP/lib/assets/styles.css'
+    _css = ''
+
     def on_hover(self, view, point, hover_zone):
         if len(view.sel()) != 1:
             return
@@ -394,9 +399,22 @@ class HoverHandler(sublime_plugin.EventListener):
 
         try:
             resp_data = json.loads(body.decode('utf-8'))
-            logger.log('hover ====\n{}'.format(logger.jsonstr(resp_data)))
+            view.show_popup(cls._render(resp_data['symbol'][0],
+                                        resp_data['report']),
+                            flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
+                            location=point)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
+
+    @classmethod
+    def _render(cls, symbol, report):
+        if _DEBUG or cls._template is None:
+            cls._template = Template(sublime.load_resource(cls._template_path))
+            cls._css = sublime.load_resource(cls._css_path)
+
+        return htmlmin.minify(cls._template.render(css=cls._css, symbol=symbol,
+                                                   report=report),
+                              remove_all_empty_space=True)
 
     @staticmethod
     def _event_url(view, point):
