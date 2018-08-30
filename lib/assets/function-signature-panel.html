@@ -116,12 +116,14 @@
               <div class="pattern function-signature">
                 <span class="function-name">{{ call.func_name }}</span>
                 <span class="parens open-parens">(</span>
-                {% for arg in signature.args %}
-                  <span class="parameter-name">{{ arg.name }}</span>
-                  {% if not loop.last or python_details.kwargs %}
-                    <span class="parameter-separator">, </span>
-                  {% endif %}
-                {% endfor %}
+                {% if signature.args %}
+                  {% for arg in signature.args %}
+                    <span class="parameter-name">{{ arg.name }}</span>
+                    {% if not loop.last or python_details.kwargs %}
+                      <span class="parameter-separator">, </span>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
                 {% if python_details.kwargs %}
                   <span class="keyword-arguments">
                     {% for arg in python_details.kwargs %}

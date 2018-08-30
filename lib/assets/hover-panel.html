@@ -3,8 +3,27 @@
     {{ css }}
   </style>
   <div class="content">
-    <div class="symbol">
-      {{ symbol.value.0.repr }}
+    <div class="symbol{% if report.definition %} with-definition{% endif %}">
+      <span class="symbol-name">
+        {% if symbol.value.0.kind != "instance" %}
+          {{ symbol.value.0.repr }}
+        {% else %}
+          {{ symbol.name }}
+        {% endif %}
+      </span>
+      <span class="symbol-hint">
+        {{ symbol.hint }}
+      </span>
+    </div>
+    <div class="footer">
+      <span class="logo">𝕜𝕚𝕥𝕖</span>
+      {% if report.definition %}
+        <a class="open-link" href="open_definition:{{ report.definition }}">Def</a>
+      {% endif %}
+      {% if symbol.id %}
+        <a class="open-link" href="open_browser:{{ symbol.id }}">Web</a>
+        <a class="open-link" href="open_copilot:{{ symbol.id }}">More</a>
+      {% endif %}
     </div>
   </div>
 </body>

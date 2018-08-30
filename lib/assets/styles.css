@@ -6,7 +6,6 @@ html, body {
 .content {
   background-color: color(var(--background) blend(var(--foreground) 95%));
   font-size: 0.9rem;
-  margin: 0;
   padding: 0.4rem 0.6rem;
 }
 
@@ -65,12 +64,12 @@ html, body {
 }
 
 .inferred-keyword-argument-parameters .section-title a.toggle-link {
-  bottom: 0.05rem;
+  bottom: 0.025rem;
 }
 
 .popular-patterns .section-title a.toggle-link,
 .footer a.open-link {
-  bottom: 0.1rem;
+  bottom: 0.075rem;
 }
 
 .popular-patterns .pattern,
@@ -88,4 +87,32 @@ html, body {
 .inferred-keyword-argument-parameters .parameter .parameter-types .parameter-type.unknown {
   color: color(var(--foreground) blend(var(--background) 67%));
   font-style: italic;
+}
+
+.symbol {
+  margin-right: 0.6rem;
+}
+
+.symbol .symbol-name {
+  padding-right: 5rem;
+}
+
+.symbol.with-definition .symbol-name {
+  padding-right: 6rem;
+}
+
+.symbol .symbol-hint {
+  border: 1px solid color(var(--foreground) blend(var(--background) 80%));
+  bottom: 0.05rem;
+  color: color(var(--foreground) blend(var(--background) 80%));
+  font-size: 0.8rem;
+  position: relative;
+}
+
+#hover-panel .footer {
+  margin-top: 0.5em;
+}
+
+#hover-panel .footer a.open-link {
+  bottom: 0rem;
 }

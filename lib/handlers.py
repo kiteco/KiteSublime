@@ -399,10 +399,18 @@ class HoverHandler(sublime_plugin.EventListener):
 
         try:
             resp_data = json.loads(body.decode('utf-8'))
+
+            symbol = resp_data['symbol'][0]
+            if symbol['value'][0]['kind'] != 'instance':
+                symbol['hint'] = symbol['value'][0]['kind']
+            else:
+                symbol['hint'] = symbol['value'][0]['type']
+
             view.show_popup(cls._render(resp_data['symbol'][0],
                                         resp_data['report']),
                             flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
-                            location=point)
+                            location=point,
+                            on_navigate=cls._handle_link_click)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
@@ -415,6 +423,21 @@ class HoverHandler(sublime_plugin.EventListener):
         return htmlmin.minify(cls._template.render(css=cls._css, symbol=symbol,
                                                    report=report),
                               remove_all_empty_space=True)
+
+    @classmethod
+    def _handle_link_click(cls, target):
+        if (target.startswith('open_browser') or
+            target.startswith('open_copilot')):
+            idx = target.find(':')
+            if idx == -1:
+                logger.log('invalid open link format: {}'.format(target))
+                return
+            action = target[:idx]
+            ident = target[idx+1:]
+            if action == 'open_browser':
+                link_opener.open_browser(ident)
+            else:
+                link_opener.open_copilot(ident)
 
     @staticmethod
     def _event_url(view, point):
