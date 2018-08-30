@@ -445,7 +445,8 @@ class HoverHandler(sublime_plugin.EventListener):
             if not dest[dest.rfind(':')+1:].isdigit():
                 logger.log('invalid open definition format: {}'.format(target))
                 return
-            sublime.active_window().open_file(dest, flags=sublime.ENCODED_POSITION)
+            sublime.active_window().open_file(dest,
+                                              flags=sublime.ENCODED_POSITION)
 
     @staticmethod
     def _event_url(view, point):
