@@ -65,8 +65,8 @@ class EventDispatcher(sublime_plugin.EventListener):
 
             if _in_function_call(view, select_region['end']):
                 if SignaturesHandler.is_activated():
-                    SignaturesHandler.queue_signatures(
-                        view, select_region['end'])
+                    SignaturesHandler.queue_signatures(view,
+                                                       select_region['end'])
             else:
                 SignaturesHandler.hide_signatures(view)
 
