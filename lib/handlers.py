@@ -76,14 +76,12 @@ class EventDispatcher(sublime_plugin.EventListener):
                                                   edit_region)
 
             if edit_type == 'insertion' and num_chars == 1:
-                CompletionsHandler.queue_completions(view,
-                                                            edit_region['end'])
+                CompletionsHandler.queue_completions(view, edit_region['end'])
             elif edit_type == 'deletion' and num_chars > 1:
                 CompletionsHandler.hide_completions(view)
 
             if _in_function_call(view, edit_region['end']):
-                SignaturesHandler.queue_signatures(view,
-                                                          edit_region['end'])
+                SignaturesHandler.queue_signatures(view, edit_region['end'])
             else:
                 SignaturesHandler.hide_signatures(view)
 
