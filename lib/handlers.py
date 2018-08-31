@@ -502,7 +502,7 @@ class StatusHandler(sublime_plugin.EventListener):
 
             if resp.status != 200 or not body:
                 view.set_status(cls._status_key,
-                                cls._brand_status('Connection error'))
+                                cls._brand_status('Server error'))
                 return
 
             resp_data = json.loads(body.decode('utf-8'))

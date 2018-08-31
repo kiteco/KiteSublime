@@ -1,0 +1,32 @@
+[
+  {
+    "id": "preferences",
+    "children": [
+      {
+        "id": "package-settings",
+        "caption": "Package Settings",
+        "children": [
+          {
+            "caption": "KPP",
+            "children": [
+              {
+                "caption": "Settings - Default",
+                "command": "open_file",
+                "args": {
+                  "file": "${packages}/KPP/KPP.sublime-settings"
+                }
+              },
+              {
+                "caption": "Settings - User",
+                "command": "open_file",
+                "args": {
+                  "file": "${packages}/User/KPP.sublime-settings"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
