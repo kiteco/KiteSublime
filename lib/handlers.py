@@ -348,23 +348,29 @@ class SignaturesHandler(sublime_plugin.EventListener):
         if target == 'hide_popular_patterns':
             settings.set('show_popular_patterns', False)
             cls._rerender()
+
         elif target == 'show_popular_patterns':
             settings.set('show_popular_patterns', True)
             cls._rerender()
+
         elif target == 'hide_keyword_arguments':
             settings.set('show_keyword_arguments', False)
             cls._rerender()
+
         elif target == 'show_keyword_arguments':
             settings.set('show_keyword_arguments', True)
             cls._rerender()
+
         elif (target.startswith('open_browser') or
               target.startswith('open_copilot')):
             idx = target.find(':')
             if idx == -1:
                 logger.log('invalid open link format: {}'.format(target))
                 return
+
             action = target[:idx]
             ident = target[idx+1:]
+
             if action == 'open_browser':
                 link_opener.open_browser(ident)
             else:
@@ -448,21 +454,26 @@ class HoverHandler(sublime_plugin.EventListener):
             if idx == -1:
                 logger.log('invalid open link format: {}'.format(target))
                 return
+
             action = target[:idx]
             ident = target[idx+1:]
+
             if action == 'open_browser':
                 link_opener.open_browser(ident)
             else:
                 link_opener.open_copilot(ident)
+
         elif target.startswith('open_definition'):
             idx = target.find(':')
             if idx == -1:
                 logger.log('invalid open definition format: {}'.format(target))
                 return
+
             dest = target[idx+1:]
             if not dest[dest.rfind(':')+1:].isdigit():
                 logger.log('invalid open definition format: {}'.format(target))
                 return
+
             sublime.active_window().open_file(dest,
                                               flags=sublime.ENCODED_POSITION)
 
