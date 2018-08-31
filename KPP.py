@@ -3,6 +3,7 @@ from .setup import setup_all; setup_all()
 import sublime
 
 from .lib import deferred, logger
+from .lib.commands import *
 from .lib.handlers import *
 
 _consumer = None

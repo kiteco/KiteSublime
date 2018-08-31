@@ -237,6 +237,11 @@ class SignaturesHandler(sublime_plugin.EventListener):
     _css_path = 'Packages/KPP/lib/assets/styles.css'
     _css = ''
 
+    def on_post_text_command(self, view, command_name, args):
+        if command_name == 'toggle_popular_patterns':
+            logger.log('rerendering after toggle_popular_patterns')
+            self.__class__._rerender()
+
     @classmethod
     def queue_signatures(cls, view, location):
         deferred.defer(cls._request_signatures,
@@ -333,8 +338,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
     @classmethod
     def _rerender(cls):
         content = None
-        if cls._lock.acquire(blocking=True):
-            content = cls._render(cls._call)
+        if cls._lock.acquire(blocking=False):
+            content = cls._render(cls._call) if cls._activated else None
             cls._lock.release()
 
         if content is not None:

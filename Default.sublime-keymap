@@ -1,0 +1,6 @@
+[
+  {
+    "keys": ["ctrl+alt+p"],
+    "command": "toggle_popular_patterns"
+  }
+]
