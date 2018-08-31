@@ -1,8 +1,6 @@
 import json
 from http.client import CannotSendRequest, HTTPConnection
 
-from ..lib import logger
-
 _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
 _conn = None

@@ -476,10 +476,14 @@ class HoverHandler(sublime_plugin.EventListener):
 
 
 class StatusHandler(sublime_plugin.EventListener):
-    """Listener which sets the status bar message.
+    """Listener which sets the status bar message when the view is activated
+    and on every selection event.
     """
 
     _status_key = 'kite'
+
+    def on_activated(self, view):
+        deferred.defer(self.__class__._handle, view)
 
     def on_selection_modified(self, view):
         deferred.defer(self.__class__._handle, view)
