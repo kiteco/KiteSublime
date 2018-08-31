@@ -507,11 +507,10 @@ class StatusHandler(sublime_plugin.EventListener):
             if resp.status != 200 or not body:
                 view.set_status(cls._status_key,
                                 cls._brand_status('Server error'))
-                return
-
-            resp_data = json.loads(body.decode('utf-8'))
-            status = cls._brand_status(resp_data['status'].capitalize())
-            view.set_status(cls._status_key, status)
+            else:
+                resp_data = json.loads(body.decode('utf-8'))
+                status = cls._brand_status(resp_data['status'].capitalize())
+                view.set_status(cls._status_key, status)
 
         except ConnectionRefusedError as ex:
             view.set_status(cls._status_key,
