@@ -12,5 +12,3 @@ class TogglePopularPatterns(sublime_plugin.TextCommand):
     def run(self, edit):
         value = settings.get('show_popular_patterns', False)
         settings.set('show_popular_patterns', not value)
-        logger.log('set show_popular_patterns to {}'
-                   .format(settings.get('show_popular_patterns')))
