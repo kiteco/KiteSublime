@@ -5,6 +5,7 @@ import hashlib
 import htmlmin
 import json
 import os
+from http.client import CannotSendRequest
 from jinja2 import Template
 from os.path import realpath
 from threading import Lock
@@ -18,6 +19,7 @@ __all__ = [
     'CompletionsHandler',
     'SignaturesHandler',
     'HoverHandler',
+    'StatusHandler',
 ]
 
 
@@ -136,6 +138,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     """
 
     _received_completions = []
+    _last_location = None
     _lock = Lock()
 
     def on_query_completions(self, view, prefix, locations):
@@ -151,11 +154,20 @@ class CompletionsHandler(sublime_plugin.EventListener):
             return None
 
         with cls._lock:
-            completions = [
-                (self._brand_completion(c['display'], c['hint']),
-                 c['insert']) for c in cls._received_completions
-            ]
+            if (cls._last_location != locations[0] and
+                cls._received_completions):
+                logger.log('location mismatch! {} != {}'
+                           .format(cls._last_location, locations[0]))
+
+            completions = None
+            if (cls._last_location == locations[0] and
+                cls._received_completions):
+                completions = [
+                    (self._brand_completion(c['display'], c['hint']),
+                     c['insert']) for c in cls._received_completions
+                ]
             cls._received_completions = []
+            cls._last_location = None
             return completions
 
     @classmethod
@@ -167,6 +179,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def hide_completions(cls, view):
         with cls._lock:
             cls._received_completions = []
+            cls._last_location = None
         view.run_command('hide_auto_complete')
 
     @classmethod
@@ -181,6 +194,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             completions = resp_data['completions'] or []
             with cls._lock:
                 cls._received_completions = completions
+                cls._last_location = data['cursor_runes']
             cls._run_auto_complete(view)
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
@@ -398,6 +412,9 @@ class HoverHandler(sublime_plugin.EventListener):
         try:
             resp_data = json.loads(body.decode('utf-8'))
 
+            if resp_data['symbol'] is None:
+                return
+
             symbol = resp_data['symbol'][0]
             if symbol['value'][0]['kind'] != 'instance':
                 symbol['hint'] = symbol['value'][0]['kind']
@@ -407,6 +424,7 @@ class HoverHandler(sublime_plugin.EventListener):
             view.show_popup(cls._render(resp_data['symbol'][0],
                                         resp_data['report']),
                             flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
+                            max_width=1024,
                             location=point,
                             on_navigate=cls._handle_link_click)
         except ValueError as ex:
@@ -455,3 +473,53 @@ class HoverHandler(sublime_plugin.EventListener):
         hash_ = md5(view.substr(sublime.Region(0, view.size())))
         return ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
                 .format(editor, filename, hash_, point))
+
+
+class StatusHandler(sublime_plugin.EventListener):
+    """Listener which sets the status bar message.
+    """
+
+    _status_key = 'kite'
+
+    def on_selection_modified(self, view):
+        cls = self.__class__
+        deferred.defer(cls._handle, view)
+
+    @classmethod
+    def _handle(cls, view):
+        if not _is_view_supported(view):
+            view.erase_status(cls._status_key)
+            return
+
+        if not _check_view_size(view):
+            view.set_status(cls._status_key,
+                            cls._brand_status('File too large'))
+            return
+
+        try:
+            url = ('/clientapi/status?filename={}'
+                   .format(realpath(view.file_name())))
+            resp, body = requests.kited_get(url)
+
+            if resp.status != 200 or not body:
+                view.set_status(cls._status_key,
+                                cls._brand_status('Connection error'))
+                return
+
+            resp_data = json.loads(body.decode('utf-8'))
+            status = cls._brand_status(resp_data['status'].capitalize())
+            view.set_status(cls._status_key, status)
+
+        except ConnectionRefusedError as ex:
+            view.set_status(cls._status_key,
+                            cls._brand_status('Connection error'))
+
+        except CannotSendRequest as ex:
+            logger.log('could not request status: {}'.format(ex))
+
+        except ValueError as ex:
+            logger.log('error decoding json: {}'.format(ex))
+
+    @classmethod
+    def _brand_status(cls, status):
+        return '𝕜𝕚𝕥𝕖: {}'.format(status)
