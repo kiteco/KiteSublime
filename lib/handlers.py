@@ -482,8 +482,7 @@ class StatusHandler(sublime_plugin.EventListener):
     _status_key = 'kite'
 
     def on_selection_modified(self, view):
-        cls = self.__class__
-        deferred.defer(cls._handle, view)
+        deferred.defer(self.__class__._handle, view)
 
     @classmethod
     def _handle(cls, view):
