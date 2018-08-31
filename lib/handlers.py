@@ -156,7 +156,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             if (cls._last_location != locations[0] and
                 cls._received_completions):
-                logger.log('location mismatch! {} != {}'
+                logger.log('completions location mismatch: {} != {}'
                            .format(cls._last_location, locations[0]))
 
             completions = None
