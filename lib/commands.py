@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from ..lib import logger, settings
+from ..lib import settings
 
 
 class ToggleKeywordArguments(sublime_plugin.TextCommand):
