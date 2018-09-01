@@ -74,6 +74,9 @@
             {% else %}
               <a class="toggle-link" href="show_keyword_arguments">Show</a>
             {% endif %}
+            {% if keyword_arguments_keys %}
+              <a class="toggle-link" href="{% if show_keyword_arguments %}hide_keyword_arguments{% else %}show_keyword_arguments{% endif %}">{{ keyword_arguments_keys }}</a>
+            {% endif %}
           </div>
           {% if show_keyword_arguments %}
             {% for param in kwarg_params %}
@@ -107,6 +110,9 @@
           <a class="toggle-link" href="hide_popular_patterns">Hide</a>
         {% else %}
           <a class="toggle-link" href="show_popular_patterns">Show</a>
+        {% endif %}
+        {% if popular_patterns_keys %}
+          <a class="toggle-link" href="{% if show_popular_patterns %}hide_popular_patterns{% else %}show_popular_patterns{% endif %}">{{ popular_patterns_keys }}</a>
         {% endif %}
       </div>
       {% if show_popular_patterns %}

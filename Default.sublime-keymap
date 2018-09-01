@@ -1,5 +1,9 @@
 [
   {
+    "keys": ["ctrl+alt+l"],
+    "command": "toggle_keyword_arguments"
+  },
+  {
     "keys": ["ctrl+alt+p"],
     "command": "toggle_popular_patterns"
   }

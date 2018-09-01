@@ -11,7 +11,7 @@ from os.path import realpath
 from threading import Lock
 
 
-from ..lib import deferred, link_opener, logger, settings, requests
+from ..lib import deferred, keymap, link_opener, logger, settings, requests
 
 
 __all__ = [
@@ -238,8 +238,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
     _css = ''
 
     def on_post_text_command(self, view, command_name, args):
-        if command_name == 'toggle_popular_patterns':
-            logger.log('rerendering after toggle_popular_patterns')
+        if command_name in ('toggle_popular_patterns',
+                            'toggle_keyword_arguments'):
             self.__class__._rerender()
 
     @classmethod
@@ -329,6 +329,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
             'show_popular_patterns': settings.get('show_popular_patterns'),
             'show_keyword_arguments': settings.get('show_keyword_arguments'),
             'keyword_argument_highlighted': cls._kwarg_highlighted(),
+            'keyword_arguments_keys': keymap.get('toggle_keyword_arguments'),
+            'popular_patterns_keys': keymap.get('toggle_popular_patterns'),
         }
 
         return htmlmin.minify(cls._template.render(css=cls._css, call=call,
@@ -408,10 +410,10 @@ class HoverHandler(sublime_plugin.EventListener):
     _css = ''
 
     def on_hover(self, view, point, hover_zone):
-        if len(view.sel()) != 1:
-            return
-        cls = self.__class__
-        deferred.defer(cls._request_hover, view, point)
+        if (_is_view_supported(view) and _check_view_size(view) and
+            len(view.sel()) == 1):
+            cls = self.__class__
+            deferred.defer(cls._request_hover, view, point)
 
     @classmethod
     def _request_hover(cls, view, point):
