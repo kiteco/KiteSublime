@@ -20,6 +20,7 @@ def kited_get(path):
         body = resp.read()
         return resp, body
 
+
 def kited_post(path, data=None):
     conn, idx = _get_connection()
 
@@ -36,14 +37,16 @@ def kited_post(path, data=None):
 
 
 def _get_connection():
-    idx = random.randint(0, 3)
+    idx = random.randint(0, len(_conns)-1)
     if _conns[idx] is None:
         _init_connection(idx)
     return _conns[idx], idx
 
+
 def _init_connection(idx):
     global _conns
     _conns[idx] = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.25)
+
 
 def _reset_connection(idx):
     global _conns
