@@ -37,10 +37,8 @@ class DocsAtCursor(sublime_plugin.TextCommand):
         points, symbol = HoverHandler.symbol_at_cursor(self.view)
         if symbol:
             link_opener.open_copilot(symbol['id'])
-        else:
-            logger.log('no symbol at cursor')
-            if points:
-                self.__class__._flash_invalid(self.view, points)
+        elif points:
+            self.__class__._flash_invalid(self.view, points)
 
     @classmethod
     def _flash_invalid(cls, view, points, cnt=2):
