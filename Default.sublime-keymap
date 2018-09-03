@@ -6,5 +6,9 @@
   {
     "keys": ["ctrl+alt+p"],
     "command": "toggle_popular_patterns"
+  },
+  {
+    "keys": ["ctrl+alt+d"],
+    "command": "docs_at_cursor"
   }
 ]

@@ -416,6 +416,27 @@ class HoverHandler(sublime_plugin.EventListener):
             deferred.defer(cls._request_hover, view, point)
 
     @classmethod
+    def symbol_at_cursor(cls, view):
+        if (not _is_view_supported(view) or not _check_view_size(view) or
+            len(view.sel()) != 1):
+            return (None, None)
+
+        point = view.sel()[0].end()
+        points = view.word(point)
+
+        resp, body = requests.kited_get(cls._event_url(view, point))
+
+        if resp.status != 200 or not body:
+            return (points, None)
+
+        try:
+            resp_data = json.loads(body.decode('utf-8'))
+            symbol = None if not resp_data['symbol'] else resp_data['symbol'][0]
+            return (points, symbol)
+        except ValueError as ex:
+            return (points, None)
+
+    @classmethod
     def _request_hover(cls, view, point):
         resp, body = requests.kited_get(cls._event_url(view, point))
 
