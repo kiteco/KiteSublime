@@ -27,10 +27,13 @@ class TogglePopularPatterns(sublime_plugin.TextCommand):
 
 class DocsAtCursor(sublime_plugin.TextCommand):
     """Command to retrieve documentation for the symbol currently underneath
-    the user's cursor.
+    the user's cursor and if available, to render it in the Copilot. If there
+    are no docs, then the symbol at the user's cursor position will flash
+    invalid.
     """
 
     _UNRESOLVED_KEY = 'kite.unresolved'
+    _FLASH_INTERVAL = 100
 
     def run(self, edit):
         cls = self.__class__
@@ -48,7 +51,8 @@ class DocsAtCursor(sublime_plugin.TextCommand):
         def next_flash():
             view.erase_regions(cls._UNRESOLVED_KEY)
             sublime.set_timeout_async(
-                lambda: cls._flash_invalid(view, points, cnt-1), 100)
+                lambda: cls._flash_invalid(view, points, cnt-1),
+                cls._FLASH_INTERVAL)
 
         view.add_regions(cls._UNRESOLVED_KEY, [points], 'invalid')
-        sublime.set_timeout_async(next_flash, 100)
+        sublime.set_timeout_async(next_flash, cls._FLASH_INTERVAL)
