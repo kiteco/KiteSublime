@@ -9,6 +9,7 @@ from http.client import CannotSendRequest
 from jinja2 import Template
 from os.path import realpath
 from threading import Lock
+from urllib.parse import quote_plus
 
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
@@ -540,7 +541,7 @@ class StatusHandler(sublime_plugin.EventListener):
 
         try:
             url = ('/clientapi/status?filename={}'
-                   .format(realpath(view.file_name())))
+                   .format(quote_plus(realpath(view.file_name()))))
             resp, body = requests.kited_get(url)
 
             if resp.status != 200 or not body:

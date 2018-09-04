@@ -44,14 +44,14 @@ class DocsAtCursor(sublime_plugin.TextCommand):
             self.__class__._flash_invalid(self.view, points)
 
     @classmethod
-    def _flash_invalid(cls, view, points, cnt=2):
-        if cnt <= 0:
+    def _flash_invalid(cls, view, points, times=2):
+        if times <= 0:
             return
 
         def next_flash():
             view.erase_regions(cls._UNRESOLVED_KEY)
             sublime.set_timeout_async(
-                lambda: cls._flash_invalid(view, points, cnt-1),
+                lambda: cls._flash_invalid(view, points, times-1),
                 cls._FLASH_INTERVAL)
 
         view.add_regions(cls._UNRESOLVED_KEY, [points], 'invalid')
