@@ -9,7 +9,7 @@ from http.client import CannotSendRequest
 from jinja2 import Template
 from os.path import realpath
 from threading import Lock
-from urllib.parse import quote_plus
+from urllib.parse import quote
 
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
@@ -509,7 +509,7 @@ class HoverHandler(sublime_plugin.EventListener):
     @staticmethod
     def _event_url(view, point):
         editor = 'sublime3'
-        filename = realpath(view.file_name()).replace('/', ':')
+        filename = quote(realpath(view.file_name()).replace('/', ':'))
         hash_ = md5(view.substr(sublime.Region(0, view.size())))
         return ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
                 .format(editor, filename, hash_, point))
@@ -541,7 +541,7 @@ class StatusHandler(sublime_plugin.EventListener):
 
         try:
             url = ('/clientapi/status?filename={}'
-                   .format(quote_plus(realpath(view.file_name()))))
+                   .format(quote(realpath(view.file_name()))))
             resp, body = requests.kited_get(url)
 
             if resp.status != 200 or not body:
