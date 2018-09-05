@@ -49,10 +49,10 @@ class EventDispatcher(sublime_plugin.EventListener):
     _last_selection_region = None
 
     def on_modified(self, view):
-        self._handle(view, 'edit')
+        self.__class__._handle(view, 'edit')
 
     def on_selection_modified(self, view):
-        self._handle(view, 'selection')
+        self.__class__._handle(view, 'selection')
 
     @classmethod
     def _handle(cls, view, action):
