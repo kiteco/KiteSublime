@@ -36,7 +36,7 @@ def _in_function_call(view, point):
     return (view.match_selector(point, 'meta.function-call.python') and
             not view.match_selector(point, 'variable.function.python'))
 
-def md5(text):
+def _md5(text):
     return hashlib.md5(str.encode(text)).hexdigest()
 
 
@@ -56,6 +56,10 @@ class EventDispatcher(sublime_plugin.EventListener):
 
     @classmethod
     def _handle(cls, view, action):
+        # Workaround to handle cloned views
+        # See https://github.com/SublimeTextIssues/Core/issues/289
+        view = sublime.active_window().active_view()
+
         if not _is_view_supported(view):
             return
 
@@ -143,6 +147,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
     _lock = Lock()
 
     def on_query_completions(self, view, prefix, locations):
+        # Prevent completions from showing up in non-active views
+        if sublime.active_window().active_view().id() != view.id():
+            return None
+
         cls = self.__class__
 
         if not _is_view_supported(view):
@@ -510,7 +518,7 @@ class HoverHandler(sublime_plugin.EventListener):
     def _event_url(view, point):
         editor = 'sublime3'
         filename = quote(realpath(view.file_name()).replace('/', ':'))
-        hash_ = md5(view.substr(sublime.Region(0, view.size())))
+        hash_ = _md5(view.substr(sublime.Region(0, view.size())))
         return ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
                 .format(editor, filename, hash_, point))
 
