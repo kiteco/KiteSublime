@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 
 from ..lib import link_opener, logger, settings
-from ..lib.handlers import HoverHandler
+from ..lib.handlers import HoverHandler, SignaturesHandler
 
 
 class ToggleKeywordArguments(sublime_plugin.TextCommand):
@@ -36,7 +36,6 @@ class DocsAtCursor(sublime_plugin.TextCommand):
     _FLASH_INTERVAL = 100
 
     def run(self, edit):
-        cls = self.__class__
         points, symbol = HoverHandler.symbol_at_cursor(self.view)
         if symbol:
             link_opener.open_copilot(symbol['id'])
@@ -56,3 +55,11 @@ class DocsAtCursor(sublime_plugin.TextCommand):
 
         view.add_regions(cls._UNRESOLVED_KEY, [points], 'invalid')
         sublime.set_timeout_async(next_flash, cls._FLASH_INTERVAL)
+
+
+class HideSignatures(sublime_plugin.TextCommand):
+    """Command to hide signatures if they are currently being displayed.
+    """
+
+    def run(self, edit):
+        SignaturesHandler.hide_signatures_if_showing(self.view)

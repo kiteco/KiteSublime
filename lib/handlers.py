@@ -270,6 +270,20 @@ class SignaturesHandler(sublime_plugin.EventListener):
             view.hide_popup()
 
     @classmethod
+    def hide_signatures_if_showing(cls, view):
+        reset = False
+        if cls._lock.acquire(blocking=False):
+            if cls._activated:
+                cls._activated = False
+                cls._view = None
+                cls._call = None
+                reset = True
+            cls._lock.release()
+
+        if reset:
+            view.hide_popup()
+
+    @classmethod
     def is_activated(cls):
         return cls._activated
 

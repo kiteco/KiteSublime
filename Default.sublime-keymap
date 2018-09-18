@@ -1,6 +1,6 @@
 [
   {
-    "keys": ["ctrl+alt+l"],
+    "keys": ["ctrl+alt+y"],
     "command": "toggle_keyword_arguments"
   },
   {
@@ -10,5 +10,9 @@
   {
     "keys": ["ctrl+alt+d"],
     "command": "docs_at_cursor"
+  },
+  {
+    "keys": ["escape"],
+    "command": "hide_signatures"
   }
 ]
