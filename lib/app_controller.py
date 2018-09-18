@@ -5,6 +5,9 @@ _KITE_APP = None
 
 
 def is_kite_installed():
+    if _KITE_INSTALLED is None:
+        raise RuntimeError('Kite has not been located')
+
     return _KITE_INSTALLED
 
 
