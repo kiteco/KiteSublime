@@ -12,10 +12,7 @@ def is_kite_installed():
 
 
 def launch_kite():
-    if _KITE_INSTALLED is None:
-        raise RuntimeError('Kite has not been located')
-
-    if not _KITE_INSTALLED:
+    if not is_kite_installed():
         raise RuntimeError('Kite is not installed')
 
     proc = subprocess.Popen(['open', _KITE_APP])
