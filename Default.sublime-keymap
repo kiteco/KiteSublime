@@ -4,7 +4,7 @@
     "command": "toggle_keyword_arguments"
   },
   {
-    "keys": ["ctrl+alt+h"],
+    "keys": ["ctrl+alt+p"],
     "command": "toggle_popular_patterns"
   },
   {
