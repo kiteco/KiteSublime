@@ -17,6 +17,12 @@ def _handler(payload):
         if done:
             done(res)
 
+def _pop(queue):
+    try:
+        queue.get(block=False)
+    except Empty:
+        pass
+
 
 class Consumer:
     """Consumer class which consumes events from a queue. Consumption occurs
@@ -81,6 +87,12 @@ def defer(func, *args, **kwargs):
     callback is present, it will be called on the return value of the executed
     function.
 
+    A `_force` argument can be passed into the keyword arguments to control
+    whether or not the function call should be forced onto the queue. If this
+    argument is true and the queue is full when this function is called, then
+    the oldest item on the queue will be dropped and the defer call will be
+    retried. The `_force` argument defaults to true.
+
     Arguments:
         func: The function to execute.
         args: The positional arguments to pass to the function.
@@ -89,8 +101,10 @@ def defer(func, *args, **kwargs):
     Returns:
         True if the function call was queued successfully, False otherwise.
     """
+    done = kwargs.pop('_done', None)
+    force = kwargs.pop('_force', True)
+
     try:
-        done = kwargs.pop('_done', None)
         payload = {
             'func': func,
             'args': args,
@@ -100,8 +114,15 @@ def defer(func, *args, **kwargs):
         _queue.put(payload, block=False)
         return True
     except Full:
-        logger.log('skipping defer because queue is full')
-        return False
+        if not force:
+            logger.log('skipping defer because queue is full')
+            return False
+        else:
+            logger.log('forcing defer because queue is full')
+            _pop(_queue)
+            kwargs.update({'_done': done, '_force': force})
+            return defer(func, *args, **kwargs)
+
 
 def consume():
     """Create a consumer and start the consumption loop. This function needs

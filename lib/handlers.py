@@ -24,7 +24,7 @@ __all__ = [
 ]
 
 
-_DEBUG = os.getenv('SUBLIME_DEV')
+_DEVELOPMENT = os.getenv('SUBLIME_DEV')
 
 def _is_view_supported(view):
     return view.file_name() is not None and view.file_name().endswith('.py')
@@ -344,7 +344,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _render(cls, call):
-        if _DEBUG or cls._template is None:
+        if _DEVELOPMENT or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
 
@@ -489,7 +489,7 @@ class HoverHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _render(cls, symbol, report):
-        if _DEBUG or cls._template is None:
+        if _DEVELOPMENT or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
 

@@ -25,7 +25,8 @@ def locate_kite():
         out = subprocess.check_output(
             ['mdfind', 'kMDItemCFBundleIdentifier="com.kite.Kite"'])
         _KITE_INSTALLED = len(out) > 0
-        _KITE_APP = out.decode().strip() if _KITE_INSTALLED else None
+        _KITE_APP = (out.decode().strip().split('\n')[0] if _KITE_INSTALLED
+                     else None)
     except subprocess.CalledProcessError:
         _KITE_INSTALLED = False
         _KITE_APP = None

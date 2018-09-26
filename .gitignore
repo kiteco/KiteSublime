@@ -4,6 +4,7 @@
 *.swp
 *.pkg
 .vscode/
+DEVELOPMENT
 
 # Python artifacts
 *.pyc
