@@ -2,7 +2,7 @@ from .setup import setup_all; setup_all()
 
 import sublime
 
-from .lib import app_controller, deferred, logger
+from .lib import app_controller, deferred, logger, reporter
 from .lib.commands import *
 from .lib.handlers import *
 
@@ -20,6 +20,8 @@ def plugin_loaded():
     global _consumer
     _consumer = deferred.consume()
 
+    reporter.setup_excepthook()
+
     logger.log('KPP activated')
 
 
@@ -29,4 +31,7 @@ def plugin_unloaded():
     """
     if _consumer:
         _consumer.stop()
+
+    reporter.release_excepthook()
+
     logger.log('KPP deactivated')
