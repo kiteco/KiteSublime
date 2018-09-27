@@ -1,3 +1,5 @@
+import sublime
+
 import os
 import rollbar
 import sys
@@ -48,7 +50,8 @@ def release_excepthook():
 
 
 def _handle_exc(exctype, value, tb):
-    sys.stderr.write('they shootin!\n')
+    exc = (exctype, value, tb)
+    sublime.set_timeout_async(lambda: send_rollbar_exc(exc), 0)
     _excepthook(exctype, value, tb)
 
 

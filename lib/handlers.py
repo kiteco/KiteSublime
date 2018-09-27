@@ -432,8 +432,6 @@ class HoverHandler(sublime_plugin.EventListener):
     _css = ''
 
     def on_hover(self, view, point, hover_zone):
-        raise RuntimeError('made you look')
-
         if (_is_view_supported(view) and _check_view_size(view) and
             len(view.sel()) == 1):
             cls = self.__class__
