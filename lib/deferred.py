@@ -1,8 +1,9 @@
+import sys
 import time
 from queue import Empty, Full, Queue
 from threading import Lock, Thread
 
-from ..lib import logger
+from ..lib import logger, reporter
 
 # A global queue that is used for the convenience methods provided below.
 _queue = Queue(maxsize=8)
@@ -75,6 +76,7 @@ class Consumer:
             except Empty:
                 time.sleep(0.01)
             except Exception as ex:
+                reporter.send_rollbar_exc(sys.exc_info())
                 logger.log('caught {}: {}'
                            .format(ex.__class__.__name__, str(ex)))
 

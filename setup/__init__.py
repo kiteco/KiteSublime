@@ -5,11 +5,17 @@ import sys
 from ..lib import logger
 
 _ROOT = None
+_DEVELOPMENT = False
 
 def setup_all():
+    global _DEVELOPMENT
     _setup_path()
     if os.path.exists(os.path.join(_ROOT, 'DEVELOPMENT')):
         os.environ['SUBLIME_DEV'] = '1'
+        _DEVELOPMENT = True
+
+def is_development():
+    return _DEVELOPMENT
 
 def _setup_path():
     global _ROOT
