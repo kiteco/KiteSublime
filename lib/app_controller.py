@@ -1,4 +1,3 @@
-import subprocess
 import sys
 
 if sys.platform == 'darwin':
