@@ -25,7 +25,7 @@ class TogglePopularPatterns(sublime_plugin.TextCommand):
         settings.set('show_popular_patterns', not value)
 
 
-class DocsAtCursor(sublime_plugin.TextCommand):
+class KiteDocsAtCursor(sublime_plugin.TextCommand):
     """Command to retrieve documentation for the symbol currently underneath
     the user's cursor and if available, to render it in the Copilot. If there
     are no docs, then the symbol at the user's cursor position will flash
@@ -63,3 +63,35 @@ class HideSignatures(sublime_plugin.TextCommand):
 
     def run(self, edit):
         SignaturesHandler.hide_signatures_if_showing(self.view)
+
+
+class KiteOpenCopilot(sublime_plugin.ApplicationCommand):
+    """Command to open the Copilot.
+    """
+
+    def run(self):
+        logger.log('open copilot')
+
+
+class KiteEngineSettings(sublime_plugin.ApplicationCommand):
+    """Command to open Kite settings in the Copilot.
+    """
+
+    def run(self):
+        logger.log('engine settings')
+
+
+class KitePackageSettings(sublime_plugin.WindowCommand):
+    """Command to open Kite package settings in Sublime.
+    """
+
+    def run(self):
+        logger.log('package settings')
+
+
+class KiteHelp(sublime_plugin.ApplicationCommand):
+    """Command to open the help docs.
+    """
+
+    def run(self):
+        logger.log('help')

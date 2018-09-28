@@ -9,7 +9,7 @@
   },
   {
     "keys": ["ctrl+alt+d"],
-    "command": "docs_at_cursor"
+    "command": "kite_docs_at_cursor"
   },
   {
     "keys": ["escape"],

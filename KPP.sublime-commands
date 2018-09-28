@@ -1,6 +1,22 @@
 [
   {
     "caption": "Kite: Docs At Cursor",
-    "command": "docs_at_cursor"
+    "command": "kite_docs_at_cursor"
+  },
+  {
+    "caption": "Kite: Open Copilot",
+    "command": "kite_open_copilot"
+  },
+  {
+    "caption": "Kite: Engine Settings",
+    "command": "kite_engine_settings"
+  },
+  {
+    "caption": "Kite: Package Settings",
+    "command": "kite_package_settings"
+  },
+  {
+    "caption": "Kite: Help",
+    "command": "kite_help"
   }
 ]
