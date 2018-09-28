@@ -39,7 +39,6 @@ def setup_excepthook():
     if _excepthook is None:
         _excepthook = sys.excepthook
         sys.excepthook = _handle_exc
-        logger.log('setup exception hook')
 
 
 def release_excepthook():

@@ -1,4 +1,10 @@
 import subprocess
+import sys
+
+if sys.platform == 'darwin':
+    from ..lib.platform.darwin.app_controller import *
+else:
+    from ..lib.platform.unsupported.app_controller import *
 
 _KITE_INSTALLED = None
 _KITE_APP = None
@@ -15,18 +21,9 @@ def launch_kite():
     if not is_kite_installed():
         raise RuntimeError('Kite is not installed')
 
-    proc = subprocess.Popen(['open', _KITE_APP])
-    proc.communicate()
+    _launch_kite(_KITE_APP)
 
 
 def locate_kite():
     global _KITE_INSTALLED, _KITE_APP
-    try:
-        out = subprocess.check_output(
-            ['mdfind', 'kMDItemCFBundleIdentifier="com.kite.Kite"'])
-        _KITE_INSTALLED = len(out) > 0
-        _KITE_APP = (out.decode().strip().split('\n')[0] if _KITE_INSTALLED
-                     else None)
-    except subprocess.CalledProcessError:
-        _KITE_INSTALLED = False
-        _KITE_APP = None
+    _KITE_INSTALLED, _KITE_APP = _locate_kite()
