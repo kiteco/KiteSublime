@@ -254,8 +254,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
     _css = ''
 
     def on_post_text_command(self, view, command_name, args):
-        if command_name in ('toggle_popular_patterns',
-                            'toggle_keyword_arguments'):
+        if command_name in ('kite_toggle_popular_patterns',
+                            'kite_toggle_keyword_arguments'):
             self.__class__._rerender()
 
     @classmethod
@@ -359,8 +359,10 @@ class SignaturesHandler(sublime_plugin.EventListener):
             'show_popular_patterns': settings.get('show_popular_patterns'),
             'show_keyword_arguments': settings.get('show_keyword_arguments'),
             'keyword_argument_highlighted': cls._kwarg_highlighted(),
-            'keyword_arguments_keys': keymap.get('toggle_keyword_arguments'),
-            'popular_patterns_keys': keymap.get('toggle_popular_patterns'),
+            'keyword_arguments_keys':
+                keymap.get('kite_toggle_keyword_arguments'),
+            'popular_patterns_keys':
+                keymap.get('kite_toggle_popular_patterns'),
         }
 
         return htmlmin.minify(cls._template.render(css=cls._css, call=call,

@@ -5,7 +5,7 @@ from ..lib import link_opener, logger, settings
 from ..lib.handlers import HoverHandler, SignaturesHandler
 
 
-class ToggleKeywordArguments(sublime_plugin.TextCommand):
+class KiteToggleKeywordArguments(sublime_plugin.TextCommand):
     """Command to toggle the setting which controls whether or not keyword
     arguments should be rendered in the function signatures panel.
     """
@@ -15,7 +15,7 @@ class ToggleKeywordArguments(sublime_plugin.TextCommand):
         settings.set('show_keyword_arguments', not value)
 
 
-class TogglePopularPatterns(sublime_plugin.TextCommand):
+class KiteTogglePopularPatterns(sublime_plugin.TextCommand):
     """Command to toggle the setting which controls whether or not popular
     patterns should be rendered in the function signatures panel.
     """
@@ -57,7 +57,7 @@ class KiteDocsAtCursor(sublime_plugin.TextCommand):
         sublime.set_timeout_async(next_flash, cls._FLASH_INTERVAL)
 
 
-class HideSignatures(sublime_plugin.TextCommand):
+class KiteHideSignatures(sublime_plugin.TextCommand):
     """Command to hide signatures if they are currently being displayed.
     """
 

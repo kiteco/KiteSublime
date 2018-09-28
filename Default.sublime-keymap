@@ -1,11 +1,11 @@
 [
   {
     "keys": ["ctrl+alt+y"],
-    "command": "toggle_keyword_arguments"
+    "command": "kite_toggle_keyword_arguments"
   },
   {
     "keys": ["ctrl+alt+p"],
-    "command": "toggle_popular_patterns"
+    "command": "kite_toggle_popular_patterns"
   },
   {
     "keys": ["ctrl+alt+d"],
@@ -13,6 +13,6 @@
   },
   {
     "keys": ["escape"],
-    "command": "hide_signatures"
+    "command": "kite_hide_signatures"
   }
 ]
