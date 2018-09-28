@@ -86,18 +86,18 @@ class Consumer:
 def defer(func, *args, **kwargs):
     """Defer a function call to be executed asynchronously in the background.
     If the queue is full, then this function call will either be ignored or
-    forced onto the queue, depending on the presence and value of an optional
+    forced onto the queue depending on the presence and value of an optional
     `_force` argument.
-
-    A `_done` callback can be passed into the keyword arguments. If this
-    callback is present, it will be called on the return value of the executed
-    function.
 
     A `_force` argument can be passed into the keyword arguments to control
     whether or not the function call should be forced onto the queue. If this
     argument is true and the queue is full when this function is called, then
     the oldest item on the queue will be dropped and the defer call will be
     retried. The `_force` argument defaults to true.
+
+    A `_done` callback can be passed into the keyword arguments. If this
+    callback is present, it will be called on the return value of the executed
+    function.
 
     Arguments:
         func: The function to execute.
