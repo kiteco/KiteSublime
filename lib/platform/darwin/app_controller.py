@@ -4,7 +4,7 @@ __all__ = ['_launch_kite', '_locate_kite']
 
 def _launch_kite(app):
     proc = subprocess.Popen(['open', app])
-    proc.communicate()
+    return proc
 
 def _locate_kite():
     installed = None
