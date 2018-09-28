@@ -4,6 +4,7 @@ import sublime_plugin
 import hashlib
 import htmlmin
 import json
+import sys
 import os
 from http.client import CannotSendRequest
 from jinja2 import Template
@@ -11,6 +12,13 @@ from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
 
+
+if sys.platform == 'darwin':
+    from ..lib.platform.darwin.file_system import *
+elif sys.platform == 'win32':
+    from ..lib.platform.win32.file_system import *
+else:
+    from ..lib.platform.unsupported.file_system import *
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
 from ..setup import is_development

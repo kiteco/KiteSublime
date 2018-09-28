@@ -1,0 +1,7 @@
+def path_for_url(path):
+    idx = path.find(':\\')
+    if idx != -1:
+        return ':windows:{}:{}'.format(path[:idx],
+                                       path[idx+2:].replace('\\', ':'))
+    else:
+        return parts[0].replace('\\', ':')
