@@ -538,7 +538,7 @@ class HoverHandler(sublime_plugin.EventListener):
     @staticmethod
     def _event_url(view, point):
         editor = 'sublime3'
-        filename = quote(realpath(view.file_name()).replace('/', ':'))
+        filename = quote(path_for_url(realpath(view.file_name())))
         hash_ = _md5(view.substr(sublime.Region(0, view.size())))
         return ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
                 .format(editor, filename, hash_, point))
