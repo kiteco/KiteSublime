@@ -3,9 +3,10 @@ import sublime
 import os
 import rollbar
 import sys
+import traceback
 
 from ..lib import logger
-from ..setup import is_development
+from ..setup import is_development, is_same_package
 
 
 _MODULE_NAME = None
@@ -51,7 +52,9 @@ def release_excepthook():
 
 def _handle_exc(exctype, value, tb):
     exc = (exctype, value, tb)
-    sublime.set_timeout_async(lambda: send_rollbar_exc(exc), 0)
+    ss = traceback.extract_tb(tb)
+    if is_same_package(ss[-1][0]):
+        sublime.set_timeout_async(lambda: send_rollbar_exc(exc), 0)
     _excepthook(exctype, value, tb)
 
 

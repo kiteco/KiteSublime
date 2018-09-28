@@ -17,6 +17,9 @@ def setup_all():
 def is_development():
     return _DEVELOPMENT
 
+def is_same_package(filename):
+    return filename.startswith(_ROOT)
+
 def _setup_path():
     global _ROOT
     _ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
