@@ -10,5 +10,11 @@ else:
 def open_browser(ident):
     return _open_browser(ident)
 
+def open_browser_url(url):
+    return _open_browser_url(url)
+
 def open_copilot(ident):
     return _open_copilot(ident)
+
+def open_copilot_root(path):
+    return _open_copilot_root(path)

@@ -3,6 +3,7 @@ import sublime_plugin
 
 from ..lib import link_opener, logger, settings
 from ..lib.handlers import HoverHandler, SignaturesHandler
+from ..setup import settings_file_path
 
 
 class KiteToggleKeywordArguments(sublime_plugin.TextCommand):
@@ -70,7 +71,7 @@ class KiteOpenCopilot(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        logger.log('open copilot')
+        link_opener.open_copilot_root('')
 
 
 class KiteEngineSettings(sublime_plugin.ApplicationCommand):
@@ -78,7 +79,7 @@ class KiteEngineSettings(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        logger.log('engine settings')
+        link_opener.open_copilot_root('settings')
 
 
 class KitePackageSettings(sublime_plugin.WindowCommand):
@@ -86,12 +87,17 @@ class KitePackageSettings(sublime_plugin.WindowCommand):
     """
 
     def run(self):
-        logger.log('package settings')
+        sublime.run_command('new_window')
+        window = sublime.active_window()
+        window.open_file(settings_file_path())
+        window.run_command('sbp_pane_cmd', {'cmd': 'split', 'stype': 'v'})
 
 
 class KiteHelp(sublime_plugin.ApplicationCommand):
     """Command to open the help docs.
     """
 
+    _URL = 'https://help.kite.com/category/44-sublime-text-integration'
+
     def run(self):
-        logger.log('help')
+        link_opener.open_browser_url(self._URL)
