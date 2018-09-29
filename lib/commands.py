@@ -82,17 +82,6 @@ class KiteEngineSettings(sublime_plugin.ApplicationCommand):
         link_opener.open_copilot_root('settings')
 
 
-class KitePackageSettings(sublime_plugin.WindowCommand):
-    """Command to open Kite package settings in Sublime.
-    """
-
-    def run(self):
-        sublime.run_command('new_window')
-        window = sublime.active_window()
-        window.open_file(settings_file_path())
-        window.run_command('sbp_pane_cmd', {'cmd': 'split', 'stype': 'v'})
-
-
 class KiteHelp(sublime_plugin.ApplicationCommand):
     """Command to open the help docs.
     """

@@ -13,7 +13,11 @@
   },
   {
     "caption": "Kite: Package Settings",
-    "command": "kite_package_settings"
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/KPP/KPP.sublime-settings",
+      "default": "{\n\t$0\n}\n"
+    }
   },
   {
     "caption": "Kite: Help",
