@@ -8,12 +8,16 @@ _conns = [None]*4
 
 
 def kited_get(path):
+    """Makes a GET request to a Kite endpoint specified by the `path`
+    argument. Returns the response and response body as a tuple.
+    """
     conn, idx = _get_connection()
 
     try:
         conn.request('GET', path, headers={'Connection': 'keep-alive'})
     except (ConnectionRefusedError, CannotSendRequest) as ex:
         _reset_connection(idx)
+        ex.ignore = True
         raise ex
     else:
         resp = conn.getresponse()
@@ -22,6 +26,10 @@ def kited_get(path):
 
 
 def kited_post(path, data=None):
+    """Makes a POST request to a Kite endpoint specified by the `path`
+    argument. The `data` argument is JSON-serialized and used as the request
+    body. Returns the response and response body as a tuple.
+    """
     conn, idx = _get_connection()
 
     try:
@@ -29,6 +37,7 @@ def kited_post(path, data=None):
                      body=(json.dumps(data) if data is not None else None))
     except (ConnectionRefusedError, CannotSendRequest) as ex:
         _reset_connection(idx)
+        ex.ignore = True
         raise ex
     else:
         resp = conn.getresponse()

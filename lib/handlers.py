@@ -485,7 +485,15 @@ class HoverHandler(sublime_plugin.EventListener):
             if symbol['value'][0]['kind'] != 'instance':
                 symbol['hint'] = symbol['value'][0]['kind']
             else:
-                symbol['hint'] = symbol['value'][0]['type']
+                types = [v['type'] for v in symbol['value']
+                         if v['kind'] == 'instance']
+                unique_types = []
+                for t in types:
+                    if t not in unique_types:
+                        unique_types.append(t)
+                        if len(unique_types) == 3:
+                            break
+                symbol['hint'] = ' | '.join(unique_types)
 
             view.show_popup(cls._render(resp_data['symbol'][0],
                                         resp_data['report']),
