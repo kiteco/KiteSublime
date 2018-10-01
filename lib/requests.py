@@ -1,6 +1,7 @@
 import json
 import random
 from http.client import CannotSendRequest, HTTPConnection
+from socket import timeout
 
 _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
@@ -15,7 +16,11 @@ def kited_get(path):
 
     try:
         conn.request('GET', path, headers={'Connection': 'keep-alive'})
-    except (ConnectionRefusedError, CannotSendRequest) as ex:
+    except timeout:
+        ex.ignore = True
+        raise ex
+    except (ConnectionRefusedError, ConnectionResetError,
+            CannotSendRequest) as ex:
         _reset_connection(idx)
         ex.ignore = True
         raise ex
@@ -35,7 +40,11 @@ def kited_post(path, data=None):
     try:
         conn.request('POST', path, headers={'Connection': 'keep-alive'},
                      body=(json.dumps(data) if data is not None else None))
-    except (ConnectionRefusedError, CannotSendRequest) as ex:
+    except timeout:
+        ex.ignore = True
+        raise ex
+    except (ConnectionRefusedError, ConnectionResetError,
+            CannotSendRequest) as ex:
         _reset_connection(idx)
         ex.ignore = True
         raise ex
