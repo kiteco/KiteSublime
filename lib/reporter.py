@@ -58,6 +58,7 @@ def _handle_exc(exctype, value, tb):
 
 
 def _init_rollbar():
+    global _ROLLBAR_IS_INIT
     token = (_ROLLBAR_TOKENS['prod'] if not is_development()
              else _ROLLBAR_TOKENS['dev'])
     rollbar.init(token)
