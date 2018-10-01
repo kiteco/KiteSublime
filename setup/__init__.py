@@ -20,14 +20,6 @@ def is_development():
 def is_same_package(filename):
     return filename.startswith(_ROOT)
 
-def settings_file_path(default=True):
-    if default:
-        return os.path.join(_ROOT, 'KPP.sublime-settings')
-    else:
-        return os.path.join(os.path.dirname(_ROOT),
-                            'User',
-                            'KPP.sublime-settings')
-
 def _setup_path():
     global _ROOT
     _ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

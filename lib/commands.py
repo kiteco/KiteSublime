@@ -3,7 +3,6 @@ import sublime_plugin
 
 from ..lib import link_opener, logger, settings
 from ..lib.handlers import HoverHandler, SignaturesHandler
-from ..setup import settings_file_path
 
 
 class KiteToggleKeywordArguments(sublime_plugin.TextCommand):
