@@ -18,8 +18,7 @@
     <div class="footer">
       <span class="logo">𝕜𝕚𝕥𝕖</span>
       {% if symbol.id %}
-        <a class="open-link" href="open_browser:{{ symbol.id }}">Web</a>
-        <a class="open-link" href="open_copilot:{{ symbol.id }}">More</a>
+        <a class="open-link" href="open_copilot:{{ symbol.id }}">Docs</a>
       {% endif %}
       {% if report.definition %}
         <a class="open-link" href="open_definition:{{ report.definition.filename }}:{{ report.definition.line }}">Def</a>
