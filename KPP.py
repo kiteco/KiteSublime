@@ -10,24 +10,27 @@ _consumer = None
 
 
 def plugin_loaded():
-    """Called when the plugin is first loaded. Instantiates a single consumer
-    instance to handle deferred events.
+    """Called when the plugin is first loaded. Sets up an exception handler
+    to forward uncaught exceptions to Rollbar, instantiates a single consumer
+    instance to handle deferred events, and locates and starts the Kite
+    Engine if available.
     """
-    app_controller.locate_kite()
-    if app_controller.is_kite_installed():
-        app_controller.launch_kite()
+    reporter.setup_excepthook()
 
     global _consumer
     _consumer = deferred.consume()
 
-    reporter.setup_excepthook()
+    app_controller.locate_kite()
+    if app_controller.is_kite_installed():
+        app_controller.launch_kite()
 
     logger.log('KPP activated')
 
 
 def plugin_unloaded():
     """Called before the plugin is unloaded. Stops the consumer immediately
-    without waiting for the queue to be empty.
+    without waiting for the queue to be empty and removes the uncaught
+    exception handler.
     """
     if _consumer:
         _consumer.stop()
