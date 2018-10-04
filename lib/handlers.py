@@ -56,12 +56,12 @@ class EventDispatcher(sublime_plugin.EventListener):
 
     @classmethod
     def _handle(cls, view, action):
+        if not _is_view_supported(view):
+            return
+
         # Workaround to handle cloned views
         # See https://github.com/SublimeTextIssues/Core/issues/289
         view = sublime.active_window().active_view()
-
-        if not _is_view_supported(view):
-            return
 
         deferred.defer(requests.kited_post, '/clientapi/editor/event',
                        data=cls._event_data(view, action))
@@ -88,7 +88,10 @@ class EventDispatcher(sublime_plugin.EventListener):
                 CompletionsHandler.hide_completions(view)
 
             if _in_function_call(view, edit_region['end']):
-                SignaturesHandler.queue_signatures(view, edit_region['end'])
+                if (settings.get('show_function_signatures', True) or
+                    SignaturesHandler.is_activated()):
+                    SignaturesHandler.queue_signatures(view,
+                                                       edit_region['end'])
             else:
                 SignaturesHandler.hide_signatures(view)
 
@@ -321,9 +324,6 @@ class SignaturesHandler(sublime_plugin.EventListener):
                         func['keyword_only_parameters'].append(param)
 
                 in_kwargs = call['language_details']['python']['in_kwargs']
-                logger.log('call: {} index = {}'
-                           .format('kwarg' if in_kwargs else 'arg',
-                                   call['arg_index']))
 
                 content = None
                 if cls._lock.acquire(blocking=False):
@@ -435,16 +435,21 @@ class HoverHandler(sublime_plugin.EventListener):
     _css = ''
 
     def on_hover(self, view, point, hover_zone):
+        if not settings.get('show_hover', True):
+            return
+
         if (_is_view_supported(view) and _check_view_size(view) and
             len(view.sel()) == 1):
             cls = self.__class__
             deferred.defer(cls._request_hover, view, point)
 
     @classmethod
-    def symbol_at_cursor(cls, view):
+    def symbol_at_cursor(cls, view, render=False):
         if (not _is_view_supported(view) or not _check_view_size(view) or
             len(view.sel()) != 1):
             return (None, None)
+
+        view = sublime.active_window().active_view()
 
         point = view.sel()[0].end()
         points = view.word(point)
@@ -457,7 +462,17 @@ class HoverHandler(sublime_plugin.EventListener):
         try:
             resp_data = json.loads(body.decode('utf-8'))
             symbol = None if not resp_data['symbol'] else resp_data['symbol'][0]
+
+            if symbol and render:
+                symbol['hint'] = cls._symbol_hint(symbol)
+                sublime.set_timeout_async(lambda:
+                    view.show_popup(cls._render(symbol, resp_data['report']),
+                                    max_width=1024,
+                                    location=point,
+                                    on_navigate=cls._handle_link_click), 0)
+
             return (points, symbol)
+
         except ValueError as ex:
             return (points, None)
 
@@ -475,25 +490,14 @@ class HoverHandler(sublime_plugin.EventListener):
                 return
 
             symbol = resp_data['symbol'][0]
-            if symbol['value'][0]['kind'] != 'instance':
-                symbol['hint'] = symbol['value'][0]['kind']
-            else:
-                unique_types = []
-                for v in symbol['value']:
-                    if v['kind'] != 'instance':
-                        continue
-                    if v['type'] not in unique_types:
-                        unique_types.append(v['type'])
-                        if len(unique_types) == 3:
-                            break
-                symbol['hint'] = ' | '.join(unique_types)
+            symbol['hint'] = cls._symbol_hint(symbol)
 
-            view.show_popup(cls._render(resp_data['symbol'][0],
-                                        resp_data['report']),
+            view.show_popup(cls._render(symbol, resp_data['report']),
                             flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
                             max_width=1024,
                             location=point,
                             on_navigate=cls._handle_link_click)
+
         except ValueError as ex:
             logger.log('error decoding json: {}'.format(ex))
 
@@ -545,6 +549,21 @@ class HoverHandler(sublime_plugin.EventListener):
         hash_ = _md5(view.substr(sublime.Region(0, view.size())))
         return ('/api/buffer/{}/{}/{}/hover?cursor_runes={}'
                 .format(editor, filename, hash_, point))
+
+    @staticmethod
+    def _symbol_hint(symbol):
+        if symbol['value'][0]['kind'] != 'instance':
+            return symbol['value'][0]['kind']
+        else:
+            unique_types = []
+            for v in symbol['value']:
+                if v['kind'] != 'instance':
+                    continue
+                if v['type'] not in unique_types:
+                    unique_types.append(v['type'])
+                    if len(unique_types) == 3:
+                        break
+            return ' | '.join(unique_types)
 
 
 class StatusHandler(sublime_plugin.EventListener):

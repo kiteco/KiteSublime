@@ -1,4 +1,16 @@
+// WARNING: This settings file is reverted everytime the Kite package is updated. Any changes you
+// make you to this file will be lost when this happens. It's recommended that you change settings
+// in the user settings file in `Packages/User/KiteSublime.package-settings`.
 {
+  // Show the hover popup when the mouse hovers over a symbol
+  "show_hover": true,
+
+  // Show function signatures automatically when editing a function call
+  "show_function_signatures": true,
+
+  // Show inferred keyword arguments when displaying the function signature panel
   "show_keyword_arguments": false,
+
+  // Show popular patterns for calling functions when displaying the function signature panel
   "show_popular_patterns": true
 }

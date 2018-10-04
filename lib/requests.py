@@ -63,7 +63,7 @@ def _get_connection():
 
 def _init_connection(idx):
     global _conns
-    _conns[idx] = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.25)
+    _conns[idx] = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.1)
 
 
 def _reset_connection(idx):

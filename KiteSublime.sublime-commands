@@ -1,7 +1,15 @@
 [
   {
+    "caption": "Kite: Hover Over Symbol",
+    "command": "kite_show_hover"
+  },
+  {
     "caption": "Kite: Docs At Cursor",
     "command": "kite_docs_at_cursor"
+  },
+  {
+    "caption": "Kite: Show Function Signatures",
+    "command": "kite_show_signatures"
   },
   {
     "caption": "Kite: Open Copilot",

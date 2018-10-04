@@ -1,18 +1,26 @@
 [
   {
+    "keys": ["ctrl+alt+d"],
+    "command": "kite_docs_at_cursor"
+  },
+  {
+    "keys": ["ctrl+alt+v"],
+    "command": "kite_show_hover"
+  },
+  {
+    "keys": ["ctrl+alt+u"],
+    "command": "kite_show_signatures"
+  },
+  {
+    "keys": ["escape"],
+    "command": "kite_hide_signatures"
+  },
+  {
     "keys": ["ctrl+alt+y"],
     "command": "kite_toggle_keyword_arguments"
   },
   {
     "keys": ["ctrl+alt+p"],
     "command": "kite_toggle_popular_patterns"
-  },
-  {
-    "keys": ["ctrl+alt+d"],
-    "command": "kite_docs_at_cursor"
-  },
-  {
-    "keys": ["escape"],
-    "command": "kite_hide_signatures"
   }
 ]
