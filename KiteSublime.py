@@ -2,6 +2,14 @@ from .setup import setup_all; setup_all()
 
 import sublime
 
+import sys
+if sys.platform not in ('darwin', 'win32'):
+    sublime.error_message(
+        'Package KiteSublime is not supported on your OS\n\n' +
+        'Sublime will disable this package'
+    )
+    raise ImportError('unsupported platform: {}'.format(sys.platform))
+
 from .lib import app_controller, deferred, logger, reporter
 from .lib.commands import *
 from .lib.handlers import *
