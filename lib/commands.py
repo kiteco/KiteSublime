@@ -15,7 +15,6 @@ class KiteShowHover(sublime_plugin.TextCommand):
     _FLASH_INTERVAL = 100
 
     def run(self, edit):
-        logger.log('running show hover in view {}'.format(self.view.id()))
         points, symbol = HoverHandler.symbol_at_cursor(self.view, render=True)
         if not symbol and points:
             self.__class__.flash_invalid(self.view, points)
