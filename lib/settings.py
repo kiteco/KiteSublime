@@ -1,6 +1,6 @@
 import sublime
 
-_BASE_NAME = 'KPP.sublime-settings'
+_BASE_NAME = 'KiteSublime.sublime-settings'
 _SETTINGS = None
 
 def get(name, default=None):

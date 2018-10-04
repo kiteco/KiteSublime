@@ -15,7 +15,7 @@
     "caption": "Kite: Package Settings",
     "command": "edit_settings",
     "args": {
-      "base_file": "${packages}/KPP/KPP.sublime-settings",
+      "base_file": "${packages}/KiteSublime/KiteSublime.sublime-settings",
       "default": "{\n\t$0\n}\n"
     }
   },

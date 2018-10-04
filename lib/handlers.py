@@ -241,9 +241,9 @@ class SignaturesHandler(sublime_plugin.EventListener):
     _call = None
     _lock = Lock()
 
-    _template_path = 'Packages/KPP/lib/assets/function-signature-panel.html'
+    _template_path = 'Packages/KiteSublime/lib/assets/function-signature-panel.html'
     _template = None
-    _css_path = 'Packages/KPP/lib/assets/styles.css'
+    _css_path = 'Packages/KiteSublime/lib/assets/styles.css'
     _css = ''
 
     def on_post_text_command(self, view, command_name, args):
@@ -429,9 +429,9 @@ class HoverHandler(sublime_plugin.EventListener):
     requests to the hover endpoint.
     """
 
-    _template_path = 'Packages/KPP/lib/assets/hover-panel.html'
+    _template_path = 'Packages/KiteSublime/lib/assets/hover-panel.html'
     _template = None
-    _css_path = 'Packages/KPP/lib/assets/styles.css'
+    _css_path = 'Packages/KiteSublime/lib/assets/styles.css'
     _css = ''
 
     def on_hover(self, view, point, hover_zone):

@@ -1,1 +1,1 @@
-# KPP
+# Kite Python Assistant

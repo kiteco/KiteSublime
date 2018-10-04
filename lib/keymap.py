@@ -2,7 +2,7 @@ import sublime
 
 import json
 
-_PATH = 'Packages/KPP/Default.sublime-keymap'
+_PATH = 'Packages/KiteSublime/Default.sublime-keymap'
 _KEYMAP = None
 
 def get(command):

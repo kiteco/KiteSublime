@@ -7,20 +7,20 @@
         "caption": "Package Settings",
         "children": [
           {
-            "caption": "KPP",
+            "caption": "Kite",
             "children": [
               {
                 "caption": "Settings - Default",
                 "command": "open_file",
                 "args": {
-                  "file": "${packages}/KPP/KPP.sublime-settings"
+                  "file": "${packages}/KiteSublime/KiteSublime.sublime-settings"
                 }
               },
               {
                 "caption": "Settings - User",
                 "command": "open_file",
                 "args": {
-                  "file": "${packages}/User/KPP.sublime-settings"
+                  "file": "${packages}/User/KiteSublime.sublime-settings"
                 }
               }
             ]

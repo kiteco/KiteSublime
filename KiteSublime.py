@@ -24,7 +24,7 @@ def plugin_loaded():
     if app_controller.is_kite_installed():
         app_controller.launch_kite()
 
-    logger.log('KPP activated')
+    logger.log('Kite activated')
 
 
 def plugin_unloaded():
@@ -37,4 +37,4 @@ def plugin_unloaded():
 
     reporter.release_excepthook()
 
-    logger.log('KPP deactivated')
+    logger.log('Kite deactivated')
