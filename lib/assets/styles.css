@@ -100,7 +100,6 @@ html, body {
 #hover-panel .sublime-index {
   border-top: 1px solid color(var(--foreground) blend(var(--background) 67%));
   margin-top: 0.5em;
-  padding-top: 0.1em;
 }
 
 #hover-panel .sublime-index .title {

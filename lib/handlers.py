@@ -459,7 +459,8 @@ class HoverHandler(sublime_plugin.EventListener):
             if symbol and render:
                 symbol['hint'] = cls._symbol_hint(symbol)
                 sublime.set_timeout_async(lambda:
-                    view.show_popup(cls._render(symbol, resp_data['report']),
+                    view.show_popup(cls._render(symbol, resp_data['report'],
+                                                view, point),
                                     max_width=1024,
                                     location=point,
                                     on_navigate=cls._handle_link_click), 0)
@@ -484,14 +485,14 @@ class HoverHandler(sublime_plugin.EventListener):
         symbol = resp_data['symbol'][0]
         symbol['hint'] = cls._symbol_hint(symbol)
 
-        view.show_popup(cls._render(symbol, resp_data['report']),
+        view.show_popup(cls._render(symbol, resp_data['report'], view, point),
                         flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
                         max_width=1024,
                         location=point,
                         on_navigate=cls._handle_link_click)
 
     @classmethod
-    def _render(cls, symbol, report):
+    def _render(cls, symbol, report, view=None, point=None):
         if is_development() or cls._template is None:
             cls._template = Template(sublime.load_resource(cls._template_path))
             cls._css = sublime.load_resource(cls._css_path)
@@ -502,6 +503,14 @@ class HoverHandler(sublime_plugin.EventListener):
             window = sublime.active_window()
             defs = window.lookup_symbol_in_index(symbol['name'])
             refs = window.lookup_references_in_index(symbol['name'])
+
+            if view is not None and point is not None:
+                line, col = view.rowcol(point)
+                filename = realpath(view.file_name())
+                defs = [d for d in defs
+                        if d[0] != filename or d[2][0] != line + 1]
+                refs = [r for r in refs
+                        if r[0] != filename or r[2][0] != line + 1]
 
         return htmlmin.minify(cls._template.render(css=cls._css,
                                                    symbol=symbol,
