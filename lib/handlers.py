@@ -502,8 +502,6 @@ class HoverHandler(sublime_plugin.EventListener):
             window = sublime.active_window()
             defs = window.lookup_symbol_in_index(symbol['name'])
             refs = window.lookup_references_in_index(symbol['name'])
-            logger.log('{} defs: {}'.format(len(defs), defs))
-            logger.log('{} refs: {}'.format(len(refs), refs))
 
         return htmlmin.minify(cls._template.render(css=cls._css,
                                                    symbol=symbol,
