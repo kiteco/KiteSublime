@@ -342,6 +342,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
             cls._css = sublime.load_resource(cls._css_path)
 
         opts = {
+            'platform': sys.platform(),
             'show_popular_patterns': settings.get('show_popular_patterns'),
             'show_keyword_arguments': settings.get('show_keyword_arguments'),
             'keyword_argument_highlighted': cls._kwarg_highlighted(),
@@ -513,6 +514,7 @@ class HoverHandler(sublime_plugin.EventListener):
                         if r[0] != filename or r[2][0] != line + 1]
 
         return htmlmin.minify(cls._template.render(css=cls._css,
+                                                   platform=sys.platform,
                                                    symbol=symbol,
                                                    report=report,
                                                    definitions=defs,
