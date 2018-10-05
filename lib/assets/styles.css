@@ -84,19 +84,30 @@ html, body {
 }
 
 .symbol .symbol-name {
-  padding-right: 5rem;
-}
-
-.symbol.with-definition .symbol-name {
-  padding-right: 6rem;
+  padding-right: 0.15rem;
 }
 
 .symbol .symbol-hint {
-  border: 1px solid color(var(--foreground) blend(var(--background) 80%));
-  color: color(var(--foreground) blend(var(--background) 80%));
+  border: 1px solid color(var(--foreground) blend(var(--background) 67%));
+  color: color(var(--foreground) blend(var(--background) 67%));
   font-size: 0.8rem;
 }
 
 #hover-panel .footer {
   margin-top: 0.5em;
+}
+
+#hover-panel .sublime-index {
+  border-top: 1px solid color(var(--foreground) blend(var(--background) 67%));
+  margin-top: 0.5em;
+  padding-top: 0.1em;
+}
+
+#hover-panel .sublime-index .title {
+  font-weight: bold;
+  margin-top: 0.5em;
+}
+
+#hover-panel .sublime-index a {
+  text-decoration: none;
 }

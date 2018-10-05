@@ -24,5 +24,37 @@
         <a class="open-link" href="open_definition:{{ report.definition.filename }}:{{ report.definition.line }}">Def</a>
       {% endif %}
     </div>
+    {% if definitions or references %}
+    <div class="sublime-index">
+      {% if definitions %}
+        <div class="definitions">
+          <div class="title">
+            Definitions
+          </div>
+          {% for definition in definitions %}
+            <div class="link-container">
+              <a class="link-to-file" href="open_definition:{{ definition.0 }}:{{ definition.2.0 }}">
+                {{ definition.1 }}:{{ definition.2.0 }}
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if references %}
+        <div class="references">
+          <div class="title">
+            References
+          </div>
+          {% for reference in references %}
+            <div class="link-container">
+              <a class="link-to-file" href="open_definition:{{ reference.0 }}:{{ reference.2.0 }}">
+                {{ reference.1 }}:{{ reference.2.0 }}
+              </a>
+            </div>
+            {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 </body>
