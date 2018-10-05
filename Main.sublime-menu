@@ -10,17 +10,27 @@
             "caption": "Kite",
             "children": [
               {
-                "caption": "Settings - Default",
+                "caption": "Settings – Default",
                 "command": "open_file",
                 "args": {
                   "file": "${packages}/KiteSublime/KiteSublime.sublime-settings"
                 }
               },
               {
-                "caption": "Settings - User",
+                "caption": "Settings – User",
                 "command": "open_file",
                 "args": {
                   "file": "${packages}/User/KiteSublime.sublime-settings"
+                }
+              },
+              {
+                "caption": "-"
+              },
+              {
+                "caption": "Key Bindings – Default",
+                "command": "open_file",
+                "args": {
+                  "file": "${packages}/KiteSublime/Default.sublime-keymap"
                 }
               }
             ]
