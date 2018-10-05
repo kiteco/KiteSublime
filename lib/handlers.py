@@ -168,8 +168,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             if (cls._last_location != locations[0] and
                 cls._received_completions):
-                logger.log('completions location mismatch: {} != {}'
-                           .format(cls._last_location, locations[0]))
+                logger.debug('completions location mismatch: {} != {}'
+                             .format(cls._last_location, locations[0]))
 
             completions = None
             if (cls._last_location == locations[0] and
@@ -390,7 +390,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
               target.startswith('open_copilot')):
             idx = target.find(':')
             if idx == -1:
-                logger.log('invalid open link format: {}'.format(target))
+                logger.debug('invalid open link format: {}'.format(target))
                 return
 
             action = target[:idx]
@@ -525,7 +525,7 @@ class HoverHandler(sublime_plugin.EventListener):
             target.startswith('open_copilot')):
             idx = target.find(':')
             if idx == -1:
-                logger.log('invalid open link format: {}'.format(target))
+                logger.debug('invalid open link format: {}'.format(target))
                 return
 
             action = target[:idx]
@@ -539,12 +539,14 @@ class HoverHandler(sublime_plugin.EventListener):
         elif target.startswith('open_definition'):
             idx = target.find(':')
             if idx == -1:
-                logger.log('invalid open definition format: {}'.format(target))
+                logger.debug('invalid open definition format: {}'
+                             .format(target))
                 return
 
             dest = target[idx+1:]
             if not dest[dest.rfind(':')+1:].isdigit():
-                logger.log('invalid open definition format: {}'.format(target))
+                logger.debug('invalid open definition format: {}'
+                             .format(target))
                 return
 
             sublime.active_window().open_file(dest,
@@ -616,7 +618,7 @@ class StatusHandler(sublime_plugin.EventListener):
                             cls._brand_status('Connection error'))
 
         except CannotSendRequest as ex:
-            logger.log('could not request status: {}'.format(ex))
+            logger.debug('could not request status: {}'.format(ex))
 
     @classmethod
     def _brand_status(cls, status):

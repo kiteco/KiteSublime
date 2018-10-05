@@ -80,8 +80,8 @@ class Consumer:
             except Exception as ex:
                 if not getattr(ex, 'ignore', False):
                     reporter.send_rollbar_exc(sys.exc_info())
-                logger.log('caught {}: {}'
-                           .format(ex.__class__.__name__, str(ex)))
+                logger.debug('caught {}: {}'
+                             .format(ex.__class__.__name__, str(ex)))
 
 
 def defer(func, *args, **kwargs):
@@ -122,10 +122,10 @@ def defer(func, *args, **kwargs):
         return True
     except Full:
         if not force:
-            logger.log('skipping defer because queue is full')
+            logger.debug('skipping defer because queue is full')
             return False
         else:
-            logger.log('forcing defer because queue is full')
+            logger.debug('forcing defer because queue is full')
             _pop(_queue)
             kwargs.update({'_done': done, '_force': force})
             return defer(func, *args, **kwargs)

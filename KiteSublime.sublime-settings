@@ -12,5 +12,8 @@
   "show_keyword_arguments": false,
 
   // Show popular patterns for calling functions when displaying the function signature panel
-  "show_popular_patterns": true
+  "show_popular_patterns": true,
+
+  // Enable verbose logging in the console
+  "verbose_logs": false
 }

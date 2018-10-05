@@ -2,8 +2,6 @@ import os
 import sublime
 import sys
 
-from ..lib import logger
-
 _ROOT = None
 _DEVELOPMENT = False
 
