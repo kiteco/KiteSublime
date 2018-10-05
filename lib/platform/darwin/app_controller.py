@@ -3,7 +3,9 @@ import subprocess
 __all__ = ['_launch_kite', '_locate_kite']
 
 def _launch_kite(app):
-    proc = subprocess.Popen(['open', app])
+    subprocess.check_output(['defaults', 'write', 'com.kite.Kite',
+                             'shouldReopenSidebar', '0'])
+    proc = subprocess.Popen(['open', '-a', app, '--args', '--plugin-launch'])
     return proc
 
 def _locate_kite():

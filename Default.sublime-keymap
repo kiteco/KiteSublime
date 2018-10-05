@@ -1,39 +1,24 @@
-// WARNING: This keymap file is reverted everytime the Kite package is updated. Any changes you
-// make you to this file will be lost when this happens. It's recommended that you keep a backup
-// for this file if you'd like to remember your custom key bindings.
 [
-  // Show the hover popup
   {
     "keys": ["ctrl+alt+h"],
     "command": "kite_show_hover"
   },
-
-  // Show docs for the symbol under the cursor
   {
     "keys": ["ctrl+alt+d"],
     "command": "kite_docs_at_cursor"
   },
-
-  // Show function signatures
   {
     "keys": ["ctrl+alt+u"],
     "command": "kite_show_signatures"
   },
-
-  // Hide the function signature panel
   {
     "keys": ["escape"],
     "command": "kite_hide_signatures"
   },
-
-  // Toggle whether or not keyword arguments are displayed in the function signature panel
   {
     "keys": ["ctrl+alt+y"],
     "command": "kite_toggle_keyword_arguments"
   },
-
-  // Toggle whether or not popular patterns for calling functions are displayed in the function
-  // signature panel
   {
     "keys": ["ctrl+alt+p"],
     "command": "kite_toggle_popular_patterns"

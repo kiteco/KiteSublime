@@ -201,15 +201,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if resp.status != 200 or not body:
             return
 
-        try:
-            resp_data = json.loads(body.decode('utf-8'))
-            completions = resp_data['completions'] or []
-            with cls._lock:
-                cls._received_completions = completions
-                cls._last_location = data['cursor_runes']
-            cls._run_auto_complete(view)
-        except ValueError as ex:
-            logger.log('error decoding json: {}'.format(ex))
+        resp_data = json.loads(body.decode('utf-8'))
+        completions = resp_data['completions'] or []
+        with cls._lock:
+            cls._received_completions = completions
+            cls._last_location = data['cursor_runes']
+        cls._run_auto_complete(view)
 
     @staticmethod
     def _run_auto_complete(view):
@@ -299,48 +296,44 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 cls.hide_signatures(view)
             return
 
-        try:
-            resp_data = json.loads(body.decode('utf-8'))
-            calls = resp_data['calls'] or []
-            if len(calls):
-                call = calls[0]
+        resp_data = json.loads(body.decode('utf-8'))
+        calls = resp_data['calls'] or []
+        if len(calls):
+            call = calls[0]
 
-                if call['callee']['kind'] == 'type':
-                    call['callee']['details']['function'] = (
-                        call['callee']['details']['type']['language_details']
-                            ['python']['constructor'])
+            if call['callee']['kind'] == 'type':
+                call['callee']['details']['function'] = (
+                    call['callee']['details']['type']['language_details']
+                        ['python']['constructor'])
 
-                # Separate out the keyword-only parameters
-                func = call['callee']['details']['function']
-                func.update({
-                    'positional_parameters': [],
-                    'keyword_only_parameters': [],
-                })
-                for _, param in enumerate(func['parameters'] or []):
-                    param_details = param['language_details']['python']
-                    if not param_details['keyword_only']:
-                        func['positional_parameters'].append(param)
-                    else:
-                        func['keyword_only_parameters'].append(param)
+            # Separate out the keyword-only parameters
+            func = call['callee']['details']['function']
+            func.update({
+                'positional_parameters': [],
+                'keyword_only_parameters': [],
+            })
+            for _, param in enumerate(func['parameters'] or []):
+                param_details = param['language_details']['python']
+                if not param_details['keyword_only']:
+                    func['positional_parameters'].append(param)
+                else:
+                    func['keyword_only_parameters'].append(param)
 
-                in_kwargs = call['language_details']['python']['in_kwargs']
+            in_kwargs = call['language_details']['python']['in_kwargs']
 
-                content = None
-                if cls._lock.acquire(blocking=False):
-                    cls._activated = True
-                    cls._view = view
-                    cls._call = call
-                    content = cls._render(call)
-                    cls._lock.release()
+            content = None
+            if cls._lock.acquire(blocking=False):
+                cls._activated = True
+                cls._view = view
+                cls._call = call
+                content = cls._render(call)
+                cls._lock.release()
 
-                if content is not None:
-                    view.show_popup(content,
-                                    flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
-                                    max_width=400,
-                                    on_navigate=cls._handle_link_click)
-
-        except ValueError as ex:
-            logger.log('error decoding json: {}'.format(ex))
+            if content is not None:
+                view.show_popup(content,
+                                flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
+                                max_width=400,
+                                on_navigate=cls._handle_link_click)
 
     @classmethod
     def _render(cls, call):
@@ -483,23 +476,19 @@ class HoverHandler(sublime_plugin.EventListener):
         if resp.status != 200 or not body:
             return
 
-        try:
-            resp_data = json.loads(body.decode('utf-8'))
+        resp_data = json.loads(body.decode('utf-8'))
 
-            if resp_data['symbol'] is None:
-                return
+        if resp_data['symbol'] is None:
+            return
 
-            symbol = resp_data['symbol'][0]
-            symbol['hint'] = cls._symbol_hint(symbol)
+        symbol = resp_data['symbol'][0]
+        symbol['hint'] = cls._symbol_hint(symbol)
 
-            view.show_popup(cls._render(symbol, resp_data['report']),
-                            flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
-                            max_width=1024,
-                            location=point,
-                            on_navigate=cls._handle_link_click)
-
-        except ValueError as ex:
-            logger.log('error decoding json: {}'.format(ex))
+        view.show_popup(cls._render(symbol, resp_data['report']),
+                        flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
+                        max_width=1024,
+                        location=point,
+                        on_navigate=cls._handle_link_click)
 
     @classmethod
     def _render(cls, symbol, report):
@@ -609,9 +598,6 @@ class StatusHandler(sublime_plugin.EventListener):
 
         except CannotSendRequest as ex:
             logger.log('could not request status: {}'.format(ex))
-
-        except ValueError as ex:
-            logger.log('error decoding json: {}'.format(ex))
 
     @classmethod
     def _brand_status(cls, status):
