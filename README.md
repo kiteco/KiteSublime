@@ -10,8 +10,8 @@ provides the frontend that interfaces with the Kite Engine, which performs all t
 Kite's goal is to help you write code faster by showing you the right information at the right time. At a high level,
 Kite provides you with:
 * 🧠 __Smart autocompletions__ powered by machine learning models trained on the entire open source code universe
-* 👀 __Advanced function signatures__ that show you not only the official signature of a function, but also the most popular
-ways other develoeprs call the function
+* 👀 __Advanced function signatures__ that show you not only the official signature of a function, but also the most 
+popular ways other developers call the function
 * 🔍 __Instant documentation__ for the symbol underneath your cursor
 
 
