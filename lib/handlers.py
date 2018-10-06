@@ -342,7 +342,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
             cls._css = sublime.load_resource(cls._css_path)
 
         opts = {
-            'platform': sys.platform(),
+            'platform': sys.platform,
             'show_popular_patterns': settings.get('show_popular_patterns'),
             'show_keyword_arguments': settings.get('show_keyword_arguments'),
             'keyword_argument_highlighted': cls._kwarg_highlighted(),

@@ -2,6 +2,9 @@
 // make you to this file will be lost when this happens. It's recommended that you change settings
 // in the user settings file in `Packages/User/KiteSublime.package-settings`.
 {
+  // Show the help dialog on startup
+  "show_help_dialog": true,
+
   // Show the hover popup when the mouse hovers over a symbol
   "show_hover": true,
 

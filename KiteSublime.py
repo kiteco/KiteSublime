@@ -11,6 +11,7 @@ if sys.platform not in ('darwin', 'win32'):
     raise ImportError('unsupported platform: {}'.format(sys.platform))
 
 from .lib import app_controller, deferred, logger, reporter
+from .lib import settings, link_opener
 from .lib.commands import *
 from .lib.handlers import *
 
@@ -31,6 +32,22 @@ def plugin_loaded():
     app_controller.locate_kite()
     if app_controller.is_kite_installed():
         app_controller.launch_kite()
+
+    if settings.get('show_help_dialog', True):
+        res = sublime.yes_no_cancel_dialog(
+            'Kite is now integrated with Sublime.\n\n' +
+            'Kite is an AI-powered programming assistant that shows you ' +
+            'the right information at the right time to keep you in the ' +
+            'flow.\n\n' +
+            'Would you like to learn how to use Kite?\n',
+            yes_title='Show me what Kite can do',
+            no_title='Hide forever'
+        )
+        if res == sublime.DIALOG_YES:
+            link_opener.open_browser_url(
+                'https://github.com/dhung09/KiteSublime/blob/master/README.md')
+        elif res == sublime.DIALOG_NO:
+            settings.set('show_help_dialog', False)
 
     logger.log('Kite activated')
 
