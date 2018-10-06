@@ -1,6 +1,6 @@
 // WARNING: This settings file is reverted everytime the Kite package is updated. Any changes you
-// make you to this file will be lost when this happens. It's recommended that you change settings
-// in the user settings file in `Packages/User/KiteSublime.package-settings`.
+// make to this file will be lost when this happens. It's recommended that you change settings in
+// the user settings file in `Packages/User/KiteSublime.package-settings`.
 {
   // Show the help dialog on startup
   "show_help_dialog": true,

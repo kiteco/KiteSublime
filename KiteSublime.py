@@ -5,8 +5,8 @@ import sublime
 import sys
 if sys.platform not in ('darwin', 'win32'):
     sublime.error_message(
-        'Package KiteSublime is not supported on your OS\n\n' +
-        'Sublime will disable this package'
+        'Package KiteSublime is not supported on your OS.\n\n' +
+        'Sublime will disable this package.'
     )
     raise ImportError('unsupported platform: {}'.format(sys.platform))
 
