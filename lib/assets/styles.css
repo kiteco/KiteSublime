@@ -97,6 +97,8 @@ html, body {
   border: 1px solid color(var(--foreground) blend(var(--background) 67%));
   color: color(var(--foreground) blend(var(--background) 67%));
   font-size: 0.8rem;
+  position: relative;
+  top: -0.05rem;
 }
 
 #hover-panel .footer {
