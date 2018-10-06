@@ -27,12 +27,12 @@ popular ways other developers call the function
 ### Installing the Kite Engine
 
 __macOS Instructions__
-1. Download the [Kite Engine](https://kite.com/download) and open the downloaded `.dmg` file.
+1. Download the [installer](https://kite.com/download) and open the downloaded `.dmg` file.
 2. Drag the Kite icon into the `Applications` folder.
 3. Run `Kite.app` to start the Kite Engine.
 
 __Windows Instructions__
-1. Download the [Kite Engine](https://kite.com/download) and run the downloaded `.exe` file.
+1. Download the [installer](https://kite.com/download) and run the downloaded `.exe` file.
 2. The installer should run the Kite Engine automatically after installation is complete.
 
 ### Installing the Kite Assistant for Sublime
