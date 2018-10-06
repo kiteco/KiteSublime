@@ -99,7 +99,7 @@ Furthermore, Kite comes with the following default keyboard shortcuts:
 |**H**over|`ctrl`+`alt`+*__`H`__*|Show the hover popup at your current cursor position|
 |**D**ocumentation|`ctrl`+`alt`+*__`D`__*|Show documentation in the Copilot|
 |F**U**nction Signatures|`ctrl`+`alt`+*__`U`__*|Show the function signature panel|
-|K**E**yword Arguments|`ctrl`+`alt`+*__`E`__*|Show/hide keyword arguments (when function signature panel is shown)|
+|Ke**Y**word Arguments|`ctrl`+`alt`+*__`Y`__*|Show/hide keyword arguments (when function signature panel is shown)|
 |**P**opular Patterns|`ctrl`+`alt`+*__`P`__*|Show/hide popular calling patterns (when function signature panel is shown)|
 
 ## Configuration
