@@ -592,6 +592,12 @@ class StatusHandler(sublime_plugin.EventListener):
         deferred.defer(self.__class__._handle, view)
 
     @classmethod
+    def erase_all_statuses(cls):
+        for w in sublime.windows():
+            for v in w.views():
+                v.erase_status(cls._status_key)
+
+    @classmethod
     def _handle(cls, view):
         if not _is_view_supported(view):
             view.erase_status(cls._status_key)

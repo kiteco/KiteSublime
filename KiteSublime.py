@@ -35,7 +35,7 @@ def plugin_loaded():
 
     if settings.get('show_help_dialog', True):
         res = sublime.yes_no_cancel_dialog(
-            'Kite is now integrated with Sublime.\n\n' +
+            'Sublime Text is now integrated with Kite.\n\n' +
             'Kite is an AI-powered programming assistant that shows you ' +
             'the right information at the right time to keep you in the ' +
             'flow.\n\n' +
@@ -55,11 +55,14 @@ def plugin_loaded():
 def plugin_unloaded():
     """Called before the plugin is unloaded. Stops the consumer immediately
     without waiting for the queue to be empty and removes the uncaught
-    exception handler.
+    exception handler. Also removes the Kite status from all the currently
+    open views.
     """
     if _consumer:
         _consumer.stop()
 
     reporter.release_excepthook()
+
+    StatusHandler.erase_all_statuses()
 
     logger.log('Kite deactivated')
