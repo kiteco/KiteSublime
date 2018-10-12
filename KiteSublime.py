@@ -45,7 +45,7 @@ def plugin_loaded():
         )
         if res == sublime.DIALOG_YES:
             link_opener.open_browser_url(
-                'https://github.com/dhung09/KiteSublime/blob/master/README.md')
+                'https://github.com/kiteco/KiteSublime/blob/master/README.md')
         elif res == sublime.DIALOG_NO:
             settings.set('show_help_dialog', False)
 
