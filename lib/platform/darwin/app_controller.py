@@ -1,7 +1,5 @@
 import subprocess
 
-from ....lib import logger
-
 __all__ = ['_launch_kite', '_locate_kite']
 
 def _launch_kite(app):
