@@ -1,11 +1,13 @@
 import subprocess
 
+from ....lib import logger
+
 __all__ = ['_launch_kite', '_locate_kite']
 
 def _launch_kite(app):
     subprocess.check_output(['defaults', 'write', 'com.kite.Kite',
                              'shouldReopenSidebar', '0'])
-    proc = subprocess.Popen(['open', '-a', app, '--args', '--plugin-launch'])
+    proc = subprocess.Popen(['open', '-a', app, '--args', '"--plugin-launch"'])
     return proc
 
 def _locate_kite():
