@@ -16,10 +16,11 @@ def _locate_kite():
 
     try:
         out = subprocess.check_output(_QUERY)
+        logger.log('query result:\n{}'.format(out.decode()))
         installed = len(out) > 0
         if installed:
-            logger.log('found Kite installation:\n{}'.format(out.decode()))
             res = out.decode().strip().split('\n')[1].strip()
+            logger.log('parsed result:\n{}'.format(res))
             app = '{}\\kited.exe'.format(res[res.find('C:\\'):])
     except subprocess.CalledProcessError:
         installed = False
