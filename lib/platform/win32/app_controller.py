@@ -1,6 +1,7 @@
 import subprocess
+import sys
 
-from ....lib import logger
+from ....lib import reporter
 
 __all__ = ['_launch_kite', '_locate_kite']
 
@@ -15,17 +16,14 @@ def _locate_kite():
     app = None
 
     try:
-        logger.log('running query...')
         out = subprocess.check_output(_QUERY)
-        logger.log('query result:\n{}'.format(out))
         if len(out) > 0:
-            res = out.decode().strip().split('\n')[1].strip()
-            logger.log('parsed result:\n{}'.format(res))
+            res = out.decode('utf-8', 'replace').strip().split('\n')[1].strip()
             app = '{}\\kited.exe'.format(res[res.find('C:\\'):])
             installed = True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, UnicodeDecodeError) as ex:
+        reporter.send_rollbar_exc(sys.exc_info())
         installed = False
         app = None
     finally:
-        logger.log('located kite: ({}, {})'.format(installed, app))
         return (installed, app)
