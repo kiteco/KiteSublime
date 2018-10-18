@@ -1,24 +1,28 @@
 import subprocess
+import sys
+
+from ....lib import reporter
 
 __all__ = ['_launch_kite', '_locate_kite']
 
 def _launch_kite(app):
     subprocess.check_output(['defaults', 'write', 'com.kite.Kite',
                              'shouldReopenSidebar', '0'])
-    proc = subprocess.Popen(['open', '-a', app, '--args', '--plugin-launch'])
+    proc = subprocess.Popen(['open', '-a', app, '--args', '"--plugin-launch"'])
     return proc
 
 def _locate_kite():
-    installed = None
+    installed = False
     app = None
 
     try:
         out = subprocess.check_output(
             ['mdfind', 'kMDItemCFBundleIdentifier="com.kite.Kite"'])
         installed = len(out) > 0
-        app = (out.decode().strip().split('\n')[0] if installed
-               else None)
-    except subprocess.CalledProcessError:
+        app = (out.decode('utf-8', 'replace').strip().split('\n')[0]
+               if installed else None)
+    except (subprocess.CalledProcessError, UnicodeDecodeError) as ex:
+        reporter.send_rollbar_exc(sys.exc_info())
         installed = False
         app = None
     finally:
