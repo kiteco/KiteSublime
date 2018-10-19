@@ -78,8 +78,7 @@ class Consumer:
             except Empty:
                 time.sleep(0.01)
             except Exception as ex:
-                if not getattr(ex, 'ignore', False):
-                    reporter.send_rollbar_exc(sys.exc_info())
+                reporter.send_rollbar_exc(sys.exc_info())
                 logger.debug('caught {}: {}'
                              .format(ex.__class__.__name__, str(ex)))
 

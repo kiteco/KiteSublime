@@ -7,7 +7,11 @@ import json
 import sys
 import os
 from http.client import CannotSendRequest
-from jinja2 import Template
+
+# Use the vendored version explicitly in case the user has an older version
+# of jinja2 in his environment (See: http://bit.ly/2Ozn2QB)
+from ..vendor.jinja2 import Template
+
 from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
