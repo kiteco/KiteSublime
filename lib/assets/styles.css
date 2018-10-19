@@ -74,6 +74,11 @@ html, body {
   margin-top: 0.33em;
 }
 
+.popular-patterns .pattern .parameter-name,
+.popular-patterns .pattern .keyword-arguments .default-value {
+  color: color(var(--foreground) blend(var(--background) 80%));
+}
+
 .popular-patterns .pattern .keyword-arguments .parameter-name {
   color: var(--orangish);
   font-style: italic;

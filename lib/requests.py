@@ -22,12 +22,8 @@ def kited_get(path):
 
     try:
         conn.request('GET', path, headers={'Connection': 'keep-alive'})
-    except timeout as ex:
-        ex.ignore = True
-        raise ex
     except _RESET_EXCEPTIONS as ex:
         _reset_connection(idx)
-        ex.ignore = True
         raise ex
     else:
         resp = conn.getresponse()
@@ -45,12 +41,8 @@ def kited_post(path, data=None):
     try:
         conn.request('POST', path, headers={'Connection': 'keep-alive'},
                      body=(json.dumps(data) if data is not None else None))
-    except timeout as ex:
-        ex.ignore = True
-        raise ex
     except _RESET_EXCEPTIONS as ex:
         _reset_connection(idx)
-        ex.ignore = True
         raise ex
     else:
         resp = conn.getresponse()
