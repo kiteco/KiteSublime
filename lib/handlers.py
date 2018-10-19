@@ -7,7 +7,7 @@ import json
 import sys
 import os
 from http.client import CannotSendRequest
-from jinja2 import Template
+from ..vendor.jinja2 import Template
 from os.path import realpath
 from threading import Lock
 from urllib.parse import quote

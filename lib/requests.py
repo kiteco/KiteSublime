@@ -7,6 +7,12 @@ _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
 _conns = [None]*4
 
+_RESET_EXCEPTIONS = (
+    ConnectionRefusedError,
+    ConnectionResetError,
+    OSError,
+    CannotSendRequest,
+)
 
 def kited_get(path):
     """Makes a GET request to a Kite endpoint specified by the `path`
@@ -19,8 +25,7 @@ def kited_get(path):
     except timeout as ex:
         ex.ignore = True
         raise ex
-    except (ConnectionRefusedError, ConnectionResetError,
-            CannotSendRequest) as ex:
+    except _RESET_EXCEPTIONS as ex:
         _reset_connection(idx)
         ex.ignore = True
         raise ex
@@ -43,8 +48,7 @@ def kited_post(path, data=None):
     except timeout as ex:
         ex.ignore = True
         raise ex
-    except (ConnectionRefusedError, ConnectionResetError,
-            CannotSendRequest) as ex:
+    except _RESET_EXCEPTIONS as ex:
         _reset_connection(idx)
         ex.ignore = True
         raise ex
