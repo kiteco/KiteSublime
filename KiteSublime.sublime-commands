@@ -28,6 +28,10 @@
     }
   },
   {
+    "caption": "Kite: Tutorial",
+    "command": "kite_tutorial"
+  },
+  {
     "caption": "Kite: Help",
     "command": "kite_help"
   }
