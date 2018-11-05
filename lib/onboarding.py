@@ -4,6 +4,15 @@ import sublime
 from ..lib import link_opener
 
 def start_onboarding():
+    """Attempts to open the live onboarding file. If fetching the file fails,
+    then a help dialog is shown instead.
+
+    This function returns whether or not the help prompt should be suppressed
+    in future startups. The help prompt should be suppressed if fetching the
+    live onboarding file succeeds or if the user clicked on the "No" button
+    in the help dialog.
+    """
+
     url = 'http://localhost:46624/clientapi/plugins/onboarding_file'
     resp = requests.get(url)
 
