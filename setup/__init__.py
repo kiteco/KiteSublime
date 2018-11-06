@@ -1,11 +1,12 @@
 import os
+import platform
 import sublime
 import subprocess
 import sys
 
 _ROOT = None
 _DEVELOPMENT = False
-_OS_VERSION = None
+_OS_VERSION = ''
 
 def setup_all():
     global _DEVELOPMENT
@@ -31,7 +32,12 @@ def _setup_path():
 
 def _setup_os_version():
     global _OS_VERSION
-    if sys.platform == 'win32':
+
+    if sys.platform == 'darwin':
+        ver = platform.mac_ver()
+        _OS_VERSION = ver[0]
+
+    elif sys.platform == 'win32':
         out = subprocess.check_output('ver', shell=True).decode().strip()
         release = out[(out.find('[Version ') + 9):-1]
         parts = [0]*4
