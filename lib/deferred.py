@@ -5,6 +5,7 @@ from queue import Empty, Full, Queue
 from threading import Lock, Thread
 
 from ..lib import logger, reporter
+from ..lib.errors import ExpectedError
 from ..setup import is_same_package
 
 # A global queue that is used for the convenience methods provided below.
@@ -77,10 +78,13 @@ class Consumer:
                 self.handler(payload)
             except Empty:
                 time.sleep(0.01)
-            except Exception as ex:
+            except ExpectedError as exc:
+                logger.debug('caught expected {}: {}'
+                             .format(exc.__class__.__name__, str(exc)))
+            except Exception as exc:
                 reporter.send_rollbar_exc(sys.exc_info())
                 logger.debug('caught {}: {}'
-                             .format(ex.__class__.__name__, str(ex)))
+                             .format(exc.__class__.__name__, str(exc)))
 
 
 def defer(func, *args, **kwargs):

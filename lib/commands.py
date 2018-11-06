@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from ..lib import link_opener, logger, settings
+from ..lib import link_opener, logger, onboarding, settings
 from ..lib.handlers import HoverHandler, SignaturesHandler
 
 
@@ -103,6 +103,14 @@ class KiteEngineSettings(sublime_plugin.ApplicationCommand):
 
     def run(self):
         link_opener.open_copilot_root('settings')
+
+
+class KiteTutorial(sublime_plugin.ApplicationCommand):
+    """Command to start the live onboarding.
+    """
+
+    def run(self):
+        onboarding.start_onboarding()
 
 
 class KiteHelp(sublime_plugin.ApplicationCommand):

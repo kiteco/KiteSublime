@@ -68,6 +68,12 @@ html, body {
   top: -0.1rem;
 }
 
+.content.win32.os-8 .footer .logo {
+  font-size: 0.8rem;
+  position: relative;
+  top: 0;
+}
+
 .popular-patterns .pattern,
 .inferred-keyword-argument-parameters .parameter {
   margin-left: 0.5em;
