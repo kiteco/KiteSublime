@@ -3,6 +3,8 @@ import random
 from http.client import CannotSendRequest, HTTPConnection
 from socket import timeout
 
+from ..lib.errors import ExpectedError
+
 _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
 _conns = [None]*4
@@ -22,9 +24,9 @@ def kited_get(path):
 
     try:
         conn.request('GET', path, headers={'Connection': 'keep-alive'})
-    except _RESET_EXCEPTIONS as ex:
+    except _RESET_EXCEPTIONS as exc:
         _reset_connection(idx)
-        raise ex
+        raise ExpectedError(exc, str(exc))
     else:
         resp = conn.getresponse()
         body = resp.read()
@@ -41,9 +43,9 @@ def kited_post(path, data=None):
     try:
         conn.request('POST', path, headers={'Connection': 'keep-alive'},
                      body=(json.dumps(data) if data is not None else None))
-    except _RESET_EXCEPTIONS as ex:
+    except _RESET_EXCEPTIONS as exc:
         _reset_connection(idx)
-        raise ex
+        raise ExpectedError(exc, str(exc))
     else:
         resp = conn.getresponse()
         body = resp.read()
