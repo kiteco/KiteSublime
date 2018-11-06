@@ -18,7 +18,7 @@ from urllib.parse import quote
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
 from ..lib.file_system import path_for_url
-from ..setup import is_development
+from ..setup import is_development, os_version
 
 
 __all__ = [
@@ -347,6 +347,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
 
         opts = {
             'platform': sys.platform,
+            'os_version': os_version(),
             'show_popular_patterns': settings.get('show_popular_patterns'),
             'show_keyword_arguments': settings.get('show_keyword_arguments'),
             'keyword_argument_highlighted': cls._kwarg_highlighted(),
@@ -519,6 +520,7 @@ class HoverHandler(sublime_plugin.EventListener):
 
         return htmlmin.minify(cls._template.render(css=cls._css,
                                                    platform=sys.platform,
+                                                   os_version=os_version(),
                                                    symbol=symbol,
                                                    report=report,
                                                    definitions=defs,
