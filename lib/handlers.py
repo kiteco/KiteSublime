@@ -9,7 +9,7 @@ import os
 from http.client import CannotSendRequest
 
 # Use the vendored version explicitly in case the user has an older version
-# of jinja2 in his environment (See: http://bit.ly/2Ozn2QB)
+# of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
 rm_mods = [m for m in sys.modules.keys() if m.startswith('jinja2')]
 for m in rm_mods:
     del sys.modules[m]
