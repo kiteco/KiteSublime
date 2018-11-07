@@ -38,7 +38,7 @@ def _setup_path():
             break
 
     if idx != -1:
-        sys.path.insert(os.path.join(_ROOT, 'vendor'), idx)
+        sys.path.insert(idx, os.path.join(_ROOT, 'vendor'))
     else:
         sys.path.append(os.path.join(_ROOT, 'vendor'))
 
