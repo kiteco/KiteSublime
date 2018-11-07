@@ -10,6 +10,9 @@ from http.client import CannotSendRequest
 
 # Use the vendored version explicitly in case the user has an older version
 # of jinja2 in his environment (See: http://bit.ly/2Ozn2QB)
+rm_mods = [m for m in sys.modules.keys() if m.startswith('jinja2')]
+for m in rm_mods:
+    del sys.modules[m]
 from ..vendor.jinja2 import Template
 
 from os.path import realpath
