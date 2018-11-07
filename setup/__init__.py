@@ -33,7 +33,7 @@ def _setup_path():
     # path such that we get precedence.
     idx = -1
     for i, p in enumerate(sys.path):
-        if '/python-jinja2' in p:
+        if 'python-jinja2' in p:
             idx = i
             break
 
