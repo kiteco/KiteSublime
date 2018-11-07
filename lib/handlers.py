@@ -8,13 +8,6 @@ import sys
 import os
 from http.client import CannotSendRequest
 
-# Use the vendored version explicitly in case the user has an older version
-# of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
-rm_mods = [m for m in sys.modules.keys() if m.startswith('jinja2')]
-for m in rm_mods:
-    del sys.modules[m]
-from ..vendor.jinja2 import Template
-
 from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
@@ -22,6 +15,24 @@ from urllib.parse import quote
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version
+
+# Use the vendored version explicitly in case the user has an older version
+# of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
+import importlib
+jinja_mods = [m for m in sys.modules.keys() if m.startswith('jinja2')]
+for m in jinja_mods:
+    logger.log('unloading {}'.format(m))
+    del sys.modules[m]
+
+from ..vendor.jinja2 import Template
+
+for m in jinja_mods:
+    if m not in sys.modules:
+        logger.log('reloading {}'.format(m))
+        try:
+            importlib.import_module(m)
+        except ImportError:
+            logger.log('could not load {}'.format(m))
 
 
 __all__ = [
