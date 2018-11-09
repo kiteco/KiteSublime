@@ -10,7 +10,7 @@ html, body {
 }
 
 .function-signature {
-  padding-left: 0.5em;
+  padding-left: 1em;
 }
 
 .function-signature .function-name {
@@ -18,17 +18,11 @@ html, body {
   font-weight: bold;
 
   position: relative;
-  left: -0.5em;
+  left: -1em;
 }
 
 .function-signature .parens.open-parens {
-  position: relative;
-  left: -0.25em;
-}
-
-.function-signature .parens.close-parens {
-  position: relative;
-  right: -0.25em;
+  padding-left: -1em;
 }
 
 .function-signature .parameters .default-value,
