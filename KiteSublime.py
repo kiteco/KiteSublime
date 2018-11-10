@@ -2,6 +2,13 @@ from .setup import setup_all; setup_all()
 
 import sublime
 
+if int(sublime.version()[0]) < 3:
+    sublime.error_message(
+        'Package KiteSublime does not work on your version of Sublime.\n\n' +
+        'Sublime will disable this package.'
+    )
+    raise ImportError('unsupported Sublime: {}'.format(sublime.version()))
+
 import sys
 if sys.platform not in ('darwin', 'win32'):
     sublime.error_message(
@@ -11,7 +18,7 @@ if sys.platform not in ('darwin', 'win32'):
     raise ImportError('unsupported platform: {}'.format(sys.platform))
 
 from .lib import app_controller, deferred, logger, reporter
-from .lib import onboarding, settings
+from .lib import compatibility, onboarding, settings
 from .lib.commands import *
 from .lib.handlers import *
 
@@ -37,6 +44,8 @@ def plugin_loaded():
         toggle_dialog = onboarding.start_onboarding()
         if toggle_dialog:
             settings.set('show_help_dialog', False)
+
+    compatibility.check_anaconda_compatibility()
 
     logger.log('Kite activated')
 
