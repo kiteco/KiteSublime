@@ -9,9 +9,20 @@ html, body {
   padding: 0.4rem 0.6rem;
 }
 
+.function-signature {
+  padding-left: 1em;
+}
+
 .function-signature .function-name {
   color: var(--bluish);
   font-weight: bold;
+
+  position: relative;
+  left: -1em;
+}
+
+.function-signature .parens.open-parens {
+  padding-left: -1em;
 }
 
 .function-signature .parameters .default-value,
