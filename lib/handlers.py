@@ -270,7 +270,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
             self.__class__._rerender()
 
     def on_query_context(self, view, key, operator, operand, match_all):
-        if _is_view_supported(view) and self.__class__._activated:
+        if (key == 'kite_signature_shown' and _is_view_supported(view) and
+            self.__class__._activated):
             return True
         return None
 
