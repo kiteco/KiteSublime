@@ -269,6 +269,11 @@ class SignaturesHandler(sublime_plugin.EventListener):
                             'kite_toggle_keyword_arguments'):
             self.__class__._rerender()
 
+    def on_query_context(self, view, key, operator, operand, match_all):
+        if _is_view_supported(view) and  self.__class__._activated:
+            return True
+        return None
+
     @classmethod
     def queue_signatures(cls, view, location):
         deferred.defer(cls._request_signatures,
@@ -351,7 +356,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 view.show_popup(content,
                                 flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                 max_width=400,
-                                on_navigate=cls._handle_link_click)
+                                on_navigate=cls._handle_link_click,
+                                on_hide=lambda: cls._deactivate())
 
     @classmethod
     def _render(cls, call):
@@ -386,7 +392,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
             cls._view.show_popup(content,
                                  flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                  max_width=400,
-                                 on_navigate=cls._handle_link_click)
+                                 on_navigate=cls._handle_link_click,
+                                 on_hide=lambda: cls._deactivate())
 
     @classmethod
     def _handle_link_click(cls, target):
@@ -420,6 +427,10 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 link_opener.open_browser(ident)
             else:
                 link_opener.open_copilot(ident)
+
+    @classmethod
+    def _deactivate(cls):
+        cls._activated = False
 
     @classmethod
     def _kwarg_highlighted(cls):
