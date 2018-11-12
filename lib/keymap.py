@@ -1,6 +1,7 @@
 import sublime
 
 import json
+import re
 import sys
 
 from ..lib.reporter import send_rollbar_exc
@@ -16,7 +17,11 @@ def get(command):
 def _init_keymap():
     global _KEYMAP
     try:
-        data = json.loads(sublime.load_resource(_PATH))
+        # Remove C-style comments from the `.sublime-keymap` file
+        contents = sublime.load_resource(_PATH)
+        contents = re.sub(r'\\\n', '', contents)
+        contents = re.sub(r'//.*\n', '\n', contents)
+        data = json.loads(contents)
         _KEYMAP = {item['command']: item['keys'] for item in data}
     except ValueError:
         send_rollbar_exc(sys.exc_info())

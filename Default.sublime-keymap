@@ -13,7 +13,12 @@
   },
   {
     "keys": ["escape"],
-    "command": "kite_hide_signatures"
+    "command": "kite_hide_signatures",
+    "context": [
+      {
+        "key": "kite_signature_shown"
+      }
+    ]
   },
   {
     "keys": ["ctrl+alt+y"],
