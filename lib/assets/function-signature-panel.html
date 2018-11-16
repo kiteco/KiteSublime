@@ -62,7 +62,7 @@
       </span>
       <span class="parens close-parens">)</span>
     </div>
-    {% if call.callee.details.function.language_details.python.kwarg_parameters %}
+    {% if show_keyword_arguments and call.callee.details.function.language_details.python.kwarg_parameters %}
       {% with kwarg_params = call.callee.details.function.language_details.python.kwarg_parameters,
               arg_idx = call.arg_index,
               in_kwargs = call.language_details.python.in_kwargs %}
@@ -102,7 +102,7 @@
         </div>
       {% endwith %}
     {% endif %}
-    {% if call.signatures %}
+    {% if show_popular_patterns and call.signatures %}
     <div class="popular-patterns">
       <div class="section-title">
         <span class="title">HOW OTHERS USED THIS</span>
@@ -157,6 +157,12 @@
       <span class="logo">𝕜𝕚𝕥𝕖</span>
       {% if call.callee.id %}
         <a class="open-link" href="open_copilot:{{ call.callee.id }}">Docs</a>
+      {% endif %}
+      {% if not show_keyword_arguments and call.callee.details.function.language_details.python.kwarg_parameters %}
+        <a class="open-link" href="show_keyword_arguments"><span{% if not show_keyword_arguments and keyword_argument_highlighted %} class="highlighted"{% endif %}>**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>{% if keyword_arguments_keys %}: {{ keyword_arguments_keys }}{% endif %}</a>
+      {% endif %}
+      {% if not show_popular_patterns and call.signatures %}
+        <a class="open-link" href="show_popular_patterns">Examples{% if popular_patterns_keys %}: {{ popular_patterns_keys }}{% endif %}</a>
       {% endif %}
     </div>
   </div>

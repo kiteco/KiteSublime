@@ -45,6 +45,11 @@ html, body {
   text-decoration: underline;
 }
 
+.open-link .highlighted {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
 .inferred-keyword-argument-parameters .parameter.current-argument .parameter-types {
   color: var(--foreground);
 }
