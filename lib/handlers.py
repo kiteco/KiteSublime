@@ -330,6 +330,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 call['callee']['details']['function'] = (
                     call['callee']['details']['type']['language_details']
                         ['python']['constructor'])
+                ret = [{'type': call['func_name']}]
+                call['callee']['details']['function']['return_value'] = ret
 
             # Separate out the keyword-only parameters
             func = call['callee']['details']['function']
