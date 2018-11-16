@@ -14,6 +14,9 @@ def get(command):
         _init_keymap()
     return _KEYMAP.get(command)
 
+def keystr(keys):
+    return ','.join(keys)
+
 def _init_keymap():
     global _KEYMAP
     try:

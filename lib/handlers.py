@@ -19,7 +19,8 @@ from ..setup import is_development, os_version
 # Use the vendored version explicitly in case the user has an older version
 # of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
 import importlib
-jinja_mods = [m for m in sys.modules.keys() if m.startswith('jinja2')]
+jinja_mods = [m for m in sys.modules.keys()
+              if m == 'jinja2' or m.startswith('jinja2.')]
 for m in jinja_mods:
     logger.log('unloading {}'.format(m))
     del sys.modules[m]
@@ -372,9 +373,9 @@ class SignaturesHandler(sublime_plugin.EventListener):
             'show_keyword_arguments': settings.get('show_keyword_arguments'),
             'keyword_argument_highlighted': cls._kwarg_highlighted(),
             'keyword_arguments_keys':
-                keymap.get('kite_toggle_keyword_arguments'),
+                keymap.keystr(keymap.get('kite_toggle_keyword_arguments')),
             'popular_patterns_keys':
-                keymap.get('kite_toggle_popular_patterns'),
+                keymap.keystr(keymap.get('kite_toggle_popular_patterns')),
         }
 
         return htmlmin.minify(cls._template.render(css=cls._css, call=call,
