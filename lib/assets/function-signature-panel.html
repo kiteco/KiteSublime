@@ -4,63 +4,67 @@
   </style>
   <div class="content {{ platform }}">
     <div class="function-signature">
-      <span class="function-name">{{ call.callee.repr }}</span>
-      <span class="parens open-parens">(</span>
-      <span class="parameters">
-        {% with params = call.callee.details.function.positional_parameters,
-                kw_only_params = call.callee.details.function.keyword_only_parameters,
-                arg_idx = call.arg_index,
-                in_kwargs = call.language_details.python.in_kwargs,
-                python_details = call.callee.details.function.language_details.python %}
-          {% for param in params %}
-            {% with default_value = param.language_details.python.default_value %}
-              <span{% if loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
-                <span class="parameter-name">{{ param.name }}</span>
-                {% if default_value %}
-                  <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"")|replace("&#39;", "'") }}</span>
-                {% endif %}
-                {% if not loop.last or python_details.vararg or kw_only_params or python_details.kwarg %}
-                  <span class="parameter-separator">, </span>
-                {% endif %}
-              </span>
-            {% endwith %}
-          {% endfor %}
-          {% if python_details.vararg %}
-            <span{% if params|length == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
-              <span class="parameter-name">*{{ python_details.vararg.name }}</span>
-              {% if kw_only_params or python_details.kwarg %}
-                <span class="parameter-separator">, </span>
-              {% endif %}
-            </span>
-          {% elif kw_only_params %}
-            <span>
-              <span class="parameter-name">*</span>
-              <span class="parameter-separator">, </span>
-            </span>
-          {% endif %}
-          {% for param in kw_only_params %}
-            {% with default_value = param.language_details.python.default_value %}
-              <span{% if params|length + (python_details.vararg is defined) + loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
-                <span class="parameter-name">{{ param.name }}</span>
-                <span class="parameter-annotation">
+      {% with params = call.callee.details.function.positional_parameters,
+              kw_only_params = call.callee.details.function.keyword_only_parameters,
+              arg_idx = call.arg_index,
+              in_kwargs = call.language_details.python.in_kwargs,
+              python_details = call.callee.details.function.language_details.python,
+              return_value = call.callee.details.function.return_value %}
+        <span class="function-name">{{ call.callee.repr }}</span>
+        <span class="parens open-parens">(</span>
+        <span class="parameters">
+            {% for param in params %}
+              {% with default_value = param.language_details.python.default_value %}
+                <span{% if loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
+                  <span class="parameter-name">{{ param.name }}</span>
                   {% if default_value %}
                     <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"")|replace("&#39;", "'") }}</span>
                   {% endif %}
+                  {% if not loop.last or python_details.vararg or kw_only_params or python_details.kwarg %}
+                    <span class="parameter-separator">, </span>
+                  {% endif %}
                 </span>
-                {% if not loop.last or python_details.kwarg %}
+              {% endwith %}
+            {% endfor %}
+            {% if python_details.vararg %}
+              <span{% if params|length == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
+                <span class="parameter-name">*{{ python_details.vararg.name }}</span>
+                {% if kw_only_params or python_details.kwarg %}
                   <span class="parameter-separator">, </span>
                 {% endif %}
               </span>
-            {% endwith %}
-          {% endfor %}
-          {% if python_details.kwarg %}
-            <span{% if in_kwargs %} class="current-argument"{% endif %}>
-              <span class="parameter-name">**{{ python_details.kwarg.name }}</span>
-            </span>
-          {% endif %}
-        {% endwith %}
-      </span>
-      <span class="parens close-parens">)</span>
+            {% elif kw_only_params %}
+              <span>
+                <span class="parameter-name">*</span>
+                <span class="parameter-separator">, </span>
+              </span>
+            {% endif %}
+            {% for param in kw_only_params %}
+              {% with default_value = param.language_details.python.default_value %}
+                <span{% if params|length + (python_details.vararg is defined) + loop.index0 == arg_idx and not in_kwargs %} class="current-argument"{% endif %}>
+                  <span class="parameter-name">{{ param.name }}</span>
+                  <span class="parameter-annotation">
+                    {% if default_value %}
+                      <span class="default-value">={{ default_value.0.repr|e|replace("&#34;", "\"")|replace("&#39;", "'") }}</span>
+                    {% endif %}
+                  </span>
+                  {% if not loop.last or python_details.kwarg %}
+                    <span class="parameter-separator">, </span>
+                  {% endif %}
+                </span>
+              {% endwith %}
+            {% endfor %}
+            {% if python_details.kwarg %}
+              <span{% if in_kwargs %} class="current-argument"{% endif %}>
+                <span class="parameter-name">**{{ python_details.kwarg.name }}</span>
+              </span>
+            {% endif %}
+        </span>
+        <span class="parens close-parens">)</span>
+        {% if return_value and return_value.0.type %}
+          <span class="return-value"> → <span class="return-type">{{ return_value.0.type }}</span></span>
+        {% endif %}
+      {% endwith %}
     </div>
     {% if show_keyword_arguments and call.callee.details.function.language_details.python.kwarg_parameters %}
       {% with kwarg_params = call.callee.details.function.language_details.python.kwarg_parameters,
@@ -70,12 +74,9 @@
           <div class="section-title{% if not show_keyword_arguments and keyword_argument_highlighted %} highlighted{% endif %}">
             <span class="title">**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>
             {% if show_keyword_arguments %}
-              <a class="toggle-link" href="hide_keyword_arguments">Hide</a>
+              <a class="toggle-link" href="hide_keyword_arguments">Hide{% if keyword_arguments_keys %}: {{ keyword_arguments_keys }}{% endif %}</a>
             {% else %}
-              <a class="toggle-link" href="show_keyword_arguments">Show</a>
-            {% endif %}
-            {% if keyword_arguments_keys %}
-              <a class="toggle-link" href="{% if show_keyword_arguments %}hide_keyword_arguments{% else %}show_keyword_arguments{% endif %}">{{ keyword_arguments_keys }}</a>
+              <a class="toggle-link" href="show_keyword_arguments">Show{% if keyword_arguments_keys %}: {{ keyword_arguments_keys }}{% endif %}</a>
             {% endif %}
           </div>
           {% if show_keyword_arguments %}
@@ -107,12 +108,9 @@
       <div class="section-title">
         <span class="title">HOW OTHERS USED THIS</span>
         {% if show_popular_patterns %}
-          <a class="toggle-link" href="hide_popular_patterns">Hide</a>
+          <a class="toggle-link" href="hide_popular_patterns">Hide{% if popular_patterns_keys %}: {{ popular_patterns_keys }}{% endif %}</a>
         {% else %}
-          <a class="toggle-link" href="show_popular_patterns">Show</a>
-        {% endif %}
-        {% if popular_patterns_keys %}
-          <a class="toggle-link" href="{% if show_popular_patterns %}hide_popular_patterns{% else %}show_popular_patterns{% endif %}">{{ popular_patterns_keys }}</a>
+          <a class="toggle-link" href="show_popular_patterns">Show{% if popular_patterns_keys %}: {{ popular_patterns_keys }}{% endif %}</a>
         {% endif %}
       </div>
       {% if show_popular_patterns %}

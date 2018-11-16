@@ -16,13 +16,16 @@ html, body {
 .function-signature .function-name {
   color: var(--bluish);
   font-weight: bold;
-
-  position: relative;
   left: -1em;
+  position: relative;
 }
 
 .function-signature .parens.open-parens {
   padding-left: -1em;
+}
+
+.function-signature .return-value .return-type {
+  color: var(--greenish);
 }
 
 .function-signature .parameters .default-value,
