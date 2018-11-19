@@ -51,7 +51,8 @@ def _setup_os_version():
 
     elif sys.platform == 'win32':
         out = subprocess.check_output('ver', shell=True).decode().strip()
-        release = out[(out.find('[Version ') + 9):-1]
+        out = out.lower()
+        release = out[(out.find('[version ') + 9):-1]
         parts = [0]*4
         for i, n in enumerate(release.split('.')):
             parts[i] = int(n)
