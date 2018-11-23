@@ -74,7 +74,7 @@
           <div class="section-title{% if not show_keyword_arguments and keyword_argument_highlighted %} highlighted{% endif %}">
             <span class="title">**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>
             {% if show_keyword_arguments %}
-              <a class="toggle-link" href="hide_keyword_arguments">Hide{% if keyword_arguments_keys %}: {{ keyword_arguments_keys }}{% endif %}</a>
+              <a class="toggle-link" href="hide_keyword_arguments">Hide{% if keyword_arguments_keys %}[{{ keyword_arguments_keys }}]{% endif %}</a>
             {% else %}
               <a class="toggle-link" href="show_keyword_arguments">Show{% if keyword_arguments_keys %}: {{ keyword_arguments_keys }}{% endif %}</a>
             {% endif %}
@@ -108,7 +108,7 @@
       <div class="section-title">
         <span class="title">HOW OTHERS USED THIS</span>
         {% if show_popular_patterns %}
-          <a class="toggle-link" href="hide_popular_patterns">Hide{% if popular_patterns_keys %}: {{ popular_patterns_keys }}{% endif %}</a>
+          <a class="toggle-link" href="hide_popular_patterns">Hide{% if popular_patterns_keys %}[{{ popular_patterns_keys }}]{% endif %}</a>
         {% else %}
           <a class="toggle-link" href="show_popular_patterns">Show{% if popular_patterns_keys %}: {{ popular_patterns_keys }}{% endif %}</a>
         {% endif %}
@@ -157,10 +157,10 @@
         <a class="open-link" href="open_copilot:{{ call.callee.id }}">Docs</a>
       {% endif %}
       {% if not show_keyword_arguments and call.callee.details.function.language_details.python.kwarg_parameters %}
-        <a class="open-link" href="show_keyword_arguments"><span{% if not show_keyword_arguments and keyword_argument_highlighted %} class="highlighted"{% endif %}>**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>{% if keyword_arguments_keys %}: {{ keyword_arguments_keys }}{% endif %}</a>
+        <a class="open-link" href="show_keyword_arguments"><span{% if not show_keyword_arguments and keyword_argument_highlighted %} class="highlighted"{% endif %}>**{{ call.callee.details.function.language_details.python.kwarg.name }}</span>{% if keyword_arguments_keys %}[{{ keyword_arguments_keys }}]{% endif %}</a>
       {% endif %}
       {% if not show_popular_patterns and call.signatures %}
-        <a class="open-link" href="show_popular_patterns">Examples{% if popular_patterns_keys %}: {{ popular_patterns_keys }}{% endif %}</a>
+        <a class="open-link" href="show_popular_patterns">Examples{% if popular_patterns_keys %}[{{ popular_patterns_keys }}]{% endif %}</a>
       {% endif %}
     </div>
   </div>
