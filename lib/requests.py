@@ -9,6 +9,10 @@ _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
 _conns = [None]*4
 
+_IGNORE_EXCEPTIONS = (
+    timeout,
+)
+
 _RESET_EXCEPTIONS = (
     ConnectionRefusedError,
     ConnectionResetError,
@@ -24,12 +28,14 @@ def kited_get(path):
 
     try:
         conn.request('GET', path, headers={'Connection': 'keep-alive'})
+        resp = conn.getresponse()
+        body = resp.read()
+    except _IGNORE_EXCEPTIONS as exc:
+        raise ExpectedError(exc, str(exc))
     except _RESET_EXCEPTIONS as exc:
         _reset_connection(idx)
         raise ExpectedError(exc, str(exc))
     else:
-        resp = conn.getresponse()
-        body = resp.read()
         return resp, body
 
 
@@ -43,12 +49,14 @@ def kited_post(path, data=None):
     try:
         conn.request('POST', path, headers={'Connection': 'keep-alive'},
                      body=(json.dumps(data) if data is not None else None))
+        resp = conn.getresponse()
+        body = resp.read()
+    except _IGNORE_EXCEPTIONS as exc:
+        raise ExpectedError(exc, str(exc))
     except _RESET_EXCEPTIONS as exc:
         _reset_connection(idx)
         raise ExpectedError(exc, str(exc))
     else:
-        resp = conn.getresponse()
-        body = resp.read()
         return resp, body
 
 
