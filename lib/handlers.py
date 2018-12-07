@@ -360,7 +360,10 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 content = cls._render(call)
                 cls._lock.release()
 
-            if content is not None:
+            requested_pos = data['cursor_runes']
+            current_pos = EventDispatcher._last_selection_region['end']
+
+            if content is not None and requested_pos == current_pos:
                 view.show_popup(content,
                                 flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                 max_width=400,
