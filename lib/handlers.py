@@ -197,6 +197,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     (self._brand_completion(c['display'], c['hint']),
                      c['insert']) for c in cls._received_completions
                 ]
+            items = [c['display'] for c in cls._received_completions]
+            logger.log('showing completions: {}'.format(items))
             cls._received_completions = []
             cls._last_location = None
             return completions
@@ -223,12 +225,18 @@ class CompletionsHandler(sublime_plugin.EventListener):
         resp_data = json.loads(body.decode('utf-8'))
         completions = resp_data['completions'] or []
         with cls._lock:
+            items = [c['display'] for c in completions]
+            logger.log('received completions: {}'.format(items))
             cls._received_completions = completions
             cls._last_location = data['cursor_runes']
         cls._run_auto_complete(view)
 
     @staticmethod
     def _run_auto_complete(view):
+        # It seems like the `auto_complete` command does not always result in
+        # `on_query_completions` from being triggered if a completion list is
+        # currently shown, so we need to hide it first.
+        view.run_command('hide_auto_complete')
         view.run_command('auto_complete', {
             'api_completions_only': True,
             'disable_auto_insert': True,

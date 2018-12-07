@@ -1,8 +1,9 @@
 import json
 import random
+import socket
 from http.client import CannotSendRequest, HTTPConnection
-from socket import timeout
 
+from ..lib import settings
 from ..lib.errors import ExpectedError
 
 _KITED_HOST = 'localhost'
@@ -10,7 +11,7 @@ _KITED_PORT = 46624
 _conns = [None]*4
 
 _IGNORE_EXCEPTIONS = (
-    timeout,
+    socket.timeout,
 )
 
 _RESET_EXCEPTIONS = (
@@ -69,7 +70,16 @@ def _get_connection():
 
 def _init_connection(idx):
     global _conns
-    _conns[idx] = HTTPConnection(_KITED_HOST, port=_KITED_PORT, timeout=0.1)
+
+    timeout = settings.get('engine_timeout', 200)
+    try:
+        timeout = float(timeout) / 1000
+    except ValueError:
+        timeout = 0.2
+
+    _conns[idx] = HTTPConnection(_KITED_HOST,
+                                 port=_KITED_PORT,
+                                 timeout=timeout)
 
 
 def _reset_connection(idx):
