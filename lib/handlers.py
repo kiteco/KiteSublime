@@ -229,6 +229,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _run_auto_complete(view):
+        # It seems like the `auto_complete` command does not always result in
+        # `on_query_completions` from being triggered if a completion list is
+        # currently shown, so we need to hide it first.
+        view.run_command('hide_auto_complete')
         view.run_command('auto_complete', {
             'api_completions_only': True,
             'disable_auto_insert': True,
@@ -356,7 +360,10 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 content = cls._render(call)
                 cls._lock.release()
 
-            if content is not None:
+            requested_pos = data['cursor_runes']
+            current_pos = EventDispatcher._last_selection_region['end']
+
+            if content is not None and requested_pos == current_pos:
                 view.show_popup(content,
                                 flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                 max_width=400,
