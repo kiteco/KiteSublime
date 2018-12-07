@@ -18,8 +18,8 @@
   "show_popular_patterns": true,
 
   // Period of time in milliseconds to wait before timing out requests to the Kite Engine.
-  // Setting this value too high may cause Kite's features to appear laggy while setting this
-  // value too low may cause Kite's features to never show up. Default value is 200ms.
+  // Setting this value too high may cause Kite's features to appear laggy. Conversely, setting
+  // this value too low may cause Kite's features to never show up. Default value is 200ms.
   "engine_timeout": 200,
 
   // Enable verbose logging in the console.
