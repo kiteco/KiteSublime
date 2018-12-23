@@ -41,7 +41,7 @@ When running the Kite Engine for the first time, you'll be guided through a setu
 the Sublime package. You can also install or uninstall the Sublime package at any time using the Kite Engine's [plugin
 manager](https://help.kite.com/article/62-managing-editor-plugins).
 
-Alternatively, you can `git clone` this repoistory directly into your Sublime `Packages` directory. You can locate your
+Alternatively, you can `git clone` this repository directly into your Sublime `Packages` directory. You can locate your
 `Packages` directory by opening Sublime, clicking on the `Preferences` menu item, then selecting `Browse Packages...`.
 
 
