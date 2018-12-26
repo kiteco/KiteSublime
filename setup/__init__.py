@@ -1,6 +1,5 @@
 import os
 import platform
-import sublime
 import subprocess
 import sys
 
@@ -29,12 +28,12 @@ def _setup_path():
     global _ROOT
     _ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-    # Determine if python-jinja2 package exists. If so, we need to modify the
-    # path such that we get precedence.
+    # Modify the path such that our version of jinja2 gets precedence
+    packages_path = os.path.dirname(_ROOT)
     idx = -1
     for i, p in enumerate(sys.path):
-        if 'python-jinja2' in p:
-            idx = i
+        if p == packages_path:
+            idx = i + 1
             break
 
     if idx != -1:
