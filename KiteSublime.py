@@ -10,6 +10,7 @@ if int(sublime.version()[0]) < 3:
     raise ImportError('unsupported Sublime: {}'.format(sublime.version()))
 
 import sys
+
 if sys.platform not in ('darwin', 'win32'):
     sublime.error_message(
         'Package KiteSublime is not supported on your OS.\n\n' +
@@ -37,7 +38,8 @@ def plugin_loaded():
     _consumer = deferred.consume()
 
     app_controller.locate_kite()
-    if app_controller.is_kite_installed():
+    if (app_controller.is_kite_installed() and
+            not app_controller.is_kite_running()):
         app_controller.launch_kite()
 
     if settings.get('show_help_dialog', True):

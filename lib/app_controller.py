@@ -30,3 +30,7 @@ def launch_kite():
 def locate_kite():
     global _KITE_INSTALLED, _KITE_APP
     _KITE_INSTALLED, _KITE_APP = _locate_kite()
+
+
+def is_kite_running():
+    return _is_kite_running()
