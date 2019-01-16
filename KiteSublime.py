@@ -1,6 +1,4 @@
-from .setup import setup_all;
-
-setup_all()
+from .setup import setup_all; setup_all()
 
 import sublime
 
