@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -10,7 +11,9 @@ _QUERY = 'reg query "HKEY_LOCAL_MACHINE\\Software\\Kite\\AppData" /v ' \
 
 
 def _launch_kite(app):
-    proc = subprocess.Popen([app])
+    env = os.environ.copy()
+    env['KITE_SKIP_ONBOARDING'] = '1'
+    proc = subprocess.Popen([app], env=env)
     return proc
 
 
@@ -36,8 +39,7 @@ def _is_kite_running():
     running = False
 
     try:
-        out = subprocess.check_output(['tasklist', '/FI', '"IMAGENAME', 'eq',
-                                       'kited.exe'])
+        out = subprocess.check_output('tasklist /FI "IMAGENAME eq kited.exe')
         if len(out) > 0:
             res = out.decode('utf-8', 'replace')
             running = 'kited.exe' in res
