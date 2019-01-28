@@ -285,7 +285,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
     _call = None
     _lock = Lock()
 
-    _template_path = 'Packages/KiteSublime/lib/assets/function-signature-panel.html'
+    _template_path = 'Packages/KiteSublime/lib/assets/' \
+                     'function-signature-panel.html'
     _template = None
     _css_path = 'Packages/KiteSublime/lib/assets/styles.css'
     _css = ''
