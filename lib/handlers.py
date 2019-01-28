@@ -169,6 +169,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
     _lock = Lock()
 
     def on_query_completions(self, view, prefix, locations):
+        logger.log('running on_query_completions')
+
         # Prevent completions from showing up in non-active views
         if sublime.active_window().active_view().id() != view.id():
             return None
@@ -185,6 +187,13 @@ class CompletionsHandler(sublime_plugin.EventListener):
             return None
 
         with cls._lock:
+            if cls._last_location is None:
+                logger.log('completions empty!')
+                cls._received_completions = []
+                cls._last_location = None
+                cls.queue_completions(view, locations[0])
+                return None
+
             if (cls._last_location != locations[0] and
                 cls._received_completions):
                 logger.debug('completions location mismatch: {} != {}'
@@ -197,8 +206,16 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     (self._brand_completion(c['display'], c['hint']),
                      c['insert']) for c in cls._received_completions
                 ]
+
+            if completions:
+                logger.log('got completions: {}'
+                           .format(', '.join([c['display'] for c in cls._received_completions])))
+            else:
+                logger.log('no completions!')
+
             cls._received_completions = []
             cls._last_location = None
+
             return completions
 
     @classmethod
@@ -215,6 +232,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _request_completions(cls, view, data):
+        logger.log('requesting completions')
+
         resp, body = requests.kited_post('/clientapi/editor/completions', data)
 
         if resp.status != 200 or not body:
@@ -232,6 +251,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # It seems like the `auto_complete` command does not always result in
         # `on_query_completions` from being triggered if a completion list is
         # currently shown, so we need to hide it first.
+        logger.log('running _run_auto_complete')
+
         view.run_command('hide_auto_complete')
         view.run_command('auto_complete', {
             'api_completions_only': True,
