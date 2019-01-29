@@ -1,4 +1,4 @@
-from .setup import setup_all; setup_all()
+from .setup import *; setup_all()
 
 import sublime
 
@@ -36,6 +36,8 @@ def plugin_loaded():
 
     global _consumer
     _consumer = deferred.consume()
+
+    setup_completion_rules()
 
     app_controller.locate_kite()
     if (app_controller.is_kite_installed() and

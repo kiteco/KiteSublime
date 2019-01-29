@@ -19,6 +19,7 @@ from ..setup import is_development, os_version
 # Use the vendored version explicitly in case the user has an older version
 # of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
 import importlib
+
 jinja_mods = [m for m in sys.modules.keys()
               if m == 'jinja2' or m.startswith('jinja2.')]
 for m in jinja_mods:
@@ -35,7 +36,6 @@ for m in jinja_mods:
         except ImportError:
             logger.log('could not load {}'.format(m))
 
-
 __all__ = [
     'EventDispatcher',
     'CompletionsHandler',
@@ -48,12 +48,15 @@ __all__ = [
 def _is_view_supported(view):
     return view.file_name() is not None and view.file_name().endswith('.py')
 
+
 def _check_view_size(view):
     return view.size() <= (1 << 20)
+
 
 def _in_function_call(view, point):
     return (view.match_selector(point, 'meta.function-call.python') and
             not view.match_selector(point, 'variable.function.python'))
+
 
 def _md5(text):
     return hashlib.md5(str.encode(text)).hexdigest()
@@ -108,7 +111,7 @@ class EventDispatcher(sublime_plugin.EventListener):
 
             if _in_function_call(view, edit_region['end']):
                 if (settings.get('show_function_signatures', True) or
-                    SignaturesHandler.is_activated()):
+                        SignaturesHandler.is_activated()):
                     SignaturesHandler.queue_signatures(view,
                                                        edit_region['end'])
             else:
@@ -131,13 +134,13 @@ class EventDispatcher(sublime_plugin.EventListener):
         no_info = (None, None)
 
         if (selection is None or edit is None or
-            selection['file'] != edit['file']):
+                selection['file'] != edit['file']):
             return no_info
 
-        if (edit['end'] > selection['end']):
-            return ('insertion', edit['end'] - selection['end'])
-        if (edit['end'] < selection['end']):
-            return ('deletion', selection['end'] - edit['end'])
+        if edit['end'] > selection['end']:
+            return 'insertion', edit['end'] - selection['end']
+        if edit['end'] < selection['end']:
+            return 'deletion', selection['end'] - edit['end']
 
         return no_info
 
@@ -185,20 +188,28 @@ class CompletionsHandler(sublime_plugin.EventListener):
             return None
 
         with cls._lock:
+            if cls._last_location is None:
+                cls._received_completions = []
+                cls._last_location = None
+                cls.queue_completions(view, locations[0])
+                return None
+
             if (cls._last_location != locations[0] and
-                cls._received_completions):
+                    cls._received_completions):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
 
             completions = None
             if (cls._last_location == locations[0] and
-                cls._received_completions):
+                    cls._received_completions):
                 completions = [
                     (self._brand_completion(c['display'], c['hint']),
                      c['insert']) for c in cls._received_completions
                 ]
+
             cls._received_completions = []
             cls._last_location = None
+
             return completions
 
     @classmethod
@@ -264,7 +275,8 @@ class SignaturesHandler(sublime_plugin.EventListener):
     _call = None
     _lock = Lock()
 
-    _template_path = 'Packages/KiteSublime/lib/assets/function-signature-panel.html'
+    _template_path = 'Packages/KiteSublime/lib/assets/' \
+                     'function-signature-panel.html'
     _template = None
     _css_path = 'Packages/KiteSublime/lib/assets/styles.css'
     _css = ''
@@ -276,7 +288,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
 
     def on_query_context(self, view, key, operator, operand, match_all):
         if (key == 'kite_signature_shown' and _is_view_supported(view) and
-            self.__class__._activated):
+                self.__class__._activated):
             return True
         return None
 
@@ -333,7 +345,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
             if call['callee']['kind'] == 'type':
                 call['callee']['details']['function'] = (
                     call['callee']['details']['type']['language_details']
-                        ['python']['constructor'])
+                    ['python']['constructor'])
                 ret = [{'type': call['func_name']}]
                 call['callee']['details']['function']['return_value'] = ret
 
@@ -430,7 +442,7 @@ class SignaturesHandler(sublime_plugin.EventListener):
                 return
 
             action = target[:idx]
-            ident = target[idx+1:]
+            ident = target[idx + 1:]
 
             if action == 'open_browser':
                 link_opener.open_browser(ident)
@@ -468,14 +480,14 @@ class HoverHandler(sublime_plugin.EventListener):
             return
 
         if (_is_view_supported(view) and _check_view_size(view) and
-            len(view.sel()) == 1):
+                len(view.sel()) == 1):
             cls = self.__class__
             deferred.defer(cls._request_hover, view, point)
 
     @classmethod
     def symbol_at_cursor(cls, view, render=False):
         if (not _is_view_supported(view) or not _check_view_size(view) or
-            len(view.sel()) != 1):
+                len(view.sel()) != 1):
             return (None, None)
 
         view = sublime.active_window().active_view()
@@ -494,17 +506,19 @@ class HoverHandler(sublime_plugin.EventListener):
 
             if symbol and render:
                 symbol['hint'] = cls._symbol_hint(symbol)
-                sublime.set_timeout_async(lambda:
+
+                def func():
                     view.show_popup(cls._render(symbol, resp_data['report'],
                                                 view, point),
-                                    max_width=1024,
-                                    location=point,
-                                    on_navigate=cls._handle_link_click), 0)
+                                    max_width=1024, location=point,
+                                    on_navigate=cls._handle_link_click)
 
-            return (points, symbol)
+                sublime.set_timeout_async(func, 0)
+
+            return points, symbol
 
         except ValueError as ex:
-            return (points, None)
+            return points, None
 
     @classmethod
     def _request_hover(cls, view, point):
@@ -560,14 +574,14 @@ class HoverHandler(sublime_plugin.EventListener):
     @classmethod
     def _handle_link_click(cls, target):
         if (target.startswith('open_browser') or
-            target.startswith('open_copilot')):
+                target.startswith('open_copilot')):
             idx = target.find(':')
             if idx == -1:
                 logger.debug('invalid open link format: {}'.format(target))
                 return
 
             action = target[:idx]
-            ident = target[idx+1:]
+            ident = target[idx + 1:]
 
             if action == 'open_browser':
                 link_opener.open_browser(ident)
@@ -581,8 +595,8 @@ class HoverHandler(sublime_plugin.EventListener):
                              .format(target))
                 return
 
-            dest = target[idx+1:]
-            if not dest[dest.rfind(':')+1:].isdigit():
+            dest = target[idx + 1:]
+            if not dest[dest.rfind(':') + 1:].isdigit():
                 logger.debug('invalid open definition format: {}'
                              .format(target))
                 return
