@@ -20,7 +20,7 @@ def setup_all():
         _DEVELOPMENT = True
 
 
-def setup_completions_rules():
+def setup_completion_rules():
     src = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets',
                        'Completion Rules.tmPreferences')
     dest = os.path.join(sublime.packages_path(), 'Python',
