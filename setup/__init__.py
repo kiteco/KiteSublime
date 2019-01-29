@@ -1,11 +1,15 @@
+import sublime
+
 import os
 import platform
 import subprocess
 import sys
+from shutil import copyfile
 
 _ROOT = None
 _DEVELOPMENT = False
 _OS_VERSION = ''
+
 
 def setup_all():
     global _DEVELOPMENT
@@ -15,14 +19,29 @@ def setup_all():
         os.environ['SUBLIME_DEV'] = '1'
         _DEVELOPMENT = True
 
+
+def setup_completions_rules():
+    src = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets',
+                       'Completion Rules.tmPreferences')
+    dest = os.path.join(sublime.packages_path(), 'Python',
+                        'Completion Rules.tmPreferences')
+    if not os.path.exists(dest):
+        if not os.path.exists(os.path.dirname(dest)):
+            os.makedirs(os.path.dirname(dest))
+        copyfile(src, dest)
+
+
 def is_development():
     return _DEVELOPMENT
+
 
 def is_same_package(filename):
     return filename.startswith(_ROOT)
 
+
 def os_version():
     return _OS_VERSION
+
 
 def _setup_path():
     global _ROOT
@@ -41,6 +60,7 @@ def _setup_path():
     else:
         sys.path.append(os.path.join(_ROOT, 'vendor'))
 
+
 def _setup_os_version():
     global _OS_VERSION
 
@@ -52,15 +72,15 @@ def _setup_os_version():
         out = subprocess.check_output('ver', shell=True).decode().strip()
         out = out.lower()
         release = out[(out.find('[version ') + 9):-1]
-        parts = [0]*4
+        parts = [0] * 4
         for i, n in enumerate(release.split('.')):
             parts[i] = int(n)
         if (parts[0] > 6 or
-            (parts[0] == 6 and parts[1] > 4) or
-            (parts[0] == 6 and parts[1] == 4 and parts[2] >= 9841)):
+                (parts[0] == 6 and parts[1] > 4) or
+                (parts[0] == 6 and parts[1] == 4 and parts[2] >= 9841)):
             _OS_VERSION = '10'
         elif (parts[0] == 6 and
-              (parts[1] > 2 or (parts[1] ==2 and parts[2] >= 8102))):
+                (parts[1] > 2 or (parts[1] == 2 and parts[2] >= 8102))):
             _OS_VERSION = '8'
         else:
             _OS_VERSION = '7'
