@@ -250,8 +250,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def queue_signatures(cls, view, signatures, location):
-        logger.log('showing {} signatures at location {}'
-                   .format(len(signatures), location))
         with cls._lock:
             cls._received_signatures = signatures
             cls._last_location = location
@@ -302,33 +300,36 @@ class CompletionsHandler(sublime_plugin.EventListener):
         for arg in (signature['args'] or []):
             args.append(arg['name'])
 
-        keyword_args = []
+        kwargs = []
         for arg in (signature['language_details']['python']['kwargs'] or []):
-            keyword_args.append(arg['name'])
+            kwargs.append(arg['name'])
 
-        if not len(args) and not len(keyword_args):
+        if not len(args) and not len(kwargs):
             return None, None
 
         args_display = ', '.join(args)
-        keyword_args_display = ', '.join((arg + '=...' for arg in keyword_args))
+        kwargs_display = ', '.join(('{}=...'.format(arg)
+                                          for arg in kwargs))
 
         display = args_display
-        if len(keyword_args_display) > 0:
+        if len(kwargs_display) > 0:
             if len(display) > 0:
-                display += (', ' + keyword_args_display)
+                display += (', ' + kwargs_display)
             else:
-                display = keyword_args_display
+                display = kwargs_display
 
-        args_insert = ', '.join(('${' + str(i+1) + ':' + name + '}' for i, name in enumerate(args)))
-        keyword_args_insert = ', '.join((name + '=${' + str(i+1+len(args)) + ':...}' for i, name in enumerate(keyword_args)))
+        args_insert = ', '.join(('${' + str(i+1) + ':' + name + '}' 
+                                 for i, name in enumerate(args)))
+        kwargs_insert = ', '.join((name + '=${' + str(i+1+len(args)) + ':...}'
+                                   for i, name in enumerate(kwargs)))
         insert = args_insert
-        if len(keyword_args_insert) > 0:
+        if len(kwargs_insert) > 0:
             if len(insert) > 0:
-                insert += (', ' + keyword_args_insert)
+                insert += (', ' + kwargs_insert)
             else:
-                insert = keyword_args_insert
+                insert = kwargs_insert
 
-        return '{}\t⟠'.format(display), insert
+        return '{}\tsignature ⟠'.format(display), insert
 
     @staticmethod
     def _event_data(view, location):
