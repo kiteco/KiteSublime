@@ -58,6 +58,23 @@ def _in_function_call(view, point):
             not view.match_selector(point, 'variable.function.python'))
 
 
+def _at_function_call_begin(view, point):
+    return (_in_function_call(view, point) and
+            view.match_selector(point,
+                                'punctuation.section.arguments.begin.python'))
+
+
+def _at_function_call_end(view, point):
+    return (_in_function_call(view, point) and
+            view.match_selector(point,
+                                'punctuation.section.arguments.end.python'))
+
+
+def _in_empty_function_call(view, point):
+    return (_at_function_call_begin(view, point - 1) and
+            _at_function_call_end(view, point))
+
+
 def _md5(text):
     return hashlib.md5(str.encode(text)).hexdigest()
 
@@ -168,6 +185,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     """
 
     _received_completions = []
+    _received_signatures = []
     _last_location = None
     _lock = Lock()
 
@@ -190,12 +208,13 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             if cls._last_location is None:
                 cls._received_completions = []
+                cls._received_signatures = []
                 cls._last_location = None
                 cls.queue_completions(view, locations[0])
                 return None
 
             if (cls._last_location != locations[0] and
-                    cls._received_completions):
+                    (cls._received_completions or cls._received_signatures)):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
 
@@ -207,7 +226,19 @@ class CompletionsHandler(sublime_plugin.EventListener):
                      c['insert']) for c in cls._received_completions
                 ]
 
+            if (cls._last_location == locations[0] and
+                    cls._received_signatures):
+                if completions is None:
+                    completions = []
+                signatures = []
+                for sig in cls._received_signatures:
+                    branded = cls._brand_signature(sig)
+                    if branded[0]:
+                        signatures.append(branded)
+                completions.extend(signatures)
+
             cls._received_completions = []
+            cls._received_signatures = []
             cls._last_location = None
 
             return completions
@@ -218,9 +249,19 @@ class CompletionsHandler(sublime_plugin.EventListener):
                        view, cls._event_data(view, location))
 
     @classmethod
+    def queue_signatures(cls, view, signatures, location):
+        logger.log('showing {} signatures at location {}'
+                   .format(len(signatures), location))
+        with cls._lock:
+            cls._received_signatures = signatures
+            cls._last_location = location
+        cls._run_auto_complete(view)
+
+    @classmethod
     def hide_completions(cls, view):
         with cls._lock:
             cls._received_completions = []
+            cls._received_signatures = []
             cls._last_location = None
         view.run_command('hide_auto_complete')
 
@@ -254,6 +295,40 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _brand_completion(symbol, hint=None):
         return ('{}\t{} ⟠'.format(symbol, hint) if hint
                 else '{}\t⟠'.format(symbol))
+
+    @staticmethod
+    def _brand_signature(signature):
+        args = []
+        for arg in (signature['args'] or []):
+            args.append(arg['name'])
+
+        keyword_args = []
+        for arg in (signature['language_details']['python']['kwargs'] or []):
+            keyword_args.append(arg['name'])
+
+        if not len(args) and not len(keyword_args):
+            return None, None
+
+        args_display = ', '.join(args)
+        keyword_args_display = ', '.join((arg + '=...' for arg in keyword_args))
+
+        display = args_display
+        if len(keyword_args_display) > 0:
+            if len(display) > 0:
+                display += (', ' + keyword_args_display)
+            else:
+                display = keyword_args_display
+
+        args_insert = ', '.join(('${' + str(i+1) + ':' + name + '}' for i, name in enumerate(args)))
+        keyword_args_insert = ', '.join((name + '=${' + str(i+1+len(args)) + ':...}' for i, name in enumerate(keyword_args)))
+        insert = args_insert
+        if len(keyword_args_insert) > 0:
+            if len(insert) > 0:
+                insert += (', ' + keyword_args_insert)
+            else:
+                insert = keyword_args_insert
+
+        return '{}\t⟠'.format(display), insert
 
     @staticmethod
     def _event_data(view, location):
@@ -376,6 +451,12 @@ class SignaturesHandler(sublime_plugin.EventListener):
             current_pos = EventDispatcher._last_selection_region['end']
 
             if content is not None and requested_pos == current_pos:
+                if (_in_empty_function_call(view, data['cursor_runes']) and
+                        len(call['signatures']) > 0):
+                    CompletionsHandler.queue_signatures(view,
+                                                        call['signatures'],
+                                                        data['cursor_runes'])
+
                 view.show_popup(content,
                                 flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                 max_width=400,
