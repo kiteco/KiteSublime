@@ -308,8 +308,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             return None, None
 
         args_display = ', '.join(args)
-        kwargs_display = ', '.join(('{}=...'.format(arg)
-                                          for arg in kwargs))
+        kwargs_display = ', '.join(('{}=...'.format(arg) for arg in kwargs))
 
         display = args_display
         if len(kwargs_display) > 0:
