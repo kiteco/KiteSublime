@@ -451,7 +451,9 @@ class SignaturesHandler(sublime_plugin.EventListener):
             current_pos = EventDispatcher._last_selection_region['end']
 
             if content is not None and requested_pos == current_pos:
-                if (_in_empty_function_call(view, data['cursor_runes']) and
+                snippet_cfg = 'show_function_signature_snippet_completions'
+                if (settings.get(snippet_cfg) and
+                        _in_empty_function_call(view, data['cursor_runes']) and
                         len(call['signatures']) > 0):
                     CompletionsHandler.queue_signatures(view,
                                                         call['signatures'],
