@@ -11,6 +11,7 @@ from ..setup import is_same_package
 # A global queue that is used for the convenience methods provided below.
 _queue = Queue(maxsize=8)
 
+
 def _handler(payload):
     func = payload.get('func')
     args = payload.get('args', [])
@@ -20,6 +21,7 @@ def _handler(payload):
         res = func(*args, **kwargs)
         if done:
             done(res)
+
 
 def _pop(queue):
     try:

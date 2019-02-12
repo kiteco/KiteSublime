@@ -1,5 +1,6 @@
 import sublime
 
+import json
 import os
 import platform
 import subprocess
@@ -9,15 +10,20 @@ from shutil import copyfile
 _ROOT = None
 _DEVELOPMENT = False
 _OS_VERSION = ''
+_PACKAGE_VERSION = None
 
 
 def setup_all():
     global _DEVELOPMENT
+    global _PACKAGE_VERSION
     _setup_path()
     _setup_os_version()
     if os.path.exists(os.path.join(_ROOT, 'DEVELOPMENT')):
         os.environ['SUBLIME_DEV'] = '1'
         _DEVELOPMENT = True
+    with open(os.path.join(_ROOT, 'package.json')) as f:
+        pkg = json.loads(f.read())
+        _PACKAGE_VERSION = pkg.get('version', None)
 
 
 def setup_completion_rules():
@@ -41,6 +47,10 @@ def is_same_package(filename):
 
 def os_version():
     return _OS_VERSION
+
+
+def package_version():
+    return _PACKAGE_VERSION
 
 
 def _setup_path():

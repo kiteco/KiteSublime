@@ -1,6 +1,7 @@
-// WARNING: This settings file is reverted everytime the Kite package is updated. Any changes you
-// make to this file will be lost when this happens. It's recommended that you change settings in
-// the user settings file in `Packages/User/KiteSublime.package-settings`.
+// WARNING: This settings file is reverted everytime the Kite package is
+// updated. Any changes you make to this file will be lost when this
+// happens. It's recommended that you change settings in the user settings
+// file in `Packages/User/KiteSublime.package-settings`.
 {
   // Show the help dialog on startup.
   "show_help_dialog": true,
@@ -11,15 +12,21 @@
   // Show function signatures automatically when editing a function call.
   "show_function_signatures": true,
 
-  // Show inferred keyword arguments when displaying the function signature panel.
+  // Show inferred keyword arguments when displaying the function signature
+  // panel.
   "show_keyword_arguments": false,
 
-  // Show popular patterns for calling functions when displaying the function signature panel.
+  // Show popular patterns for calling functions when displaying the function
+  // signature panel.
   "show_popular_patterns": true,
 
-  // Period of time in milliseconds to wait before timing out requests to the Kite Engine.
-  // Setting this value too high may cause Kite's features to appear laggy. Conversely, setting
-  // this value too low may cause Kite's features to never show up. Default value is 200ms.
+  // Show function signature snippet completions.
+  "show_function_signature_snippet_completions": true,
+
+  // Period of time in milliseconds to wait before timing out requests to the
+  // Kite Engine. Setting this value too high may cause Kite's features to
+  // appear laggy. Conversely, setting this value too low may cause Kite's 
+  // features to never show up. Default value is 200ms.
   "engine_timeout": 200,
 
   // Enable verbose logging in the console.
