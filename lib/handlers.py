@@ -122,7 +122,9 @@ class EventDispatcher(sublime_plugin.EventListener):
                                                   edit_region)
 
             if edit_type == 'insertion' and num_chars == 1:
-                CompletionsHandler.queue_completions(view, edit_region['end'])
+                if view.settings().get('auto_complete'):
+                    CompletionsHandler.queue_completions(view,
+                                                         edit_region['end'])
             elif edit_type == 'deletion' and num_chars > 1:
                 CompletionsHandler.hide_completions(view)
 
