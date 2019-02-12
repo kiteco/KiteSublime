@@ -6,7 +6,7 @@ import sys
 import traceback
 
 from ..lib import logger
-from ..setup import is_development, is_same_package
+from ..setup import is_development, is_same_package, package_version
 
 
 _MODULE_NAME = None
@@ -24,13 +24,19 @@ _ROLLBAR_TOKENS = {
 def send_rollbar_msg(msg):
     if not _ROLLBAR_IS_INIT:
         _init_rollbar()
-    rollbar.report_message(msg)
+    rollbar.report_message(msg, extra_data={
+        'sublime_version': sublime.version(),
+        'package_version': package_version(),
+    })
 
 
 def send_rollbar_exc(exc):
     if not _ROLLBAR_IS_INIT:
         _init_rollbar()
-    rollbar.report_exc_info(exc)
+    rollbar.report_exc_info(exc, extra_data={
+        'sublime_version': sublime.version(),
+        'package_version': package_version(),
+    })
 
 
 def setup_excepthook():

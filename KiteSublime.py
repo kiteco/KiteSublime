@@ -51,7 +51,7 @@ def plugin_loaded():
 
     compatibility.check_anaconda_compatibility()
 
-    logger.log('Kite activated')
+    logger.log('Kite v{} activated'.format(package_version()))
 
 
 def plugin_unloaded():
