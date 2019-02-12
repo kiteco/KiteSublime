@@ -14,7 +14,7 @@ from urllib.parse import quote
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
 from ..lib.file_system import path_for_url
-from ..setup import is_development, os_version
+from ..setup import is_development, os_version, package_version
 
 # Use the vendored version explicitly in case the user has an older version
 # of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
@@ -175,6 +175,8 @@ class EventDispatcher(sublime_plugin.EventListener):
             'text': text,
             'action': action,
             'selections': [{'start': r.a, 'end': r.b} for r in view.sel()],
+            'editor_version': sublime.version(),
+            'plugin_version': package_version(),
         }
 
 
@@ -317,7 +319,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             else:
                 display = kwargs_display
 
-        args_insert = ', '.join(('${' + str(i+1) + ':' + name + '}' 
+        args_insert = ', '.join(('${' + str(i+1) + ':' + name + '}'
                                  for i, name in enumerate(args)))
         kwargs_insert = ', '.join((name + '=${' + str(i+1+len(args)) + ':...}'
                                    for i, name in enumerate(kwargs)))
