@@ -54,8 +54,12 @@ def _check_view_size(view):
 
 
 def _in_function_call(view, point):
-    return (view.match_selector(point, 'meta.function-call.python') and
-            not view.match_selector(point, 'variable.function.python'))
+    # The first matched scope is for 3176, and the second is for 3200. Both
+    # are checked here as a hacky fix to account for changes in the API. We
+    # should instead factor version handling logic into a separate module.
+    return ((view.match_selector(point, 'meta.function-call.python') or
+             view.match_selector(point, 'meta.function-call.arguments.python'))
+            and not view.match_selector(point, 'variable.function.python'))
 
 
 def _at_function_call_begin(view, point):
