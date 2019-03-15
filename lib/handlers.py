@@ -372,6 +372,16 @@ class SignaturesHandler(sublime_plugin.EventListener):
     def on_query_context(self, view, key, operator, operand, match_all):
         if (key == 'kite_signature_shown' and _is_view_supported(view) and
                 self.__class__._activated):
+            # In case Vintage is enabled, make sure we switch to command mode.
+            # Questionable if this is the right behavior, since it differs
+            # from the builtin behavior with respect to what happens when the
+            # user hits escape while completions are shown - In this case, the
+            # user still has to hit escape twice to enter command mode. However,
+            # since we've received feedback about this, we've enabled this
+            # behavior and have made it configurable.
+            if settings.get('hide_signatures_enters_command_mode', True):
+                view.run_command('exit_insert_mode')
+
             return True
         return None
 
