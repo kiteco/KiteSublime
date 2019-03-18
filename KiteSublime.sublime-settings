@@ -23,9 +23,13 @@
   // Show function signature snippet completions.
   "show_function_signature_snippet_completions": true,
 
+  // For users of Vintage, this setting controls whether or not hiding
+  // signatures with escape will also cause the editor to enter command mode.
+  "hide_signatures_enters_command_mode": true,
+
   // Period of time in milliseconds to wait before timing out requests to the
   // Kite Engine. Setting this value too high may cause Kite's features to
-  // appear laggy. Conversely, setting this value too low may cause Kite's 
+  // appear laggy. Conversely, setting this value too low may cause Kite's
   // features to never show up. Default value is 200ms.
   "engine_timeout": 200,
 

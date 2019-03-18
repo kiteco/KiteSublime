@@ -54,8 +54,12 @@ def _check_view_size(view):
 
 
 def _in_function_call(view, point):
-    return (view.match_selector(point, 'meta.function-call.python') and
-            not view.match_selector(point, 'variable.function.python'))
+    # The first matched scope is for 3176, and the second is for 3200. Both
+    # are checked here as a hacky fix to account for changes in the API. We
+    # should instead factor version handling logic into a separate module.
+    return ((view.match_selector(point, 'meta.function-call.python') or
+             view.match_selector(point, 'meta.function-call.arguments.python'))
+            and not view.match_selector(point, 'variable.function.python'))
 
 
 def _at_function_call_begin(view, point):
@@ -368,6 +372,16 @@ class SignaturesHandler(sublime_plugin.EventListener):
     def on_query_context(self, view, key, operator, operand, match_all):
         if (key == 'kite_signature_shown' and _is_view_supported(view) and
                 self.__class__._activated):
+            # In case Vintage is enabled, make sure we switch to command mode.
+            # Questionable if this is the right behavior, since it differs
+            # from the builtin behavior with respect to what happens when the
+            # user hits escape while completions are shown - In this case, the
+            # user still has to hit escape twice to enter command mode. However,
+            # since we've received feedback about this, we've enabled this
+            # behavior and have made it configurable.
+            if settings.get('hide_signatures_enters_command_mode', True):
+                view.run_command('exit_insert_mode')
+
             return True
         return None
 
