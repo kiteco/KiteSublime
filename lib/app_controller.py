@@ -6,6 +6,8 @@ if sys.platform == 'darwin':
     from ..lib.platform.darwin.app_controller import *
 elif sys.platform == 'win32':
     from ..lib.platform.win32.app_controller import *
+elif sys.platform == 'linux2':
+    from ..lib.platform.linux2.app_controller import *
 else:
     from ..lib.platform.unsupported.app_controller import *
 
