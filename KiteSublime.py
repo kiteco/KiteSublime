@@ -11,7 +11,7 @@ if int(sublime.version()[0]) < 3:
 
 import sys
 
-if sys.platform not in ('darwin', 'win32', 'linux2'):
+if sys.platform not in ('darwin', 'win32', 'linux', 'linux2'):
     sublime.error_message(
         'Package KiteSublime is not supported on your OS.\n\n' +
         'Sublime will disable this package.'
