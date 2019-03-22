@@ -12,9 +12,9 @@ def _locate_kite():
     installed = False
     app = None
 
-    if os.path.exists('/opt/kite/current'):
+    if os.path.exists('/opt/kite/kited'):
         installed = True
-        app = os.path.join(os.path.realpath('/opt/kite/current'), 'kited')
+        app = os.path.realpath('/opt/kite/kited')
 
     return installed, app
 
