@@ -193,7 +193,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
     """
 
     _received_completions = []
-    _received_signatures = []
     _last_location = None
     _lock = Lock()
 
@@ -216,13 +215,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             if cls._last_location is None:
                 cls._received_completions = []
-                cls._received_signatures = []
                 cls._last_location = None
                 cls.queue_completions(view, locations[0])
                 return None
 
-            if (cls._last_location != locations[0] and
-                    (cls._received_completions or cls._received_signatures)):
+            if (cls._last_location != locations[0]
+                    and cls._received_completions):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
 
@@ -234,19 +232,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                      c['insert']) for c in cls._received_completions
                 ]
 
-            if (cls._last_location == locations[0] and
-                    cls._received_signatures):
-                if completions is None:
-                    completions = []
-                signatures = []
-                for sig in cls._received_signatures:
-                    branded = cls._brand_signature(sig)
-                    if branded[0]:
-                        signatures.append(branded)
-                completions.extend(signatures)
-
             cls._received_completions = []
-            cls._received_signatures = []
             cls._last_location = None
 
             return completions
@@ -255,13 +241,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def queue_completions(cls, view, location):
         deferred.defer(cls._request_completions,
                        view, cls._event_data(view, location))
-
-    @classmethod
-    def queue_signatures(cls, view, signatures, location):
-        with cls._lock:
-            cls._received_signatures = signatures
-            cls._last_location = location
-        cls._run_auto_complete(view)
 
     @classmethod
     def hide_completions(cls, view):
@@ -301,42 +280,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _brand_completion(symbol, hint=None):
         return ('{}\t{} ⟠'.format(symbol, hint) if hint
                 else '{}\t⟠'.format(symbol))
-
-    @staticmethod
-    def _brand_signature(signature):
-        args = []
-        for arg in (signature['args'] or []):
-            args.append(arg['name'])
-
-        kwargs = []
-        for arg in (signature['language_details']['python']['kwargs'] or []):
-            kwargs.append(arg['name'])
-
-        if not len(args) and not len(kwargs):
-            return None, None
-
-        args_display = ', '.join(args)
-        kwargs_display = ', '.join(('{}=...'.format(arg) for arg in kwargs))
-
-        display = args_display
-        if len(kwargs_display) > 0:
-            if len(display) > 0:
-                display += (', ' + kwargs_display)
-            else:
-                display = kwargs_display
-
-        args_insert = ', '.join(('${' + str(i+1) + ':' + name + '}'
-                                 for i, name in enumerate(args)))
-        kwargs_insert = ', '.join((name + '=${' + str(i+1+len(args)) + ':...}'
-                                   for i, name in enumerate(kwargs)))
-        insert = args_insert
-        if len(kwargs_insert) > 0:
-            if len(insert) > 0:
-                insert += (', ' + kwargs_insert)
-            else:
-                insert = kwargs_insert
-
-        return '{}\tsignature ⟠'.format(display), insert
 
     @staticmethod
     def _event_data(view, location):
@@ -469,14 +412,6 @@ class SignaturesHandler(sublime_plugin.EventListener):
             current_pos = EventDispatcher._last_selection_region['end']
 
             if content is not None and requested_pos == current_pos:
-                snippet_cfg = 'show_function_signature_snippet_completions'
-                if (settings.get(snippet_cfg) and
-                        _in_empty_function_call(view, data['cursor_runes']) and
-                        len(call['signatures']) > 0):
-                    CompletionsHandler.queue_signatures(view,
-                                                        call['signatures'],
-                                                        data['cursor_runes'])
-
                 view.show_popup(content,
                                 flags=sublime.COOPERATE_WITH_AUTO_COMPLETE,
                                 max_width=400,
