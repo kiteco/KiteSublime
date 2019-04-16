@@ -246,7 +246,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def hide_completions(cls, view):
         with cls._lock:
             cls._received_completions = []
-            cls._received_signatures = []
             cls._last_location = None
         view.run_command('hide_auto_complete')
 

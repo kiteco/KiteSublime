@@ -20,9 +20,6 @@
   // signature panel.
   "show_popular_patterns": true,
 
-  // Show function signature snippet completions.
-  "show_function_signature_snippet_completions": true,
-
   // For users of Vintage, this setting controls whether or not hiding
   // signatures with escape will also cause the editor to enter command mode.
   "hide_signatures_enters_command_mode": true,
