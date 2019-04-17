@@ -2,13 +2,16 @@ import json
 import random
 import socket
 from http.client import CannotSendRequest, HTTPConnection
+from threading import Lock
 
 from ..lib import settings
 from ..lib.errors import ExpectedError
 
 _KITED_HOST = 'localhost'
 _KITED_PORT = 46624
+
 _conns = [None]*4
+_locks = [Lock() for _ in range(4)]
 
 _IGNORE_EXCEPTIONS = (
     socket.timeout,
@@ -25,7 +28,7 @@ def kited_get(path):
     """Makes a GET request to a Kite endpoint specified by the `path`
     argument. Returns the response and response body as a tuple.
     """
-    conn, idx = _get_connection()
+    conn, lock, idx = _get_connection()
 
     try:
         conn.request('GET', path, headers={'Connection': 'keep-alive'})
@@ -38,6 +41,8 @@ def kited_get(path):
         raise ExpectedError(exc, str(exc))
     else:
         return resp, body
+    finally:
+        lock.release()
 
 
 def kited_post(path, data=None):
@@ -45,7 +50,7 @@ def kited_post(path, data=None):
     argument. The `data` argument is JSON-serialized and used as the request
     body. Returns the response and response body as a tuple.
     """
-    conn, idx = _get_connection()
+    conn, lock, idx = _get_connection()
 
     try:
         conn.request('POST', path, headers={'Connection': 'keep-alive'},
@@ -59,13 +64,26 @@ def kited_post(path, data=None):
         raise ExpectedError(exc, str(exc))
     else:
         return resp, body
+    finally:
+        lock.release()
+
+
+def _acquire_lock():
+    idx = -1
+    lock = None
+    check = False
+    while not check:
+        idx = random.randint(0, len(_locks)-1)
+        lock = _locks[idx]
+        check = lock.acquire(False)
+    return lock, idx
 
 
 def _get_connection():
-    idx = random.randint(0, len(_conns)-1)
+    lock, idx = _acquire_lock()
     if _conns[idx] is None:
         _init_connection(idx)
-    return _conns[idx], idx
+    return _conns[idx], lock, idx
 
 
 def _init_connection(idx):
