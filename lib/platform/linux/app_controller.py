@@ -12,7 +12,11 @@ def _locate_kite():
     installed = False
     app = None
 
-    if os.path.exists('/opt/kite/kited'):
+    if os.path.exists(os.path.expanduser('~/.local/share/kite/kited')):
+        installed = True
+        app = os.path.expanduser('~/.local/share/kite/kited')
+
+    elif os.path.exists('/opt/kite/kited'):
         installed = True
         app = os.path.realpath('/opt/kite/kited')
 
