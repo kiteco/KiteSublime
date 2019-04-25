@@ -6,6 +6,7 @@ import platform
 import subprocess
 import sys
 from shutil import copyfile
+from re import findall
 
 _ROOT = None
 _DEVELOPMENT = False
@@ -79,9 +80,9 @@ def _setup_os_version():
         _OS_VERSION = ver[0]
 
     elif sys.platform == 'win32':
-        out = subprocess.check_output('ver', shell=True).decode().strip()
-        out = out.lower()
-        release = out[(out.find('[version ') + 9):-1]
+        out = str(subprocess.check_output('ver', shell=True).strip())
+        pattern = r'(?<=\s)\d+.*(?=\])'
+        release = findall(pattern, out)[0]
         parts = [0] * 4
         for i, n in enumerate(release.split('.')):
             parts[i] = int(n)
