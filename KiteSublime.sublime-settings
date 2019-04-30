@@ -18,7 +18,7 @@
 
   // Show popular patterns for calling functions when displaying the function
   // signature panel.
-  "show_popular_patterns": true,
+  "show_popular_patterns": false,
 
   // For users of Vintage, this setting controls whether or not hiding
   // signatures with escape will also cause the editor to enter command mode.
