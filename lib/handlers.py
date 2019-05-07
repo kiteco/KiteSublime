@@ -7,7 +7,6 @@ import json
 import sys
 import os
 from http.client import CannotSendRequest
-
 from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
@@ -260,7 +259,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         completions = resp_data['completions'] or []
         with cls._lock:
             cls._received_completions = completions
-            cls._last_location = data['cursor_runes']
+            cls._last_location = data['position']['begin']
         cls._run_auto_complete(view)
 
     @staticmethod
@@ -286,7 +285,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
             'filename': realpath(view.file_name()),
             'editor': 'sublime3',
             'text': view.substr(sublime.Region(0, view.size())),
-            'cursor_runes': location,
+            'position': {
+                'begin': location,
+                'end': location,
+            }
         }
 
 
