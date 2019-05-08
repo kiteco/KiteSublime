@@ -279,10 +279,27 @@ class CompletionsHandler(sublime_plugin.EventListener):
         result = []
         for c in completions:
             result.append((self._brand_completion('  ' * nesting + c['display'], c['hint']),
-                           c['snippet']['text']))
+                           self._placeholder_text(c)))
             if 'children' in c:
                 result += self._flatten_completions(c['children'], nesting + 1)
         return result
+
+    @staticmethod
+    def _placeholder_text(completion):
+        text = completion['snippet']['text']
+        try:
+            placeholders = completion['snippet']['placeholders']
+            # sort placeholders in reverse order for easier string patching
+            # we assume that placeholders do not overlap
+            copy = list(placeholders)
+            copy.sort(key=lambda i: i['begin'], reverse=True)
+            for p in copy:
+                a, b = p['begin'], p['end']
+                index = placeholders.index(p) + 1  # +1 because $0 is the last placeholder
+                text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) + text[b:]
+        except KeyError:
+            return completion['snippet']['text']
+        return text
 
     @staticmethod
     def _brand_completion(symbol, hint=None):
