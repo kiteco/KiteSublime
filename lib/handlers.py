@@ -226,10 +226,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             completions = None
             if (cls._last_location == locations[0] and
                     cls._received_completions):
-                completions = [
-                    (self._brand_completion(c['display'], c['hint']),
-                     c['insert']) for c in cls._received_completions
-                ]
+                completions = self._flatten_completions(cls._received_completions)
 
             cls._received_completions = []
             cls._last_location = None
@@ -273,6 +270,18 @@ class CompletionsHandler(sublime_plugin.EventListener):
             'disable_auto_insert': True,
             'next_completion_if_showing': False,
         })
+
+    def _flatten_completions(self, completions, nesting=0):
+        if not completions:
+            return []
+
+        result = []
+        for c in completions:
+            result.append((self._brand_completion('  ' * nesting + c['display'], c['hint']),
+                           c['snippet']['text']))
+            if 'children' in c:
+                result += self._flatten_completions(c['children'], nesting + 1)
+        return result
 
     @staticmethod
     def _brand_completion(symbol, hint=None):
