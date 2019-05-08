@@ -5,7 +5,6 @@ import hashlib
 import htmlmin
 import json
 import sys
-import os
 from http.client import CannotSendRequest
 from os.path import realpath
 from threading import Lock
