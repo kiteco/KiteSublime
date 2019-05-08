@@ -248,7 +248,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _request_completions(cls, view, data):
-        resp, body = requests.kited_post('/clientapi/editor/completions', data)
+        resp, body = requests.kited_post('/clientapi/editor/complete', data)
 
         if resp.status != 200 or not body:
             return
