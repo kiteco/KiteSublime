@@ -113,7 +113,8 @@ class EventDispatcher(sublime_plugin.EventListener):
             select_region = cls._view_region(view)
             cls._last_selection_region = select_region
 
-            if _in_function_call(view, select_region['end']):
+            if (select_region is not None and
+                    _in_function_call(view, select_region['end'])):
                 if SignaturesHandler.is_activated():
                     SignaturesHandler.queue_signatures(view,
                                                        select_region['end'])
@@ -132,7 +133,8 @@ class EventDispatcher(sublime_plugin.EventListener):
             elif edit_type == 'deletion' and num_chars > 1:
                 CompletionsHandler.hide_completions(view)
 
-            if _in_function_call(view, edit_region['end']):
+            if (edit_region is not None
+                    and _in_function_call(view, edit_region['end'])):
                 if (settings.get('show_function_signatures', True) or
                         SignaturesHandler.is_activated()):
                     SignaturesHandler.queue_signatures(view,
