@@ -234,6 +234,18 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
             return completions
 
+    def on_post_text_command(self, view, command_name, args):
+        if command_name not in ('prev_field', 'next_field', 'commit_completion', 'insert_best_completion'):
+            logger.debug("skipping post text command {}".format(command_name))
+            return
+        if len(view.sel()) != 1:
+            logger.debug("skipping post text command {} with != 1 selections".format(command_name))
+            return
+
+        r = view.sel()[0]
+        logger.debug("parameter selected ({}): {}".format(r, view.substr(r)))
+        self.queue_completions(view, [r.begin(), r.end()])
+
     @classmethod
     def queue_completions(cls, view, location):
         deferred.defer(cls._request_completions,
@@ -308,13 +320,18 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _event_data(view, location):
+        if isinstance(location, list):
+            a,b = location[0], location[1]
+        else:
+            a,b = location, location
+
         return {
             'filename': realpath(view.file_name()),
             'editor': 'sublime3',
             'text': view.substr(sublime.Region(0, view.size())),
             'position': {
-                'begin': location,
-                'end': location,
+                'begin': a,
+                'end': b,
             }
         }
 
