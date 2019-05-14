@@ -14,7 +14,7 @@ def start_onboarding():
     """
 
     url = 'http://localhost:46624/clientapi/plugins/onboarding_file'
-    resp = requests.get(url)
+    resp = requests.get(url, params={"editor": "sublime3"})
 
     if resp.status_code != 200:
         res = sublime.yes_no_cancel_dialog(
