@@ -40,9 +40,10 @@ def plugin_loaded():
     setup_completion_rules()
 
     app_controller.locate_kite()
-    if (app_controller.is_kite_installed() and
-            not app_controller.is_kite_running()):
-        app_controller.launch_kite()
+
+    if (settings.get('start_kite_engine_on_startup', True) and
+            app_controller.is_kite_installed()):
+        app_controller.launch_kite_if_not_running()
 
     if settings.get('show_help_dialog', True):
         toggle_dialog = onboarding.start_onboarding()

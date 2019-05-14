@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from ..lib import link_opener, logger, onboarding, settings
+from ..lib import app_controller, link_opener, logger, onboarding, settings
 from ..lib.handlers import HoverHandler, SignaturesHandler
 
 
@@ -95,6 +95,26 @@ class KiteOpenCopilot(sublime_plugin.ApplicationCommand):
 
     def run(self):
         link_opener.open_copilot_root('')
+
+
+class KiteStartEngine(sublime_plugin.ApplicationCommand):
+    """Command to start the Kite Engine.
+    """
+
+    def run(self):
+        if not app_controller.is_kite_installed():
+            if sublime.ok_cancel_dialog(
+                'Kite Engine is not installed. You can install it at ' \
+                'https://kite.com/download.',
+                ok_title='Download'
+            ):
+                link_opener.open_browser_url('https://kite.com/download')
+
+        elif app_controller.is_kite_running():
+            sublime.message_dialog('Kite Engine is already running!')
+
+        else:
+            app_controller.launch_kite_if_not_running()
 
 
 class KiteEngineSettings(sublime_plugin.ApplicationCommand):
