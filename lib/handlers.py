@@ -359,7 +359,11 @@ class SignaturesHandler(sublime_plugin.EventListener):
             cls._lock.release()
 
         if reset:
-            view.hide_popup()
+            # This needs to be deferred to handle a race condition when the
+            # user is using Vintage. When command mode is entered, the cursor
+            # moves back one character, which causes signatures to be requested
+            # again. See this class's method `on_query_context` above.
+            deferred.defer(view.hide_popup)
 
     @classmethod
     def is_activated(cls):
