@@ -13,6 +13,7 @@ from threading import Lock
 from urllib.parse import quote
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
+from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
 
@@ -715,6 +716,11 @@ class StatusHandler(sublime_plugin.EventListener):
         except ConnectionRefusedError as ex:
             view.set_status(cls._status_key,
                             cls._brand_status('Connection error'))
+
+        except ExpectedError as exc:
+            if isinstance(exc.exc, ConnectionRefusedError):
+                view.set_status(cls._status_key,
+                                cls._brand_status('Connection error'))
 
         except CannotSendRequest as ex:
             logger.debug('could not request status: {}'.format(ex))
