@@ -123,7 +123,6 @@ class EventDispatcher(sublime_plugin.EventListener):
             edit_region = cls._view_region(view)
             edit_type, num_chars = cls._edit_info(cls._last_selection_region,
                                                   edit_region)
-
             if edit_type == 'insertion' and num_chars == 1:
                 if view.settings().get('auto_complete'):
                     CompletionsHandler.queue_completions(view,
@@ -242,9 +241,16 @@ class CompletionsHandler(sublime_plugin.EventListener):
             logger.debug("skipping post text command {} with != 1 selections".format(command_name))
             return
 
+        # we must only show completions if a placeholder was selected
+        # there's no way to be notified when a particular completion item was inserted
+        # the closest thing we can do is to show completions
+        # only when a non-empty selection (i.e. size > 1) is present after the command
+        # was executed
         r = view.sel()[0]
-        logger.debug("parameter selected ({}): {}".format(r, view.substr(r)))
-        self.queue_completions(view, [r.begin(), r.end()])
+        if not r.empty():
+            # a reversed region might have r.a > r.b
+            a, b = min(r.a, r.b), max(r.a, r.b)
+            self.queue_completions(view, [a, b])
 
     @classmethod
     def queue_completions(cls, view, location):
@@ -321,9 +327,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
     @staticmethod
     def _event_data(view, location):
         if isinstance(location, list):
-            a,b = location[0], location[1]
+            a, b = location[0], location[1]
         else:
-            a,b = location, location
+            a, b = location, location
 
         return {
             'filename': realpath(view.file_name()),
