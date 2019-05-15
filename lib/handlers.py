@@ -269,7 +269,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         completions = resp_data['completions'] or []
         with cls._lock:
             cls._received_completions = completions
-            cls._last_location = data['position']['begin']
+            cls._last_location = data['position']['end']
         cls._run_auto_complete(view)
 
     @staticmethod
