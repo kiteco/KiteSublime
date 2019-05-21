@@ -249,7 +249,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         r = view.sel()[0]
         if not r.empty():
             # a reversed region might have r.a > r.b
-            a, b = min(r.a, r.b), max(r.a, r.b)
+            a, b = sorted([r.a, r.b])
             self.queue_completions(view, [a, b])
 
     @classmethod
