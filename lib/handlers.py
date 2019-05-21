@@ -11,6 +11,7 @@ from threading import Lock
 from urllib.parse import quote
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests
+from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
 
@@ -409,7 +410,11 @@ class SignaturesHandler(sublime_plugin.EventListener):
             cls._lock.release()
 
         if reset:
-            view.hide_popup()
+            # This needs to be deferred to handle a race condition when the
+            # user is using Vintage. When command mode is entered, the cursor
+            # moves back one character, which causes signatures to be requested
+            # again. See this class's method `on_query_context` above.
+            deferred.defer(view.hide_popup)
 
     @classmethod
     def is_activated(cls):
@@ -761,6 +766,11 @@ class StatusHandler(sublime_plugin.EventListener):
         except ConnectionRefusedError as ex:
             view.set_status(cls._status_key,
                             cls._brand_status('Connection error'))
+
+        except ExpectedError as exc:
+            if isinstance(exc.exc, ConnectionRefusedError):
+                view.set_status(cls._status_key,
+                                cls._brand_status('Connection error'))
 
         except CannotSendRequest as ex:
             logger.debug('could not request status: {}'.format(ex))

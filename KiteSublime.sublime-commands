@@ -16,6 +16,10 @@
     "command": "kite_open_copilot"
   },
   {
+    "caption": "Kite: Start Engine",
+    "command": "kite_start_engine"
+  },
+  {
     "caption": "Kite: Engine Settings",
     "command": "kite_engine_settings"
   },

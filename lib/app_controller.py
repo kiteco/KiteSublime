@@ -29,6 +29,11 @@ def launch_kite():
     _launch_kite(_KITE_APP)
 
 
+def launch_kite_if_not_running():
+    if not is_kite_running():
+        _launch_kite(_KITE_APP)
+
+
 def locate_kite():
     global _KITE_INSTALLED, _KITE_APP
     _KITE_INSTALLED, _KITE_APP = _locate_kite()

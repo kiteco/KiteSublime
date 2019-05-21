@@ -3,6 +3,9 @@
 // happens. It's recommended that you change settings in the user settings
 // file in `Packages/User/KiteSublime.package-settings`.
 {
+  // Start the Kite Engine on startup.
+  "start_kite_engine_on_startup": true,
+
   // Show the help dialog on startup.
   "show_help_dialog": true,
 
