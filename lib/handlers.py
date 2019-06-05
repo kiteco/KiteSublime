@@ -521,6 +521,9 @@ class HoverHandler(sublime_plugin.EventListener):
         if not settings.get('show_hover', True):
             return
 
+        if hover_zone != sublime.HOVER_TEXT:
+            return
+
         if (_is_view_supported(view) and _check_view_size(view) and
                 len(view.sel()) == 1):
             cls = self.__class__
