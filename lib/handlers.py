@@ -51,7 +51,8 @@ def _is_view_supported(view):
 
 
 def _check_view_size(view):
-    return view.size() <= (1 << 20)
+    # max file size is 75 kilobytes (75 * 1024)
+    return view.size() <= 76800
 
 
 def _in_function_call(view, point):
