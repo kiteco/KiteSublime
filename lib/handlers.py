@@ -339,10 +339,11 @@ class SignaturesHandler(sublime_plugin.EventListener):
     def hide_signatures(cls, view):
         reset = False
         if cls._lock.acquire(blocking=False):
-            cls._activated = False
-            cls._view = None
-            cls._call = None
-            reset = True
+            if cls._activated:
+                cls._activated = False
+                cls._view = None
+                cls._call = None
+                reset = True
             cls._lock.release()
 
         if reset:
