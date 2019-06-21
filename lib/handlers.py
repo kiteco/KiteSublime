@@ -236,10 +236,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     def on_post_text_command(self, view, command_name, args):
         if command_name not in ('prev_field', 'next_field', 'commit_completion', 'insert_best_completion'):
-            logger.debug("skipping post text command {}".format(command_name))
             return
         if len(view.sel()) != 1:
-            logger.debug("skipping post text command {} with != 1 selections".format(command_name))
             return
 
         # we must only show completions if a placeholder was selected
@@ -300,7 +298,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             result.append((self._brand_completion('  ' * nesting + c['display'], c['hint']),
                            self._placeholder_text(c)))
             if 'children' in c:
-                result += self._flatten_completions(c['children'], nesting + 1)
+                result.extend(self._flatten_completions(c['children'], nesting + 1))
         return result
 
     @staticmethod
@@ -310,8 +308,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             placeholders = completion['snippet']['placeholders']
             # sort placeholders in reverse order for easier string patching
             # we assume that placeholders do not overlap
-            copy = list(placeholders)
-            copy.sort(key=lambda i: i['begin'], reverse=True)
+            copy = sorted(placeholders, key=lambda i: i['begin'], reverse=True)
             for p in copy:
                 a, b = p['begin'], p['end']
                 index = placeholders.index(p) + 1  # +1 because $0 is the last placeholder
