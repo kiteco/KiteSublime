@@ -227,7 +227,13 @@ class CompletionsHandler(sublime_plugin.EventListener):
             completions = None
             if (cls._last_location == locations[0] and
                     cls._received_completions):
-                completions = self._flatten_completions(cls._received_completions)
+                if cls._is_new_completions():
+                    completions = self._flatten_completions(cls._received_completions)
+                else:
+                    completions = [
+                        (self._brand_completion(c['display'], c['hint']),
+                         c['insert']) for c in cls._received_completions
+                    ]
 
             cls._received_completions = []
             cls._last_location = None
@@ -253,8 +259,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def queue_completions(cls, view, location):
-        deferred.defer(cls._request_completions,
-                       view, cls._event_data(view, location))
+        if cls._is_new_completions():
+            deferred.defer(cls._request_completions,
+                           view, cls._event_data(view, location))
+        else:
+            deferred.defer(cls._request_completions_old,
+                           view, cls._event_data_old(view, location))
 
     @classmethod
     def hide_completions(cls, view):
@@ -262,6 +272,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._received_completions = []
             cls._last_location = None
         view.run_command('hide_auto_complete')
+
+    @staticmethod
+    def _is_new_completions():
+        return settings.get('enable_snippets')
 
     @classmethod
     def _request_completions(cls, view, data):
@@ -275,6 +289,20 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             cls._received_completions = completions
             cls._last_location = data['position']['end']
+        cls._run_auto_complete(view)
+
+    @classmethod
+    def _request_completions_old(cls, view, data):
+        resp, body = requests.kited_post('/clientapi/editor/completions', data)
+
+        if resp.status != 200 or not body:
+            return
+
+        resp_data = json.loads(body.decode('utf-8'))
+        completions = resp_data['completions'] or []
+        with cls._lock:
+            cls._received_completions = completions
+            cls._last_location = data['cursor_runes']
         cls._run_auto_complete(view)
 
     @staticmethod
@@ -336,6 +364,15 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 'begin': a,
                 'end': b,
             }
+        }
+
+    @staticmethod
+    def _event_data_old(view, location):
+        return {
+            'filename': realpath(view.file_name()),
+            'editor': 'sublime3',
+            'text': view.substr(sublime.Region(0, view.size())),
+            'cursor_runes': location,
         }
 
 

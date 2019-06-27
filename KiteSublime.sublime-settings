@@ -34,5 +34,8 @@
   "engine_timeout": 200,
 
   // Enable verbose logging in the console.
-  "verbose_logs": false
+  "verbose_logs": false,
+
+  // Use Kite's new snippet completions
+  "enable_snippets": true
 }
