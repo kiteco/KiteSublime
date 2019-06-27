@@ -9,6 +9,9 @@
   // Show the help dialog on startup.
   "show_help_dialog": true,
 
+  // Enable snippet completions.
+  "enable_snippets": true,
+
   // Show the hover popup when the mouse hovers over a symbol.
   "show_hover": true,
 
@@ -34,8 +37,5 @@
   "engine_timeout": 200,
 
   // Enable verbose logging in the console.
-  "verbose_logs": false,
-
-  // Use Kite's new snippet completions
-  "enable_snippets": true
+  "verbose_logs": false
 }

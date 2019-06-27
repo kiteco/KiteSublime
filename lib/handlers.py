@@ -275,7 +275,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _is_new_completions():
-        return settings.get('enable_snippets')
+        return settings.get('enable_snippets', True)
 
     @classmethod
     def _request_completions(cls, view, data):
