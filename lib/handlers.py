@@ -295,8 +295,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
         result = []
         for c in completions:
-            result.append((self._brand_completion('  ' * nesting + c['display'], c['hint']),
-                           self._placeholder_text(c)))
+            result.append((self._brand_completion(c['display'], c['hint']), self._placeholder_text(c)))
             if 'children' in c:
                 result.extend(self._flatten_completions(c['children'], nesting + 1))
         return result
