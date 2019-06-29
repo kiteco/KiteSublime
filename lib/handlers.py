@@ -5,9 +5,7 @@ import hashlib
 import htmlmin
 import json
 import sys
-import os
 from http.client import CannotSendRequest
-
 from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
@@ -127,7 +125,6 @@ class EventDispatcher(sublime_plugin.EventListener):
             edit_region = cls._view_region(view)
             edit_type, num_chars = cls._edit_info(cls._last_selection_region,
                                                   edit_region)
-
             if edit_type == 'insertion' and num_chars == 1:
                 if view.settings().get('auto_complete'):
                     CompletionsHandler.queue_completions(view,
@@ -231,20 +228,44 @@ class CompletionsHandler(sublime_plugin.EventListener):
             completions = None
             if (cls._last_location == locations[0] and
                     cls._received_completions):
-                completions = [
-                    (self._brand_completion(c['display'], c['hint']),
-                     c['insert']) for c in cls._received_completions
-                ]
+                if cls._is_new_completions():
+                    completions = self._flatten_completions(cls._received_completions)
+                else:
+                    completions = [
+                        (self._brand_completion(c['display'], c['hint']),
+                         c['insert']) for c in cls._received_completions
+                    ]
 
             cls._received_completions = []
             cls._last_location = None
 
             return completions
 
+    def on_post_text_command(self, view, command_name, args):
+        if command_name not in ('prev_field', 'next_field', 'commit_completion', 'insert_best_completion'):
+            return
+        if len(view.sel()) != 1:
+            return
+
+        # we must only show completions if a placeholder was selected
+        # there's no way to be notified when a particular completion item was inserted
+        # the closest thing we can do is to show completions
+        # only when a non-empty selection (i.e. size > 1) is present after the command
+        # was executed
+        r = view.sel()[0]
+        if not r.empty():
+            # a reversed region might have r.a > r.b
+            a, b = sorted([r.a, r.b])
+            self.queue_completions(view, [a, b])
+
     @classmethod
     def queue_completions(cls, view, location):
-        deferred.defer(cls._request_completions,
-                       view, cls._event_data(view, location))
+        if cls._is_new_completions():
+            deferred.defer(cls._request_completions,
+                           view, cls._event_data(view, location))
+        else:
+            deferred.defer(cls._request_completions_old,
+                           view, cls._event_data_old(view, location))
 
     @classmethod
     def hide_completions(cls, view):
@@ -253,8 +274,26 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_location = None
         view.run_command('hide_auto_complete')
 
+    @staticmethod
+    def _is_new_completions():
+        return settings.get('enable_snippets', True)
+
     @classmethod
     def _request_completions(cls, view, data):
+        resp, body = requests.kited_post('/clientapi/editor/complete', data)
+
+        if resp.status != 200 or not body:
+            return
+
+        resp_data = json.loads(body.decode('utf-8'))
+        completions = resp_data['completions'] or []
+        with cls._lock:
+            cls._received_completions = completions
+            cls._last_location = data['position']['end']
+        cls._run_auto_complete(view)
+
+    @classmethod
+    def _request_completions_old(cls, view, data):
         resp, body = requests.kited_post('/clientapi/editor/completions', data)
 
         if resp.status != 200 or not body:
@@ -279,6 +318,33 @@ class CompletionsHandler(sublime_plugin.EventListener):
             'next_completion_if_showing': False,
         })
 
+    def _flatten_completions(self, completions, nesting=0):
+        if not completions:
+            return []
+
+        result = []
+        for c in completions:
+            result.append((self._brand_completion(c['display'], c['hint']), self._placeholder_text(c)))
+            if 'children' in c:
+                result.extend(self._flatten_completions(c['children'], nesting + 1))
+        return result
+
+    @staticmethod
+    def _placeholder_text(completion):
+        text = completion['snippet']['text']
+        try:
+            placeholders = completion['snippet']['placeholders']
+            # sort placeholders in reverse order for easier string patching
+            # we assume that placeholders do not overlap
+            copy = sorted(placeholders, key=lambda i: i['begin'], reverse=True)
+            for p in copy:
+                a, b = p['begin'], p['end']
+                index = placeholders.index(p) + 1  # +1 because $0 is the last placeholder
+                text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) + text[b:]
+        except KeyError:
+            return completion['snippet']['text']
+        return text
+
     @staticmethod
     def _brand_completion(symbol, hint=None):
         return ('{}\t{} ⟠'.format(symbol, hint) if hint
@@ -286,6 +352,23 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _event_data(view, location):
+        if isinstance(location, list):
+            a, b = location[0], location[1]
+        else:
+            a, b = location, location
+
+        return {
+            'filename': realpath(view.file_name()),
+            'editor': 'sublime3',
+            'text': view.substr(sublime.Region(0, view.size())),
+            'position': {
+                'begin': a,
+                'end': b,
+            }
+        }
+
+    @staticmethod
+    def _event_data_old(view, location):
         return {
             'filename': realpath(view.file_name()),
             'editor': 'sublime3',
