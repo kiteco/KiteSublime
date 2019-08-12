@@ -336,27 +336,29 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if len(previous) == 0 or (len(current) > len(previous)):
             return False
 
-        index_previous = 0
-        len_previous = len(previous)
-        for item in current:
-            # return False as soon as the current item wasn't found in the original list
-            # in the same order as the current list
-            while index_previous < len_previous and previous[index_previous] != item:
-                index_previous += 1
-            if index_previous >= len_previous:
+        for index, item in enumerate(current):
+            if not any((cls._completions_equal(item, prev_item)
+                        for prev_item in previous)):
                 return False
 
         return True
 
-    def _flatten_completions(self, completions, nesting=0):
+    @staticmethod
+    def _completions_equal(lhs, rhs):
+        return (lhs['display'] == rhs['display'] and
+                lhs.get('snippet', None) == rhs.get('snippet', None) and
+                lhs.get('insert', None) == rhs.get('insert', None))
+
+    @classmethod
+    def _flatten_completions(cls, completions, nesting=0):
         if not completions:
             return []
 
         result = []
         for c in completions:
-            result.append((self._brand_completion(c['display'], c['hint']), self._placeholder_text(c)))
+            result.append((cls._brand_completion(c['display'], c['hint']), cls._placeholder_text(c)))
             if 'children' in c:
-                result.extend(self._flatten_completions(c['children'], nesting + 1))
+                result.extend(cls._flatten_completions(c['children'], nesting + 1))
         return result
 
     @staticmethod
