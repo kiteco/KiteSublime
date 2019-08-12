@@ -333,7 +333,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             previous = cls._visible_completions
             current = cls._received_completions
 
-        if len(previous) == 0 or (len(current) > len(previous)):
+        if len(previous) == 0 or len(current) > len(previous):
             return False
 
         for index, item in enumerate(current):
