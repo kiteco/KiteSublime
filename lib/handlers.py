@@ -194,6 +194,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     """
 
     _received_completions = []
+    _visible_completions = []
     _last_location = None
     _lock = Lock()
 
@@ -216,6 +217,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             if cls._last_location is None:
                 cls._received_completions = []
+                cls._visible_completions = []
                 cls._last_location = None
                 cls.queue_completions(view, locations[0])
                 return None
@@ -236,6 +238,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                          c['insert']) for c in cls._received_completions
                     ]
 
+            cls._visible_completions = cls._received_completions
             cls._received_completions = []
             cls._last_location = None
 
@@ -271,6 +274,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def hide_completions(cls, view):
         with cls._lock:
             cls._received_completions = []
+            cls._visible_completions = []
             cls._last_location = None
         view.run_command('hide_auto_complete')
 
@@ -306,27 +310,55 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_location = data['cursor_runes']
         cls._run_auto_complete(view)
 
-    @staticmethod
-    def _run_auto_complete(view):
+    @classmethod
+    def _run_auto_complete(cls, view):
         # It seems like the `auto_complete` command does not always result in
         # `on_query_completions` from being triggered if a completion list is
         # currently shown, so we need to hide it first.
-        view.run_command('hide_auto_complete')
+        # we're only hiding if we're not displaying a subset of the previous set
+        # Sublime is handling the subset correctly
+        if not cls._is_completions_subset():
+            view.run_command('hide_auto_complete')
+
         view.run_command('auto_complete', {
             'api_completions_only': True,
             'disable_auto_insert': True,
             'next_completion_if_showing': False,
         })
 
-    def _flatten_completions(self, completions, nesting=0):
+    @classmethod
+    def _is_completions_subset(cls):
+        with cls._lock:
+            # both sets of completions are in the Kite's original data format
+            previous = cls._visible_completions
+            current = cls._received_completions
+
+        if len(previous) == 0 or len(current) > len(previous):
+            return False
+
+        for index, item in enumerate(current):
+            if not any((cls._completions_equal(item, prev_item)
+                        for prev_item in previous)):
+                return False
+
+        return True
+
+    @staticmethod
+    def _completions_equal(lhs, rhs):
+        return (lhs['display'] == rhs['display'] and
+                lhs.get('snippet', None) == rhs.get('snippet', None) and
+                lhs.get('insert', None) == rhs.get('insert', None))
+
+    @classmethod
+    def _flatten_completions(cls, completions, nesting=0):
         if not completions:
             return []
 
         result = []
         for c in completions:
-            result.append((self._brand_completion(c['display'], c['hint']), self._placeholder_text(c)))
+            result.append((cls._brand_completion(c['display'], c['hint']), cls._placeholder_text(c)))
             if 'children' in c:
-                result.extend(self._flatten_completions(c['children'], nesting + 1))
+                result.extend(cls._flatten_completions(c['children'], nesting + 1))
         return result
 
     @staticmethod
