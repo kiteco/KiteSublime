@@ -830,8 +830,13 @@ class StatusHandler(sublime_plugin.EventListener):
                                 cls._brand_status('Server error'))
             else:
                 resp_data = json.loads(body.decode('utf-8'))
-                status = cls._brand_status(resp_data['status'].capitalize())
-                view.set_status(cls._status_key, status)
+                status = resp_data['status']
+                if status == 'noIndex':
+                    status = 'Ready (unindexed)'
+                else:
+                    status = status.capitalize()
+                view.set_status(cls._status_key,
+                                cls._brand_status(status))
 
         except ConnectionRefusedError as ex:
             view.set_status(cls._status_key,
