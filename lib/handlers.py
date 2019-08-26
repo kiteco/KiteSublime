@@ -330,8 +330,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _is_completions_subset(cls):
         with cls._lock:
             # both sets of completions are in the Kite's original data format
-            previous = cls._visible_completions
-            current = cls._received_completions
+            previous = cls._flatten_completions(cls._visible_completions)
+            current = cls._flatten_completions(cls._received_completions)
 
         if len(previous) == 0 or len(current) > len(previous):
             return False
@@ -345,9 +345,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _completions_equal(lhs, rhs):
-        return (lhs['display'] == rhs['display'] and
-                lhs.get('snippet', None) == rhs.get('snippet', None) and
-                lhs.get('insert', None) == rhs.get('insert', None))
+        return lhs[0] == rhs[0] and lhs[1] == rhs[1]
 
     @classmethod
     def _flatten_completions(cls, completions, nesting=0):
