@@ -230,13 +230,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
             completions = None
             if (cls._last_location == locations[0] and
                     cls._received_completions):
-                if cls._is_new_completions():
-                    completions = self._flatten_completions(cls._received_completions)
-                else:
-                    completions = [
-                        (self._brand_completion(c['display'], c['hint']),
-                         c['insert']) for c in cls._received_completions
-                    ]
+                completions = self._flatten_completions(
+                    cls._received_completions)
 
             cls._visible_completions = cls._received_completions
             cls._received_completions = []
@@ -352,11 +347,19 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if not completions:
             return []
 
+        if not cls._is_new_completions():
+            return [
+                (self._brand_completion(c['display'], c['hint']),
+                 c['insert']) for c in completions
+            ]
+
         result = []
         for c in completions:
-            result.append((cls._brand_completion(c['display'], c['hint']), cls._placeholder_text(c)))
+            result.append((cls._brand_completion(c['display'], c['hint']),
+                           cls._placeholder_text(c)))
             if 'children' in c:
-                result.extend(cls._flatten_completions(c['children'], nesting + 1))
+                result.extend(cls._flatten_completions(c['children'],
+                                                       nesting + 1))
         return result
 
     @staticmethod
