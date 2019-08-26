@@ -230,13 +230,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
             completions = None
             if (cls._last_location == locations[0] and
                     cls._received_completions):
-                if cls._is_new_completions():
-                    completions = self._flatten_completions(cls._received_completions)
-                else:
-                    completions = [
-                        (self._brand_completion(c['display'], c['hint']),
-                         c['insert']) for c in cls._received_completions
-                    ]
+                completions = self._flatten_completions(
+                    cls._received_completions)
 
             cls._visible_completions = cls._received_completions
             cls._received_completions = []
@@ -330,8 +325,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _is_completions_subset(cls):
         with cls._lock:
             # both sets of completions are in the Kite's original data format
-            previous = cls._visible_completions
-            current = cls._received_completions
+            previous = cls._flatten_completions(cls._visible_completions)
+            current = cls._flatten_completions(cls._received_completions)
 
         if len(previous) == 0 or len(current) > len(previous):
             return False
@@ -345,20 +340,26 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _completions_equal(lhs, rhs):
-        return (lhs['display'] == rhs['display'] and
-                lhs.get('snippet', None) == rhs.get('snippet', None) and
-                lhs.get('insert', None) == rhs.get('insert', None))
+        return lhs[0] == rhs[0] and lhs[1] == rhs[1]
 
     @classmethod
     def _flatten_completions(cls, completions, nesting=0):
         if not completions:
             return []
 
+        if not cls._is_new_completions():
+            return [
+                (cls._brand_completion(c['display'], c['hint']),
+                 c['insert']) for c in completions
+            ]
+
         result = []
         for c in completions:
-            result.append((cls._brand_completion(c['display'], c['hint']), cls._placeholder_text(c)))
+            result.append((cls._brand_completion(c['display'], c['hint']),
+                           cls._placeholder_text(c)))
             if 'children' in c:
-                result.extend(cls._flatten_completions(c['children'], nesting + 1))
+                result.extend(cls._flatten_completions(c['children'],
+                                                       nesting + 1))
         return result
 
     @staticmethod
