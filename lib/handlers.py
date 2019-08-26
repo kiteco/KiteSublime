@@ -349,7 +349,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
         if not cls._is_new_completions():
             return [
-                (self._brand_completion(c['display'], c['hint']),
+                (cls._brand_completion(c['display'], c['hint']),
                  c['insert']) for c in completions
             ]
 
