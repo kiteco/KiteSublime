@@ -310,33 +310,43 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # It seems like the `auto_complete` command does not always result in
         # `on_query_completions` from being triggered if a completion list is
         # currently shown, so we need to hide it first.
-        # we're only hiding if we're not displaying a subset of the previous set
-        # Sublime is handling the subset correctly
+        #
+        # However, we only need to refresh the completions UI if the incoming
+        # completions contain any completions that were not in the previous
+        # list. Otherwise, Sublime will filter the UI automatically.
         if not cls._is_completions_subset():
+            logger.log('refreshing completions!')
             view.run_command('hide_auto_complete')
 
-        view.run_command('auto_complete', {
-            'api_completions_only': True,
-            'disable_auto_insert': True,
-            'next_completion_if_showing': False,
-        })
+            view.run_command('auto_complete', {
+                'api_completions_only': True,
+                'disable_auto_insert': True,
+                'next_completion_if_showing': False,
+            })
+
+        else:
+            logger.log('no new completions')
 
     @classmethod
     def _is_completions_subset(cls):
-        with cls._lock:
+        if cls._lock.acquire(blocking=False):
             # both sets of completions are in the Kite's original data format
             previous = cls._flatten_completions(cls._visible_completions)
             current = cls._flatten_completions(cls._received_completions)
+            cls._lock.release()
 
-        if len(previous) == 0 or len(current) > len(previous):
-            return False
-
-        for index, item in enumerate(current):
-            if not any((cls._completions_equal(item, prev_item)
-                        for prev_item in previous)):
+            if len(previous) == 0 or len(current) > len(previous):
                 return False
 
-        return True
+            for index, item in enumerate(current):
+                if not any((cls._completions_equal(item, prev_item)
+                            for prev_item in previous)):
+                    return False
+
+            return True
+
+        # Default to assuming we need to refresh the completions list
+        return False
 
     @staticmethod
     def _completions_equal(lhs, rhs):
