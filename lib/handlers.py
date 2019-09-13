@@ -315,7 +315,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # completions contain any completions that were not in the previous
         # list. Otherwise, Sublime will filter the UI automatically.
         if not cls._is_completions_subset():
-            logger.log('refreshing completions!')
+            logger.debug('refreshing completions!')
             view.run_command('hide_auto_complete')
 
             view.run_command('auto_complete', {
@@ -325,7 +325,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             })
 
         else:
-            logger.log('no new completions')
+            logger.debug('no new completions')
 
     @classmethod
     def _is_completions_subset(cls):
