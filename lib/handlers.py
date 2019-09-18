@@ -329,24 +329,20 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _is_completions_subset(cls):
-        if cls._lock.acquire(blocking=False):
+        with cls._lock:
             # both sets of completions are in the Kite's original data format
             previous = cls._flatten_completions(cls._visible_completions)
             current = cls._flatten_completions(cls._received_completions)
-            cls._lock.release()
 
-            if len(previous) == 0 or len(current) > len(previous):
+        if len(previous) == 0 or len(current) > len(previous):
+            return False
+
+        for index, item in enumerate(current):
+            if not any((cls._completions_equal(item, prev_item)
+                        for prev_item in previous)):
                 return False
 
-            for index, item in enumerate(current):
-                if not any((cls._completions_equal(item, prev_item)
-                            for prev_item in previous)):
-                    return False
-
-            return True
-
-        # Default to assuming we need to refresh the completions list
-        return False
+        return True
 
     @staticmethod
     def _completions_equal(lhs, rhs):
@@ -357,19 +353,25 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if not completions:
             return []
 
-        if not cls._is_new_completions():
-            return [
-                (cls._brand_completion(c['display'], c['hint']),
-                 c['insert']) for c in completions
-            ]
-
         result = []
         for c in completions:
-            result.append((cls._brand_completion(c['display'], c['hint']),
-                           cls._placeholder_text(c)))
-            if 'children' in c:
-                result.extend(cls._flatten_completions(c['children'],
-                                                       nesting + 1))
+            # We were previously using _is_new_completions to branch on old/new
+            # logic, but it appears that sometimes this check fails so we need
+            # handle each completion item individually.
+            #
+            # See: https://rollbar.com/Kite/sublime-prod/items/14275/
+            if 'snippet' not in c:
+                result.append((
+                    cls._brand_completion(c['display'], c['hint']),
+                    c['insert']
+                ))
+            else:
+                result.append((cls._brand_completion(c['display'], c['hint']),
+                               cls._placeholder_text(c)))
+                if 'children' in c:
+                    result.extend(cls._flatten_completions(c['children'],
+                                                           nesting + 1))
+
         return result
 
     @staticmethod
