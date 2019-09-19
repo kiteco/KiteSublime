@@ -310,16 +310,22 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # It seems like the `auto_complete` command does not always result in
         # `on_query_completions` from being triggered if a completion list is
         # currently shown, so we need to hide it first.
-        # we're only hiding if we're not displaying a subset of the previous set
-        # Sublime is handling the subset correctly
+        #
+        # However, we only need to refresh the completions UI if the incoming
+        # completions contain any completions that were not in the previous
+        # list. Otherwise, Sublime will filter the UI automatically.
         if not cls._is_completions_subset():
+            logger.debug('refreshing completions!')
             view.run_command('hide_auto_complete')
 
-        view.run_command('auto_complete', {
-            'api_completions_only': True,
-            'disable_auto_insert': True,
-            'next_completion_if_showing': False,
-        })
+            view.run_command('auto_complete', {
+                'api_completions_only': True,
+                'disable_auto_insert': True,
+                'next_completion_if_showing': False,
+            })
+
+        else:
+            logger.debug('no new completions')
 
     @classmethod
     def _is_completions_subset(cls):
@@ -347,19 +353,25 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if not completions:
             return []
 
-        if not cls._is_new_completions():
-            return [
-                (cls._brand_completion(c['display'], c['hint']),
-                 c['insert']) for c in completions
-            ]
-
         result = []
         for c in completions:
-            result.append((cls._brand_completion(c['display'], c['hint']),
-                           cls._placeholder_text(c)))
-            if 'children' in c:
-                result.extend(cls._flatten_completions(c['children'],
-                                                       nesting + 1))
+            # We were previously using _is_new_completions to branch on old/new
+            # logic, but it appears that sometimes this check fails so we need
+            # handle each completion item individually.
+            #
+            # See: https://rollbar.com/Kite/sublime-prod/items/14275/
+            if 'snippet' not in c:
+                result.append((
+                    cls._brand_completion(c['display'], c['hint']),
+                    c['insert']
+                ))
+            else:
+                result.append((cls._brand_completion(c['display'], c['hint']),
+                               cls._placeholder_text(c)))
+                if 'children' in c:
+                    result.extend(cls._flatten_completions(c['children'],
+                                                           nesting + 1))
+
         return result
 
     @staticmethod
