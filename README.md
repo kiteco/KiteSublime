@@ -66,7 +66,7 @@ Sublime index as usual.
 
 ### Documentation
 
-Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the [Copilot](https://kite.com/copilot/), Kite's desktop app for Python documentation. The Copilot also follows your cursor as you type.
+Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the [Copilot](https://kite.com/copilot/), Kite's desktop app for Python documentation. The Copilot's search results also follow your cursor as you type.
 
 ![copilot](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/copilot.png?raw=true)
 
