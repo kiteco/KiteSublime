@@ -1,13 +1,6 @@
 # Kite Python Plugin for Sublime Text 3
 
-Kite is an AI-powered programming assistant that helps you write Python code inside Sublime Text 3. The 
-[Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself
-provides the frontend that interfaces with the Kite Engine, which runs 100% locally on your computer performing all the code analysis and machine learning (no code is sent to a cloud server).
-
-
-## Features
-
-Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite saves you time and effort in Sublime Text at https://kite.com/integrations/sublime-text/.
+Kite is an AI-powered programming assistant that helps you write Python code inside Sublime Text 3. Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite saves you time and effort in Sublime Text at https://kite.com/integrations/sublime-text/.
 
 At a high level, Kite provides you with:
 * 🧠 __[Line-of-Code Completions](https://kite.com/blog/product/launching-line-of-code-completions-going-cloudless-and-17-million-in-funding/)__ powered by machine learning models trained on the entire open source code universe
@@ -28,6 +21,8 @@ Use another editor? Check out [Kite’s other editor integrations](https://kite.
 ## Installation
 
 ### Installing the Kite Engine
+
+The [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself provides the frontend that interfaces with the Kite Engine, which performs all the code analysis and machine learning 100% locally on your computer (no code is sent to a cloud server).
 
 __macOS Instructions__
 1. Download the [installer](https://kite.com/download/) and open the downloaded `.dmg` file.
@@ -51,7 +46,7 @@ manager](https://help.kite.com/article/62-managing-editor-plugins).
 Alternatively, you can `git clone` this repository directly into your Sublime `Packages` directory. You can locate your
 `Packages` directory by opening Sublime, clicking on the `Preferences` menu item, then selecting `Browse Packages...`.
 
-[Learn more about Kite's autocomplete and docs search experience for Sublime.](https://kite.com/integrations/sublime-text/)
+[Learn more about why Kite's autocomplete and docs search experience is the best available for Sublime.](https://kite.com/integrations/sublime-text/)
 
 
 ## Usage
