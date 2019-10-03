@@ -307,6 +307,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _run_auto_complete(cls, view):
+        # Don't refresh if Kite doesn't have completions. Sublime will
+        # filter the completions for us automatically.
+        with cls._lock:
+            if len(cls._received_completions) == 0:
+                return
+
         # It seems like the `auto_complete` command does not always result in
         # `on_query_completions` from being triggered if a completion list is
         # currently shown, so we need to hide it first.
@@ -315,17 +321,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # completions contain any completions that were not in the previous
         # list. Otherwise, Sublime will filter the UI automatically.
         if not cls._is_completions_subset():
-            logger.debug('refreshing completions!')
             view.run_command('hide_auto_complete')
-
             view.run_command('auto_complete', {
                 'api_completions_only': True,
                 'disable_auto_insert': True,
                 'next_completion_if_showing': False,
             })
-
-        else:
-            logger.debug('no new completions')
 
     @classmethod
     def _is_completions_subset(cls):
