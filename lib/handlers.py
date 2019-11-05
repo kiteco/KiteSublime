@@ -378,8 +378,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
         return ('{}\t{} ⟠'.format(symbol, hint) if hint
                 else '{}\t⟠'.format(symbol))
 
-    @staticmethod
-    def _event_data(view, location):
+    @classmethod
+    def _event_data(cls, view, location):
         if isinstance(location, list):
             a, b = location[0], location[1]
         else:
@@ -392,7 +392,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             'position': {
                 'begin': a,
                 'end': b,
-            }
+            },
             'no_snippets': not cls._is_snippets_enabled(),
         }
 
