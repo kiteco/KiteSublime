@@ -258,12 +258,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def queue_completions(cls, view, location):
-        if cls._is_new_completions():
-            deferred.defer(cls._request_completions,
-                           view, cls._event_data(view, location))
-        else:
-            deferred.defer(cls._request_completions_old,
-                           view, cls._event_data_old(view, location))
+        deferred.defer(cls._request_completions,
+                       view, cls._event_data(view, location))
 
     @classmethod
     def hide_completions(cls, view):
@@ -274,7 +270,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         view.run_command('hide_auto_complete')
 
     @staticmethod
-    def _is_new_completions():
+    def _is_snippets_enabled():
         return settings.get('enable_snippets', True)
 
     @classmethod
@@ -289,20 +285,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             cls._received_completions = completions
             cls._last_location = data['position']['end']
-        cls._run_auto_complete(view)
-
-    @classmethod
-    def _request_completions_old(cls, view, data):
-        resp, body = requests.kited_post('/clientapi/editor/completions', data)
-
-        if resp.status != 200 or not body:
-            return
-
-        resp_data = json.loads(body.decode('utf-8'))
-        completions = resp_data['completions'] or []
-        with cls._lock:
-            cls._received_completions = completions
-            cls._last_location = data['cursor_runes']
         cls._run_auto_complete(view)
 
     @classmethod
@@ -356,7 +338,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
         result = []
         for c in completions:
-            # We were previously using _is_new_completions to branch on old/new
+            # We were previously using _is_snippets_enabled to branch on old/new
             # logic, but it appears that sometimes this check fails so we need
             # handle each completion item individually.
             #
@@ -411,6 +393,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 'begin': a,
                 'end': b,
             }
+            'no_snippets': not cls._is_snippets_enabled(),
         }
 
     @staticmethod
