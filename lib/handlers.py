@@ -43,9 +43,13 @@ __all__ = [
     'StatusHandler',
 ]
 
+SUPPORTED_FILE_EXTENSIONS = ('.py', '.go')
+
 
 def _is_view_supported(view):
-    return view.file_name() is not None and view.file_name().endswith('.py')
+    return view.file_name() is not None and any(
+        view.file_name().endswith(ext) for ext in SUPPORTED_FILE_EXTENSIONS
+    )
 
 
 def _check_view_size(view):
