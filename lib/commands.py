@@ -89,6 +89,15 @@ class KiteHideSignatures(sublime_plugin.TextCommand):
         SignaturesHandler.hide_signatures_if_showing(self.view)
 
 
+class KiteViewErase(sublime_plugin.TextCommand):
+    """Command to erase a range of text from a view.
+    """
+
+    def run(self, edit, range):
+        logger.debug('erasing {}'.format(range))
+        self.view.erase(edit, sublime.Region(range[0], range[1]))
+
+
 class KiteOpenCopilot(sublime_plugin.ApplicationCommand):
     """Command to open the Copilot.
     """
@@ -141,3 +150,4 @@ class KiteHelp(sublime_plugin.ApplicationCommand):
 
     def run(self):
         link_opener.open_browser_url(self._URL)
+
