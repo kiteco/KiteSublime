@@ -456,7 +456,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 a, b = p['begin'], p['end']
                 # +1 because $0 is the last placeholder
                 index = placeholders.index(p) + 1
-                text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) + text[b:]
+                text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) \
+                       + text[b:]
         except KeyError:
             return completion['snippet']['text']
         return text
