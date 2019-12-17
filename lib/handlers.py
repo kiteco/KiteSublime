@@ -203,6 +203,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     _received_completions = []
     _last_seen_completions = []
+    _last_prefix = None
     _last_location = None
     _lock = Lock()
 
@@ -242,6 +243,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     cls._received_completions)
 
             cls._last_seen_completions = cls._received_completions
+            cls._last_prefix = prefix
             cls._received_completions = []
             return completions
 
@@ -274,6 +276,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 # been tested on dictionary key completions.
                 cls._process_replace_text(view, region)
             cls._last_seen_completions = []
+            cls._last_prefix = None
             cls._last_location = None
 
     @classmethod
@@ -301,8 +304,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
             replace_begin = inserted_completion['replace']['begin']
             replace_end = inserted_completion['replace']['end']
 
-            logger.debug('inserted {}:\n{}'
-                         .format(inserted_text,
+            logger.debug('inserted {} -> {}:\n{}'
+                         .format(cls._last_prefix, inserted_text,
                                  cls._completion_str(inserted_completion)))
 
             in_buffer = _get_view_substr(view, replace_begin,
@@ -348,8 +351,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
         def _search(completions):
             for c in completions:
                 text = c['snippet']['text']
-                in_buffer = _get_view_substr(view,
-                                             region.a - len(text), region.a)
+                in_buffer = _get_view_substr(view, region.a - len(text),
+                                             region.a)
                 if in_buffer == text:
                     return c
                 if 'children' in c:
@@ -506,7 +509,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _completions_str(cls, completions):
-        def helper(completions, nesting=0):
+        def _help(completions, nesting=0):
             if not completions:
                 return []
 
@@ -522,12 +525,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 else:
                     result.append(cls._prune_completion(c))
                     if 'children' in c:
-                        result.extend(helper(c['children'],
-                                             nesting + 1))
+                        result.extend(_help(c['children'], nesting + 1))
 
             return result
 
-        return logger.jsonstr(helper(completions))
+        return logger.jsonstr(_help(completions))
 
     @classmethod
     def _completion_str(cls, completion):
