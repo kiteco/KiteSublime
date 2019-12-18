@@ -295,8 +295,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _process_replace_text(cls, view, region):
-        # logger.debug('last seen completions:\n{}'
-        #              .format(cls._completions_str(cls._last_seen_completions)))
         inserted_completion = cls._find_inserted_completion(view)
 
         if inserted_completion:
