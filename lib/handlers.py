@@ -272,8 +272,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if command_name in ('commit_completion', 'insert_best_completion'):
             if not on_placeholder:
                 # TODO: This is a hack that assumes that replace text is only
-                # valid for non-snippets. Specifically, this logic has only
-                # been tested on dictionary key completions.
+                # valid for non-snippets.
                 cls._process_replace_text(view, region)
             cls._last_seen_completions = []
             cls._last_prefix = None
@@ -294,8 +293,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _process_replace_text(cls, view, region):
-        logger.debug('last seen completions:\n{}'
-                     .format(cls._completions_str(cls._last_seen_completions)))
+        # logger.debug('last seen completions:\n{}'
+        #              .format(cls._completions_str(cls._last_seen_completions)))
 
         inserted_completion = cls._find_inserted_completion(view)
 
@@ -312,32 +311,62 @@ class CompletionsHandler(sublime_plugin.EventListener):
                                          replace_begin + len(inserted_text))
 
             if inserted_text == in_buffer:
-                logger.debug('no range to replace')
+                cls._process_matched_replace_text(view, region,
+                                                  inserted_completion)
             else:
-                chars_to_trim = replace_end - replace_begin
-                trim_before = (replace_begin, region.b - len(inserted_text))
-                trimmed = trim_before[1] - trim_before[0]
-                rem_chars = chars_to_trim - trimmed
-                trim_after = (region.b, region.b + rem_chars)
-                logger.debug('trim before {} = {}'
-                             .format(trim_before,
-                                     _get_view_substr(view,
-                                                      trim_before[0],
-                                                      trim_before[1])))
-                logger.debug('trim after {} = {}'
-                             .format(trim_after,
-                                     _get_view_substr(view,
-                                                      trim_after[0],
-                                                      trim_after[1])))
-
-                view.run_command('kite_view_erase', {'range': trim_before})
-                view.run_command('kite_view_erase', {
-                    'range': (trim_after[0] - trimmed,
-                              trim_after[1] - trimmed)
-                })
+                cls._process_unmatched_replace_text(view, region,
+                                                    inserted_completion)
 
         else:
             logger.debug('no matching completion')
+
+    @classmethod
+    def _process_matched_replace_text(cls, view, region, inserted):
+        inserted_text = inserted['snippet']['text']
+        replace_begin = inserted['replace']['begin']
+        replace_end = inserted['replace']['end']
+
+        chars_to_trim = replace_end - replace_begin
+        leftover_chars = chars_to_trim - len(cls._last_prefix)
+
+        logger.debug('chars to trim: {}, leftover: {}'
+                     .format(chars_to_trim, leftover_chars))
+
+        logger.debug('trimming: {}'
+                     .format(_get_view_substr(view, region.b,
+                                              region.b + leftover_chars)))
+
+        if leftover_chars > 0:
+            view.run_command('kite_view_erase', {
+                'range': (region.b, region.b + leftover_chars),
+            })
+
+    @classmethod
+    def _process_unmatched_replace_text(cls, view, region, inserted):
+        inserted_text = inserted['snippet']['text']
+        replace_begin = inserted['replace']['begin']
+        replace_end = inserted['replace']['end']
+
+        chars_to_trim = replace_end - replace_begin
+        trim_before = (replace_begin, region.b - len(inserted_text))
+        trimmed = trim_before[1] - trim_before[0]
+        rem_chars = chars_to_trim - trimmed
+        trim_after = (region.b, region.b + rem_chars)
+
+        logger.debug('trim before {} = {}'
+                     .format(trim_before,
+                             _get_view_substr(view, trim_before[0],
+                                              trim_before[1])))
+
+        logger.debug('trim after {} = {}'
+                     .format(trim_after,
+                             _get_view_substr(view, trim_after[0],
+                                              trim_after[1])))
+
+        view.run_command('kite_view_erase', {'range': trim_before})
+        view.run_command('kite_view_erase', {
+            'range': (trim_after[0] - trimmed, trim_after[1] - trimmed),
+        })
 
     @classmethod
     def _find_inserted_completion(cls, view):
