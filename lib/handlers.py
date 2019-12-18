@@ -270,7 +270,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls.queue_completions(view, [a, b])
 
         if command_name in ('commit_completion', 'insert_best_completion'):
+            # See note below in `_process_unmatched_replace_text` to see why
+            # we manually acquire and release the lock as opposed to using a
+            # with statement.
             cls._lock.acquire()
+
             if not on_placeholder:
                 # TODO: This is a hack that assumes that replace text is only
                 # valid for non-snippets.
@@ -278,6 +282,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_seen_completions = []
             cls._last_prefix = None
             cls._last_location = None
+
             cls._lock.release()
 
     @classmethod
