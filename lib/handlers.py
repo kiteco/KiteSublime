@@ -270,6 +270,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls.queue_completions(view, [a, b])
 
         if command_name in ('commit_completion', 'insert_best_completion'):
+            cls._lock.acquire()
             if not on_placeholder:
                 # TODO: This is a hack that assumes that replace text is only
                 # valid for non-snippets.
@@ -277,6 +278,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_seen_completions = []
             cls._last_prefix = None
             cls._last_location = None
+            cls._lock.release()
 
     @classmethod
     def queue_completions(cls, view, location):
@@ -295,7 +297,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _process_replace_text(cls, view, region):
         # logger.debug('last seen completions:\n{}'
         #              .format(cls._completions_str(cls._last_seen_completions)))
-
         inserted_completion = cls._find_inserted_completion(view)
 
         if inserted_completion:
@@ -332,11 +333,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
         logger.debug('chars to trim: {}, leftover: {}'
                      .format(chars_to_trim, leftover_chars))
 
-        logger.debug('trimming: {}'
-                     .format(_get_view_substr(view, region.b,
-                                              region.b + leftover_chars)))
-
         if leftover_chars > 0:
+            logger.debug('trimming: {}'
+                         .format(_get_view_substr(view, region.b,
+                                                  region.b + leftover_chars)))
+
             view.run_command('kite_view_erase', {
                 'range': (region.b, region.b + leftover_chars),
             })
@@ -363,10 +364,17 @@ class CompletionsHandler(sublime_plugin.EventListener):
                              _get_view_substr(view, trim_after[0],
                                               trim_after[1])))
 
+        # For some reason Sublime seems to hang on the next two text commands.
+        # The text command in `_process_matched_replace_text` above does not
+        # seem to hang, so we release and reacquire the lock here.
+        cls._lock.release()
+
         view.run_command('kite_view_erase', {'range': trim_before})
         view.run_command('kite_view_erase', {
             'range': (trim_after[0] - trimmed, trim_after[1] - trimmed),
         })
+
+        cls._lock.acquire()
 
     @classmethod
     def _find_inserted_completion(cls, view):
@@ -390,8 +398,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                         return found
             return None
 
-        with cls._lock:
-            return _search(cls._last_seen_completions)
+        return _search(cls._last_seen_completions)
 
     @staticmethod
     def _is_snippets_enabled():
