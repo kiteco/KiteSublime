@@ -389,19 +389,29 @@ class CompletionsHandler(sublime_plugin.EventListener):
             return None
 
         def _search(completions):
+            candidates = []
             for c in completions:
                 text = c['snippet']['text']
                 in_buffer = _get_view_substr(view, region.a - len(text),
                                              region.a)
                 if in_buffer == text:
-                    return c
+                    candidates.append(c)
                 if 'children' in c:
-                    found = _search(c['children'])
-                    if found:
-                        return found
-            return None
+                    candidates.extend(_search(c['children']))
+            return candidates
 
-        return _search(cls._last_seen_completions)
+        completions = _search(cls._last_seen_completions)
+        logger.debug('possible matched completions: {}'
+                     .format(cls._completions_str(completions)))
+
+        longest = None
+        for i, c in enumerate(completions):
+            if longest is None:
+                longest = c
+            elif len(c['snippet']['text']) > len(longest['snippet']['text']):
+                longest = c
+
+        return longest
 
     @staticmethod
     def _is_snippets_enabled():
