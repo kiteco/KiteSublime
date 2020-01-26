@@ -213,6 +213,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
     # a new set of completions are initialized.
     _last_received_completions = []
 
+    # The last buffer location at which completions were initialized. This
+    # value only gets changed when a new set of completions is sent back to
+    # the UI.
+    _last_init_location = None
+
     # The last prefix that was recorded at completions initialization. This
     # value only gets changed when a new set of completions is sent back to
     # the UI.
@@ -258,6 +263,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     cls._last_received_completions)
 
             cls._last_init_completions = cls._last_received_completions
+            cls._last_init_location = cls._last_location
             cls._last_init_prefix = prefix
             return completions
 
@@ -321,8 +327,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
             replace_begin = inserted_completion['replace']['begin']
             replace_end = inserted_completion['replace']['end']
 
+            prefix = _get_view_substr(view, cls._last_init_location,
+                                      cls._last_location)
+
             logger.debug('inserted {} -> {}:\n{}'
-                         .format(cls._last_init_prefix, inserted_text,
+                         .format(prefix, inserted_text,
                                  cls._completion_str(inserted_completion)))
 
             in_buffer = _get_view_substr(view, replace_begin,
@@ -345,7 +354,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
         replace_end = inserted['replace']['end']
 
         chars_to_trim = replace_end - replace_begin
-        leftover_chars = chars_to_trim - len(cls._last_init_prefix)
+        leftover_chars = chars_to_trim - \
+            (cls._last_location - cls._last_init_location + 1)
 
         logger.debug('chars to trim: {}, leftover: {}'
                      .format(chars_to_trim, leftover_chars))
@@ -414,7 +424,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     candidates.extend(_search(_c['children']))
             return candidates
 
-        completions = _search(cls._last_init_completions)
+        completions = _search(cls._last_received_completions)
         logger.debug('possible matched completions: {}'
                      .format(cls._completions_str(completions)))
 
