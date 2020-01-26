@@ -347,12 +347,21 @@ class CompletionsHandler(sublime_plugin.EventListener):
     @classmethod
     def _process_matched_replace_text(cls, view, region, inserted):
         inserted_text = inserted['snippet']['text']
+
+        word_region = view.word(region.b)
+        word = _get_view_substr(view, word_region.a, word_region.b)
+        logger.debug('word: {}, inserted: {}'.format(word, inserted_text))
+        if word == inserted_text:
+            logger.debug('word matches, nothing to do!')
+            return
+
         replace_begin = inserted['replace']['begin']
         replace_end = inserted['replace']['end']
 
         chars_to_trim = replace_end - replace_begin
         leftover_chars = chars_to_trim - \
-            (cls._last_location - cls._last_init_location + 1)
+            (cls._last_location - cls._last_init_location) - \
+            len(cls._last_init_prefix)
 
         logger.debug('chars to trim: {}, leftover: {}'
                      .format(chars_to_trim, leftover_chars))
@@ -443,6 +452,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         resp, body = requests.kited_post('/clientapi/editor/complete', data)
 
         if resp.status != 200 or not body:
+            logger.debug('no completions!')
             return
 
         resp_data = json.loads(body.decode('utf-8'))
