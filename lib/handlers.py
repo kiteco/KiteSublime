@@ -327,11 +327,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
             replace_begin = inserted_completion['replace']['begin']
             replace_end = inserted_completion['replace']['end']
 
-            prefix = _get_view_substr(view, cls._last_init_location,
-                                      cls._last_location)
-
             logger.debug('inserted {} -> {}:\n{}'
-                         .format(prefix, inserted_text,
+                         .format(cls._last_init_prefix, inserted_text,
                                  cls._completion_str(inserted_completion)))
 
             in_buffer = _get_view_substr(view, replace_begin,
