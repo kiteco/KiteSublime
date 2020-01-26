@@ -30,6 +30,11 @@
   // signatures with escape will also cause the editor to enter command mode.
   "hide_signatures_enters_command_mode": true,
 
+  // Controls whether or not text should be replaced after a completion
+  // is selected. This is necessary for completions for dictionary keys and
+  // partially typed states.
+  "replace_text_after_commit_completion": true,
+
   // Period of time in milliseconds to wait before timing out requests to the
   // Kite Engine. Setting this value too high may cause Kite's features to
   // appear laggy. Conversely, setting this value too low may cause Kite's

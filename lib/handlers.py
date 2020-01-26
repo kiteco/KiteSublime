@@ -204,13 +204,13 @@ class CompletionsHandler(sublime_plugin.EventListener):
     _lock = Lock()
 
     # The last buffer location at which completions were requested. This value
-    # gets updated on every completions request, regardless of whether a new
-    # set of completions are initialized.
+    # gets updated on every completions request, regardless of whether or not
+    # a new set of completions are initialized.
     _last_location = None
 
     # The last list of completions that were received from the backend. This
     # value gets updated on every completions request, regardless of whether
-    # a new set of completions are initialized.
+    # or not a new set of completions are initialized.
     _last_received_completions = []
 
     # The last buffer location at which completions were initialized. This
@@ -295,7 +295,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
             # with statement.
             cls._lock.acquire()
 
-            if not on_placeholder:
+            if (not on_placeholder and
+                    settings.get('replace_text_after_commit_completion', True)):
                 # TODO: This is a hack that assumes that replace text is only
                 # valid for non-snippets.
                 cls._process_replace_text(view, region)
@@ -325,7 +326,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
         if inserted_completion:
             inserted_text = inserted_completion['snippet']['text']
             replace_begin = inserted_completion['replace']['begin']
-            replace_end = inserted_completion['replace']['end']
 
             logger.debug('inserted {} -> {}:\n{}'
                          .format(cls._last_init_prefix, inserted_text,
