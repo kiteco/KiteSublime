@@ -57,6 +57,10 @@ def _check_view_size(view):
     return view.size() <= 76800
 
 
+def _get_view_substr(view, start, end):
+    return view.substr(sublime.Region(start, end))
+
+
 def _in_function_call(view, point):
     # The first matched scope is for 3176, and the second is for 3200. Both
     # are checked here as a hacky fix to account for changes in the API. We
@@ -197,10 +201,31 @@ class CompletionsHandler(sublime_plugin.EventListener):
     command.
     """
 
-    _received_completions = []
-    _visible_completions = []
-    _last_location = None
     _lock = Lock()
+
+    # The last buffer location at which completions were requested. This value
+    # gets updated on every completions request, regardless of whether or not
+    # a new set of completions are initialized.
+    _last_location = None
+
+    # The last list of completions that were received from the backend. This
+    # value gets updated on every completions request, regardless of whether
+    # or not a new set of completions are initialized.
+    _last_received_completions = []
+
+    # The last buffer location at which completions were initialized. This
+    # value only gets changed when a new set of completions is sent back to
+    # the UI.
+    _last_init_location = None
+
+    # The last prefix that was recorded at completions initialization. This
+    # value only gets changed when a new set of completions is sent back to
+    # the UI.
+    _last_init_prefix = None
+
+    # The last list of completions that were initialized. This value only gets
+    # changed when a new set of completions is sent back to the UI.
+    _last_init_completions = []
 
     def on_query_completions(self, view, prefix, locations):
         # Prevent completions from showing up in non-active views
@@ -220,45 +245,66 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
         with cls._lock:
             if cls._last_location is None:
-                cls._received_completions = []
-                cls._visible_completions = []
+                cls._last_received_completions = []
+                cls._last_init_completions = []
                 cls._last_location = None
                 cls.queue_completions(view, locations[0])
                 return None
 
             if (cls._last_location != locations[0]
-                    and cls._received_completions):
+                    and cls._last_received_completions):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
 
             completions = None
             if (cls._last_location == locations[0] and
-                    cls._received_completions):
+                    cls._last_received_completions):
                 completions = self._flatten_completions(
-                    cls._received_completions)
+                    cls._last_received_completions)
 
-            cls._visible_completions = cls._received_completions
-            cls._received_completions = []
-            cls._last_location = None
-
+            cls._last_init_completions = cls._last_received_completions
+            cls._last_init_location = cls._last_location
+            cls._last_init_prefix = prefix
             return completions
 
     def on_post_text_command(self, view, command_name, args):
-        if command_name not in ('prev_field', 'next_field', 'commit_completion', 'insert_best_completion'):
+        if command_name not in ('prev_field', 'next_field',
+                                'commit_completion', 'insert_best_completion'):
             return
         if len(view.sel()) != 1:
             return
 
+        cls = self.__class__
+        region = view.sel()[0]
+        on_placeholder = not region.empty()
+
         # we must only show completions if a placeholder was selected
-        # there's no way to be notified when a particular completion item was inserted
+        # there's no way to be notified when a particular completion item was
+        # inserted
         # the closest thing we can do is to show completions
-        # only when a non-empty selection (i.e. size > 1) is present after the command
-        # was executed
-        r = view.sel()[0]
-        if not r.empty():
-            # a reversed region might have r.a > r.b
-            a, b = sorted([r.a, r.b])
-            self.queue_completions(view, [a, b])
+        # only when a non-empty selection (i.e. size > 1) is present after the
+        # command was executed
+        if on_placeholder:
+            # a reversed region might have region.a > region.b
+            a, b = sorted([region.a, region.b])
+            cls.queue_completions(view, [a, b])
+
+        if command_name in ('commit_completion', 'insert_best_completion'):
+            # See note below in `_process_unmatched_replace_text` to see why
+            # we manually acquire and release the lock as opposed to using a
+            # with statement.
+            cls._lock.acquire()
+
+            if (not on_placeholder and
+                    settings.get('replace_text_after_commit_completion', True)):
+                # TODO: This is a hack that assumes that replace text is only
+                # valid for non-snippets.
+                cls._process_replace_text(view, region)
+            cls._last_init_completions = []
+            cls._last_init_prefix = None
+            cls._last_location = None
+
+            cls._lock.release()
 
     @classmethod
     def queue_completions(cls, view, location):
@@ -268,10 +314,134 @@ class CompletionsHandler(sublime_plugin.EventListener):
     @classmethod
     def hide_completions(cls, view):
         with cls._lock:
-            cls._received_completions = []
-            cls._visible_completions = []
+            cls._last_received_completions = []
+            cls._last_init_completions = []
             cls._last_location = None
         view.run_command('hide_auto_complete')
+
+    @classmethod
+    def _process_replace_text(cls, view, region):
+        inserted_completion = cls._find_inserted_completion(view)
+
+        if inserted_completion:
+            inserted_text = inserted_completion['snippet']['text']
+            replace_begin = inserted_completion['replace']['begin']
+
+            logger.debug('inserted {} -> {}:\n{}'
+                         .format(cls._last_init_prefix, inserted_text,
+                                 cls._completion_str(inserted_completion)))
+
+            in_buffer = _get_view_substr(view, replace_begin,
+                                         replace_begin + len(inserted_text))
+
+            if inserted_text == in_buffer:
+                cls._process_matched_replace_text(view, region,
+                                                  inserted_completion)
+            else:
+                cls._process_unmatched_replace_text(view, region,
+                                                    inserted_completion)
+
+        else:
+            logger.debug('no matching completion')
+
+    @classmethod
+    def _process_matched_replace_text(cls, view, region, inserted):
+        inserted_text = inserted['snippet']['text']
+
+        word_region = view.word(region.b)
+        word = _get_view_substr(view, word_region.a, word_region.b)
+        logger.debug('word: {}, inserted: {}'.format(word, inserted_text))
+        if word == inserted_text:
+            logger.debug('word matches, nothing to do!')
+            return
+
+        replace_begin = inserted['replace']['begin']
+        replace_end = inserted['replace']['end']
+
+        chars_to_trim = replace_end - replace_begin
+        leftover_chars = chars_to_trim - \
+            (cls._last_location - cls._last_init_location) - \
+            len(cls._last_init_prefix)
+
+        logger.debug('chars to trim: {}, leftover: {}'
+                     .format(chars_to_trim, leftover_chars))
+
+        if leftover_chars > 0:
+            logger.debug('trimming: {}'
+                         .format(_get_view_substr(view, region.b,
+                                                  region.b + leftover_chars)))
+
+            view.run_command('kite_view_erase', {
+                'range': (region.b, region.b + leftover_chars),
+            })
+
+    @classmethod
+    def _process_unmatched_replace_text(cls, view, region, inserted):
+        inserted_text = inserted['snippet']['text']
+        replace_begin = inserted['replace']['begin']
+        replace_end = inserted['replace']['end']
+
+        chars_to_trim = replace_end - replace_begin
+        trim_before = (replace_begin, region.b - len(inserted_text))
+        trimmed = trim_before[1] - trim_before[0]
+        rem_chars = chars_to_trim - trimmed
+        trim_after = (region.b, region.b + rem_chars)
+
+        logger.debug('trim before {} = {}'
+                     .format(trim_before,
+                             _get_view_substr(view, trim_before[0],
+                                              trim_before[1])))
+
+        logger.debug('trim after {} = {}'
+                     .format(trim_after,
+                             _get_view_substr(view, trim_after[0],
+                                              trim_after[1])))
+
+        # For some reason Sublime seems to hang on the next two text commands.
+        # The text command in `_process_matched_replace_text` above does not
+        # seem to hang, so we release and reacquire the lock here.
+        cls._lock.release()
+
+        view.run_command('kite_view_erase', {'range': trim_before})
+        view.run_command('kite_view_erase', {
+            'range': (trim_after[0] - trimmed, trim_after[1] - trimmed),
+        })
+
+        cls._lock.acquire()
+
+    @classmethod
+    def _find_inserted_completion(cls, view):
+        if len(view.sel()) != 1:
+            return None
+
+        region = view.sel()[0]
+        if region.a != region.b:
+            return None
+
+        def _search(_completions):
+            candidates = []
+            for _c in _completions:
+                text = _c['snippet']['text']
+                in_buffer = _get_view_substr(view, region.a - len(text),
+                                             region.a)
+                if in_buffer == text:
+                    candidates.append(_c)
+                if 'children' in _c:
+                    candidates.extend(_search(_c['children']))
+            return candidates
+
+        completions = _search(cls._last_received_completions)
+        logger.debug('possible matched completions: {}'
+                     .format(cls._completions_str(completions)))
+
+        longest = None
+        for i, c in enumerate(completions):
+            if longest is None:
+                longest = c
+            elif len(c['snippet']['text']) > len(longest['snippet']['text']):
+                longest = c
+
+        return longest
 
     @staticmethod
     def _is_snippets_enabled():
@@ -282,12 +452,13 @@ class CompletionsHandler(sublime_plugin.EventListener):
         resp, body = requests.kited_post('/clientapi/editor/complete', data)
 
         if resp.status != 200 or not body:
+            logger.debug('no completions!')
             return
 
         resp_data = json.loads(body.decode('utf-8'))
         completions = resp_data['completions'] or []
         with cls._lock:
-            cls._received_completions = completions
+            cls._last_received_completions = completions
             cls._last_location = data['position']['end']
         cls._run_auto_complete(view)
 
@@ -296,7 +467,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # Don't refresh if Kite doesn't have completions. Sublime will
         # filter the completions for us automatically.
         with cls._lock:
-            if len(cls._received_completions) == 0:
+            if len(cls._last_received_completions) == 0:
                 return
 
         # It seems like the `auto_complete` command does not always result in
@@ -318,8 +489,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _is_completions_subset(cls):
         with cls._lock:
             # both sets of completions are in the Kite's original data format
-            previous = cls._flatten_completions(cls._visible_completions)
-            current = cls._flatten_completions(cls._received_completions)
+            previous = cls._flatten_completions(cls._last_init_completions)
+            current = cls._flatten_completions(cls._last_received_completions)
 
         if len(previous) == 0 or len(current) > len(previous):
             return False
@@ -371,8 +542,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
             copy = sorted(placeholders, key=lambda i: i['begin'], reverse=True)
             for p in copy:
                 a, b = p['begin'], p['end']
-                index = placeholders.index(p) + 1  # +1 because $0 is the last placeholder
-                text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) + text[b:]
+                # +1 because $0 is the last placeholder
+                index = placeholders.index(p) + 1
+                text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) \
+                       + text[b:]
         except KeyError:
             return completion['snippet']['text']
         return text
@@ -408,6 +581,39 @@ class CompletionsHandler(sublime_plugin.EventListener):
             'text': view.substr(sublime.Region(0, view.size())),
             'cursor_runes': location,
         }
+
+    @staticmethod
+    def _prune_completion(completion):
+        fields = ('snippet', 'replace', 'display')
+        return {k: completion[k] for k in fields}
+
+    @classmethod
+    def _completions_str(cls, completions):
+        def _help(completions, nesting=0):
+            if not completions:
+                return []
+
+            result = []
+            for c in completions:
+                # We were previously using _is_snippets_enabled to branch on
+                # old/new logic, but it appears that sometimes this check fails
+                # so we need handle each completion item individually.
+                #
+                # See: https://rollbar.com/Kite/sublime-prod/items/14275/
+                if 'snippet' not in c:
+                    result.append(cls._prune_completion(c))
+                else:
+                    result.append(cls._prune_completion(c))
+                    if 'children' in c:
+                        result.extend(_help(c['children'], nesting + 1))
+
+            return result
+
+        return logger.jsonstr(_help(completions))
+
+    @classmethod
+    def _completion_str(cls, completion):
+        return logger.jsonstr(cls._prune_completion(completion))
 
 
 class SignaturesHandler(sublime_plugin.EventListener):
