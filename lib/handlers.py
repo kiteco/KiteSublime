@@ -61,6 +61,11 @@ def _get_view_substr(view, start, end):
     return view.substr(sublime.Region(start, end))
 
 
+def _get_word(view, point):
+    word_region = view.word(point)
+    return _get_view_substr(view, word_region.a, word_region.b)
+
+
 def _in_function_call(view, point):
     # The first matched scope is for 3176, and the second is for 3200. Both
     # are checked here as a hacky fix to account for changes in the API. We
@@ -208,6 +213,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
     # a new set of completions are initialized.
     _last_location = None
 
+    # The last prefix at which completions were requested. This value gets
+    # updated on every completions request, regardless of whether or not a
+    # new set of completions are initialized.
+    _last_prefix = None
+
     # The last list of completions that were received from the backend. This
     # value gets updated on every completions request, regardless of whether
     # or not a new set of completions are initialized.
@@ -327,8 +337,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
             inserted_text = inserted_completion['snippet']['text']
             replace_begin = inserted_completion['replace']['begin']
 
-            logger.debug('inserted {} -> {}:\n{}'
-                         .format(cls._last_init_prefix, inserted_text,
+            logger.debug('inserted {} / {} -> {}:\n{}'
+                         .format(cls._last_init_prefix, cls._last_prefix,
+                                 inserted_text,
                                  cls._completion_str(inserted_completion)))
 
             in_buffer = _get_view_substr(view, replace_begin,
@@ -397,15 +408,24 @@ class CompletionsHandler(sublime_plugin.EventListener):
                              _get_view_substr(view, trim_after[0],
                                               trim_after[1])))
 
+        # This is a hack that handles the situation when dict keys are inserted
+        # from an attribute expression. In this case, the typed out attribute
+        # is already completely replaced by the index expression, so the only
+        # character that needs to be trimmed is the leading ".".
+        before_str = _get_view_substr(view, trim_before[0], trim_before[1])
+        attr_to_dict_key = (before_str == '.' and inserted_text[0] == '['
+                            and inserted_text[-1] == ']')
+
         # For some reason Sublime seems to hang on the next two text commands.
         # The text command in `_process_matched_replace_text` above does not
         # seem to hang, so we release and reacquire the lock here.
         cls._lock.release()
 
         view.run_command('kite_view_erase', {'range': trim_before})
-        view.run_command('kite_view_erase', {
-            'range': (trim_after[0] - trimmed, trim_after[1] - trimmed),
-        })
+        if not attr_to_dict_key:
+            view.run_command('kite_view_erase', {
+                'range': (trim_after[0] - trimmed, trim_after[1] - trimmed),
+            })
 
         cls._lock.acquire()
 
@@ -460,6 +480,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             cls._last_received_completions = completions
             cls._last_location = data['position']['end']
+            cls._last_prefix = _get_word(view, data['position']['end'])
         cls._run_auto_complete(view)
 
     @classmethod
