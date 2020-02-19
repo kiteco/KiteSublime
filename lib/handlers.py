@@ -392,7 +392,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         replace_begin = inserted['replace']['begin']
         replace_end = inserted['replace']['end']
 
-        chars_to_trim = replace_end - replace_begin
+        chars_to_trim = replace_end - replace_begin - len(cls._last_prefix)
         trim_before = (replace_begin, region.b - len(inserted_text))
         trimmed = trim_before[1] - trim_before[0]
         rem_chars = chars_to_trim - trimmed
