@@ -300,11 +300,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls.queue_completions(view, [a, b])
 
         if command_name in ('commit_completion', 'insert_best_completion'):
-            # See note below in `_process_unmatched_replace_text` to see why
-            # we manually acquire and release the lock as opposed to using a
-            # with statement.
-            cls._lock.acquire()
-
             if (not on_placeholder and
                     settings.get('replace_text_after_commit_completion', True)):
                 # TODO: This is a hack that assumes that replace text is only
@@ -313,8 +308,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_init_completions = []
             cls._last_init_prefix = None
             cls._last_location = None
-
-            cls._lock.release()
 
     @classmethod
     def queue_completions(cls, view, location):
@@ -416,18 +409,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
         attr_to_dict_key = (before_str == '.' and inserted_text[0] == '['
                             and inserted_text[-1] == ']')
 
-        # For some reason Sublime seems to hang on the next two text commands.
-        # The text command in `_process_matched_replace_text` above does not
-        # seem to hang, so we release and reacquire the lock here.
-        cls._lock.release()
-
         view.run_command('kite_view_erase', {'range': trim_before})
         if not attr_to_dict_key:
             view.run_command('kite_view_erase', {
                 'range': (trim_after[0] - trimmed, trim_after[1] - trimmed),
             })
-
-        cls._lock.acquire()
 
     @classmethod
     def _find_inserted_completion(cls, view):
