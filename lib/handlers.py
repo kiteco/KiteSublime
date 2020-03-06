@@ -469,7 +469,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             cls._last_received_completions = completions
             cls._last_location = data['position']['end']
+
+        # Setting the last prefix inside the lock seems to hang on Linux and
+        # Windows. Possibly because we're using Sublime's view API inside the
+        # lock.
         cls._last_prefix = _get_word(view, data['position']['end'])
+
         cls._run_auto_complete(view)
 
     @classmethod
