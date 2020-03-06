@@ -463,19 +463,17 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
         resp_data = json.loads(body.decode('utf-8'))
         completions = resp_data['completions'] or []
-        with cls._lock:
-            cls._last_received_completions = completions
-            cls._last_location = data['position']['end']
-            cls._last_prefix = _get_word(view, data['position']['end'])
+        cls._last_received_completions = completions
+        cls._last_location = data['position']['end']
+        cls._last_prefix = _get_word(view, data['position']['end'])
         cls._run_auto_complete(view)
 
     @classmethod
     def _run_auto_complete(cls, view):
         # Don't refresh if Kite doesn't have completions. Sublime will
         # filter the completions for us automatically.
-        with cls._lock:
-            if len(cls._last_received_completions) == 0:
-                return
+        if len(cls._last_received_completions) == 0:
+            return
 
         # It seems like the `auto_complete` command does not always result in
         # `on_query_completions` from being triggered if a completion list is
@@ -494,10 +492,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _is_completions_subset(cls):
-        with cls._lock:
-            # both sets of completions are in the Kite's original data format
-            previous = cls._flatten_completions(cls._last_init_completions)
-            current = cls._flatten_completions(cls._last_received_completions)
+        # both sets of completions are in the Kite's original data format
+        previous = cls._flatten_completions(cls._last_init_completions)
+        current = cls._flatten_completions(cls._last_received_completions)
 
         if len(previous) == 0 or len(current) > len(previous):
             return False
