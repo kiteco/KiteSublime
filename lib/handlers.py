@@ -317,9 +317,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
     @classmethod
     def hide_completions(cls, view):
         with cls._lock:
-            cls._last_received_completions = []
-            cls._last_init_completions = []
             cls._last_location = None
+            cls._last_prefix = None
+            cls._last_received_completions = []
+            cls._last_init_location = None
+            cls._last_init_prefix = None
+            cls._last_init_completions = []
         view.run_command('hide_auto_complete')
 
     @classmethod
@@ -466,7 +469,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             cls._last_received_completions = completions
             cls._last_location = data['position']['end']
-            cls._last_prefix = _get_word(view, data['position']['end'])
+
+        # Setting the last prefix inside the lock seems to hang on Linux and
+        # Windows so we do it outside. Using Sublime's view API inside the
+        # lock may be the reason.
+        cls._last_prefix = _get_word(view, data['position']['end'])
+
         cls._run_auto_complete(view)
 
     @classmethod
