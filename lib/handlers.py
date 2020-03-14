@@ -936,7 +936,16 @@ class HoverHandler(sublime_plugin.EventListener):
         if settings.get_global('show_definitions'):
             window = sublime.active_window()
             defs = window.lookup_symbol_in_index(symbol['name'])
-            refs = window.lookup_references_in_index(symbol['name'])
+
+            refs = []
+            try:
+                # It seems like this function was removed at some point. It
+                # still works on some installations of Sublime 3 though.
+                #
+                # See: https://rollbar.com/Kite/sublime-prod/items/22783/
+                refs = window.lookup_references_in_index(symbol['name'])
+            except AttributeError:
+                pass
 
             if view is not None and point is not None:
                 line, col = view.rowcol(point)
