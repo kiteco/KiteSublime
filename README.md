@@ -10,7 +10,7 @@ At a high level, Kite provides you with:
 
 ## Requirements
 
-* macOS 10.10+ or Windows 7+ or Linux (Ubuntu, Debian, Fedora, Arch Linux, Linux Mint, openSUSE, KDE, XFCE, Gnome 2, 
+* macOS 10.10+ or Windows 7+ or Linux (Ubuntu, Debian, Fedora, Arch Linux, Linux Mint, openSUSE, KDE, XFCE, Gnome 2,
 Gnome 3)
 * Sublime Text build 3000+
 * [Kite Engine](https://kite.com/)
@@ -25,16 +25,18 @@ Use another editor? Check out [Kite’s other editor integrations](https://kite.
 The [Kite Engine](https://kite.com/) needs to be installed in order for the package to work properly. The package itself provides the frontend that interfaces with the Kite Engine, which performs all the code analysis and machine learning 100% locally on your computer (no code is sent to a cloud server).
 
 __macOS Instructions__
-1. Download the [installer](https://kite.com/download/) and open the downloaded `.dmg` file.
+1. Download the [installer](https://kite.com/download/?utm_source=sublime-github) and open the
+downloaded `.dmg` file.
 2. Drag the Kite icon into the `Applications` folder.
 3. Run `Kite.app` to start the Kite Engine.
 
 __Windows Instructions__
-1. Download the [installer](https://kite.com/download/) and run the downloaded `.exe` file.
+1. Download the [installer](https://kite.com/download/?utm_source=sublime-github) and run the
+downloaded `.exe` file.
 2. The installer should run the Kite Engine automatically after installation is complete.
 
 __Linux Instructions__
-1. Visit https://kite.com/linux/ to install Kite.
+1. View [our instructions](https://kite.com/linux/?utm_source=sublime-github) for installing Kite.
 2. The installer should run the Kite Engine automatically after installation is complete.
 
 ### Installing the Kite Plugin for Sublime
@@ -59,7 +61,7 @@ Hover your mouse cursor over a symbol to view a short summary of what the symbol
 
 ![hover](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/hover.png?raw=true)
 
-If the built-in `show_definition` preference is enabled, Kite will show you the definitions and references found in the 
+If the built-in `show_definition` preference is enabled, Kite will show you the definitions and references found in the
 Sublime index as usual.
 
 ![hover-show-definition](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/hover-show-definition.png?raw=true)
@@ -107,7 +109,7 @@ Furthermore, Kite comes with the following default keyboard shortcuts:
 
 ## Configuration
 
-You can change Kite's settings by clicking on `Preferences`, then `Package Settings`, then `Kite`. Alternatively, you can 
+You can change Kite's settings by clicking on `Preferences`, then `Package Settings`, then `Kite`. Alternatively, you can
 access the preferences files from the command palette using `Kite: Package Settings`. The default preferences file should
 be self documenting.
 
@@ -129,8 +131,7 @@ Happy coding!
 Kite is built by a team in San Francisco devoted to making programming easier and more enjoyable for all. Follow Kite on
 [Twitter](https://twitter.com/kitehq) and get the latest news and programming tips on the
 [Kite Blog](https://kite.com/blog/).
-Kite has been featured in [Wired](https://www.wired.com/2016/04/kites-coding-asssitant-spots-errors-finds-better-open-source/), 
-[VentureBeat](https://venturebeat.com/2019/01/28/kite-raises-17-million-for-its-ai-powered-developer-environment/), 
-[The Next Web](https://thenextweb.com/dd/2016/04/14/kite-plugin/), and 
-[TechCrunch](https://techcrunch.com/2019/01/28/kite-raises-17m-for-its-ai-driven-code-completion-tool/). 
-
+Kite has been featured in [Wired](https://www.wired.com/2016/04/kites-coding-asssitant-spots-errors-finds-better-open-source/),
+[VentureBeat](https://venturebeat.com/2019/01/28/kite-raises-17-million-for-its-ai-powered-developer-environment/),
+[The Next Web](https://thenextweb.com/dd/2016/04/14/kite-plugin/), and
+[TechCrunch](https://techcrunch.com/2019/01/28/kite-raises-17m-for-its-ai-driven-code-completion-tool/).
