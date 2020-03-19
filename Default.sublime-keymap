@@ -12,7 +12,7 @@
     "command": "kite_show_signatures"
   },
   {
-    "keys": ["escape"],
+    "keys": ["shift+escape"],
     "command": "kite_hide_signatures",
     "context": [
       {
