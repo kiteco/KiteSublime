@@ -105,7 +105,7 @@ Furthermore, Kite comes with the following default keyboard shortcuts:
 |`D`ocumentation|`ctrl`+`alt`+`d`|Show documentation in the Copilot|
 |F`u`nction Signatures|`ctrl`+`alt`+`u`|Show the function signature panel|
 |Ke`y`word Arguments|`ctrl`+`alt`+`y`|Show/hide keyword arguments (when function signature panel is shown)|
-|`P`opular Patterns|`ctrl`+`alt`+`p`|Show/hide popular calling patterns (when function signature panel is shown)|
+|Popula`r` Patterns|`ctrl`+`alt`+`r`|Show/hide popular calling patterns (when function signature panel is shown)|
 
 ## Configuration
 
