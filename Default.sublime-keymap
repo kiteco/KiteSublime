@@ -25,7 +25,7 @@
     "command": "kite_toggle_keyword_arguments"
   },
   {
-    "keys": ["ctrl+alt+p"],
+    "keys": ["ctrl+alt+r"],
     "command": "kite_toggle_popular_patterns"
   }
 ]
