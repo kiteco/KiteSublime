@@ -34,3 +34,6 @@ def start_onboarding():
     file_name = resp.json()
     sublime.active_window().open_file(file_name)
     return True
+
+def should_onboard_lang(fext):
+    pass
