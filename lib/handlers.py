@@ -43,7 +43,7 @@ __all__ = [
     'StatusHandler',
 ]
 
-SUPPORTED_FILE_EXTENSIONS = ('.py', '.go')
+SUPPORTED_FILE_EXTENSIONS = ('.py', '.go', '.js', '.jsx', '.vue')
 
 
 def _is_view_supported(view):
