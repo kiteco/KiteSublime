@@ -42,6 +42,7 @@ __all__ = [
     'HoverHandler',
     'StatusHandler',
     'NotificationsHandler',
+    'OnboardingHandler',
 ]
 
 def _is_view_supported(view):
@@ -1102,3 +1103,21 @@ class NotificationsHandler(sublime_plugin.EventListener):
         
         if beta_langs.should_show_notif(fext):
             beta_langs.show_notif(fext)
+
+class OnboardingHandler(sublime_plugin.EventListener):
+    """ Listener which checks if an onboarding file should be shown when a view is activated. """
+
+    def on_activated_async(self, view):
+        self.__class__._handle(view)
+
+    @classmethod
+    def _handle(cls, view):
+        if not _is_view_supported(view):
+            return
+
+        fext = _fext_from_view(view)
+        if fext == "":
+            return
+        
+        if onboarding.should_onboard_lang(fext):
+            onboarding.start_onboarding(fext)

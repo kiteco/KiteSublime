@@ -139,7 +139,7 @@ class KiteTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.start_onboarding()
+        onboarding.start_onboarding('.py')
 
 
 class KiteHelp(sublime_plugin.ApplicationCommand):

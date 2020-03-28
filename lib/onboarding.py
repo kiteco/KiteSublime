@@ -1,20 +1,15 @@
 import requests
 import sublime
 
-from ..lib import link_opener
+from ..lib import link_opener, languages, settings
 
-def start_onboarding():
-    """Attempts to open the live onboarding file. If fetching the file fails,
-    then a help dialog is shown instead.
-
-    This function returns whether or not the help prompt should be suppressed
-    in future startups. The help prompt should be suppressed if fetching the
-    live onboarding file succeeds or if the user clicked on the "No" button
-    in the help dialog.
+def start_onboarding(ext):
+    """Attempts to open the live onboarding file for a given language. 
+    If fetching the file fails, then a help dialog is shown instead.
     """
-
+    lang = languages.ext_to_lang(ext).lower()
     url = 'http://localhost:46624/clientapi/plugins/onboarding_file'
-    resp = requests.get(url, params={'editor': 'sublime3'})
+    resp = requests.get(url, params={'editor': 'sublime3', "language": lang})
 
     if resp.status_code != 200:
         res = sublime.yes_no_cancel_dialog(
@@ -29,11 +24,20 @@ def start_onboarding():
         if res == sublime.DIALOG_YES:
             link_opener.open_browser_url(
                 'https://github.com/kiteco/KiteSublime/blob/master/README.md')
-        return res == sublime.DIALOG_NO
+        settings.set("should_onboard_"+lang, False)
+        return
 
     file_name = resp.json()
     sublime.active_window().open_file(file_name)
-    return True
+    settings.set("should_onboard_"+lang, False)
 
-def should_onboard_lang(fext):
-    pass
+def should_onboard_lang(ext):
+    if ext not in languages.SUPPORTED_EXTS_TO_LANG:
+        return False
+
+    # For legacy behavior. Should fallback to new behavior if not present.
+    if ext == ".py" and not settings.get("show_help_dialog", True):
+        return False
+
+    lang = languages.ext_to_lang(ext).lower()
+    return settings.get("should_onboard_"+lang, True) and languages.kited_ext_enabled(ext)
