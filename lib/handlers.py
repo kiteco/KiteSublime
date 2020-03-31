@@ -551,7 +551,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     def _placeholder_text(completion):
         text = completion['snippet']['text']
         try:
-            placeholders = completion['snippet']['placeholders']
+            placeholders = completion['snippet']['placeholders'] or []
             # sort placeholders in reverse order for easier string patching
             # we assume that placeholders do not overlap
             copy = sorted(placeholders, key=lambda i: i['begin'], reverse=True)
