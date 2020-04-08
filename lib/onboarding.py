@@ -12,13 +12,16 @@ def start_onboarding(ext):
     """
     lang = ext_to_lang(ext).lower()
     url = 'http://localhost:46624/clientapi/plugins/onboarding_file'
-    resp = requests.get(url, params={'editor': 'sublime3', 'language': lang})
-
-    if resp.status_code != 200:
+    try:
+        resp = requests.get(url, params={'editor': 'sublime3', 'language': lang})
+        if resp.status_code == 200:
+            file_name = resp.json()
+            sublime.active_window().open_file(file_name)
+        else:
+            show_help_notif(ext)
+    except:
         show_help_notif(ext)
-    else:
-        file_name = resp.json()
-        sublime.active_window().open_file(file_name)
+
     mark_help_shown(ext)
 
 
