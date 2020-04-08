@@ -6,8 +6,13 @@
   // Start the Kite Engine on startup.
   "start_kite_engine_on_startup": true,
 
-  // Show the help dialog on startup.
+  // Legacy help dialog option.
   "show_help_dialog": true,
+
+  // Language specific help dialog
+  "show_go_help": true,
+  "show_javascript_help": true,
+  "show_python_help": true,
 
   // Enable snippet completions.
   "enable_snippets": true,
