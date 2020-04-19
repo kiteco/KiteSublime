@@ -17,7 +17,7 @@ _ROLLBAR_IS_INIT = False
 
 _ROLLBAR_TOKENS = {
     'dev': '7fa5ad5f027f4e0a887347441793c3ee',
-    'prod': '790cab51b6c54f50bce651d28a22fc5a',
+    'prod': '7c2c5c6b481c4672be08a30f83792647',
 }
 
 
