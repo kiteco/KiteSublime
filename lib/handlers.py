@@ -10,7 +10,7 @@ from os.path import realpath, splitext
 from threading import Lock
 from urllib.parse import quote
 
-from ..lib import deferred, keymap, link_opener, logger, settings, requests, beta, onboarding, languages
+from ..lib import deferred, keymap, link_opener, logger, settings, requests, beta_langs, onboarding, languages
 from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
@@ -1089,7 +1089,6 @@ class StatusHandler(sublime_plugin.EventListener):
 
 class NotificationsHandler(sublime_plugin.EventListener):
     """ Listener which checks if a notifcation should be shown when a view is activated. """
-
     def on_activated_async(self, view):
         self.__class__._handle(view)
     
@@ -1102,8 +1101,8 @@ class NotificationsHandler(sublime_plugin.EventListener):
         if fext == "":
             return
         
-        if beta.should_show_notif(fext):
-            beta.show_notif(fext)
+        if beta_langs.should_show_notif(fext):
+            beta_langs.show_notif(fext)
 
 class OnboardingHandler(sublime_plugin.EventListener):
     """ Listener which checks if an onboarding file should be shown when a view is activated. """
