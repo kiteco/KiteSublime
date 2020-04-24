@@ -48,6 +48,11 @@ def plugin_loaded():
         if settings.get('start_kite_engine_on_startup', True):
             app_controller.launch_kite_if_not_running()
 
+        if settings.get('show_help_dialog', True):
+            toggle_dialog = onboarding.start_onboarding()
+            if toggle_dialog:
+                settings.set('show_help_dialog', False)
+
         compatibility.check_anaconda_compatibility()
 
     logger.log('Kite v{} activated'.format(package_version()))
