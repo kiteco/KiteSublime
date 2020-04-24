@@ -10,7 +10,7 @@ from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
 
-from ..lib import deferred, keymap, link_opener, logger, settings, requests
+from ..lib import deferred, keymap, link_opener, logger, settings, requests, languages
 from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
@@ -43,12 +43,9 @@ __all__ = [
     'StatusHandler',
 ]
 
-SUPPORTED_FILE_EXTENSIONS = ('.py', '.go', '.js', '.jsx', '.vue')
-
-
 def _is_view_supported(view):
     return view.file_name() is not None and any(
-        view.file_name().endswith(ext) for ext in SUPPORTED_FILE_EXTENSIONS
+        view.file_name().endswith(ext) for ext in languages.SUPPORTED_EXTS_TO_LANG
     )
 
 
