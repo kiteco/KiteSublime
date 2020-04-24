@@ -6,10 +6,9 @@ from ..lib.languages import ext_to_lang, Extensions
 
 
 def open_tutorial(ext):
-    """Attempts to open the live onboarding file. If fetching the file fails,
-    then a help dialog is shown instead.
+    """Attempts to open the language specific tutorial file. 
+    If fetching the file fails, then a help dialog is shown instead.
     """
-
     lang = ext_to_lang(ext).lower()
     url = 'http://localhost:46624/clientapi/plugins/onboarding_file'
     try:
@@ -18,13 +17,13 @@ def open_tutorial(ext):
             file_name = resp.json()
             sublime.active_window().open_file(file_name)
         else:
-            open_browser_help(ext)
+            show_help_dialog(ext)
     except:
-        open_browser_help(ext)
+        show_help_dialog(ext)
 
     settings.set('show_help_dialog', False)
 
-def open_browser_help(ext):
+def show_help_dialog(ext):
     """ Shows a language specific dialogue that links to a help page
     for that language.
     """

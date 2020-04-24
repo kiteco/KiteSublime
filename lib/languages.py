@@ -1,4 +1,3 @@
-from ..lib import requests
 from ..lib.errors import ExpectedError
 
 class Languages:
