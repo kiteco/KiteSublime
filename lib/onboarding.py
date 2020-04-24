@@ -5,7 +5,7 @@ from ..lib import link_opener, settings
 from ..lib.languages import ext_to_lang, Extensions
 
 
-def start_onboarding(ext):
+def open_tutorial(ext):
     """Attempts to open the live onboarding file. If fetching the file fails,
     then a help dialog is shown instead.
     """

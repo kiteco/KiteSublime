@@ -139,7 +139,7 @@ class KitePythonTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.start_onboarding('.py')
+        onboarding.open_tutorial('.py')
 
 
 class KiteJavascriptTutorial(sublime_plugin.ApplicationCommand):
@@ -147,7 +147,7 @@ class KiteJavascriptTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.start_onboarding('.js')
+        onboarding.open_tutorial('.js')
 
 
 class KiteGoTutorial(sublime_plugin.ApplicationCommand):
@@ -155,7 +155,7 @@ class KiteGoTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.start_onboarding('.go')
+        onboarding.open_tutorial('.go')
 
 
 class KiteHelp(sublime_plugin.ApplicationCommand):

@@ -49,7 +49,7 @@ def plugin_loaded():
             app_controller.launch_kite_if_not_running()
         
         if settings.get('show_help_dialog', True):
-            onboarding.start_onboarding('.py')
+            onboarding.open_tutorial('.py')
 
         compatibility.check_anaconda_compatibility()
 
