@@ -6,11 +6,11 @@ import htmlmin
 import json
 import sys
 from http.client import CannotSendRequest
-from os.path import realpath, splitext
+from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
 
-from ..lib import deferred, keymap, link_opener, logger, settings, requests, beta_langs, onboarding, languages
+from ..lib import deferred, keymap, link_opener, logger, settings, requests
 from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
@@ -41,11 +41,15 @@ __all__ = [
     'SignaturesHandler',
     'HoverHandler',
     'StatusHandler',
-    'NotificationsHandler',
 ]
 
+SUPPORTED_FILE_EXTENSIONS = ('.py', '.go', '.js', '.jsx', '.vue')
+
+
 def _is_view_supported(view):
-    return view.file_name() is not None and _fext_from_view(view) in languages.SUPPORTED_EXTS_TO_LANG
+    return view.file_name() is not None and any(
+        view.file_name().endswith(ext) for ext in SUPPORTED_FILE_EXTENSIONS
+    )
 
 
 def _check_view_size(view):
@@ -91,11 +95,6 @@ def _in_empty_function_call(view, point):
 def _md5(text):
     return hashlib.md5(str.encode(text)).hexdigest()
 
-def _fext_from_view(view):
-    fname = view.file_name()
-    if fname is None or not fname:
-        return ""
-    return splitext(fname)[-1]
 
 class EventDispatcher(sublime_plugin.EventListener):
     """Listener which forwards editor events to the event endpoint and also
@@ -1085,20 +1084,3 @@ class StatusHandler(sublime_plugin.EventListener):
     @classmethod
     def _brand_status(cls, status):
         return '𝕜𝕚𝕥𝕖: {}'.format(status)
-
-class NotificationsHandler(sublime_plugin.EventListener):
-    """ Listener which checks if a notifcation should be shown when a view is activated. """
-    def on_activated_async(self, view):
-        self.__class__._handle(view)
-    
-    @classmethod
-    def _handle(cls, view):
-        if not _is_view_supported(view):
-            return
-
-        fext = _fext_from_view(view)
-        if fext == "":
-            return
-        
-        if beta_langs.should_show_notif(fext):
-            beta_langs.show_notif(fext)
