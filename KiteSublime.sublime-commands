@@ -32,8 +32,16 @@
     }
   },
   {
-    "caption": "Kite: Tutorial",
-    "command": "kite_tutorial"
+    "caption": "Kite: Python Tutorial",
+    "command": "kite_python_tutorial"
+  },
+  {
+    "caption": "Kite: Javascript Tutorial",
+    "command": "kite_javascript_tutorial"
+  },
+  {
+    "caption": "Kite: Go Tutorial",
+    "command": "kite_go_tutorial"
   },
   {
     "caption": "Kite: Help",

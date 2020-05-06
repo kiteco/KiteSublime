@@ -134,12 +134,28 @@ class KiteEngineSettings(sublime_plugin.ApplicationCommand):
         link_opener.open_copilot_root('settings')
 
 
-class KiteTutorial(sublime_plugin.ApplicationCommand):
+class KitePythonTutorial(sublime_plugin.ApplicationCommand):
     """Command to start the live onboarding.
     """
 
     def run(self):
-        onboarding.start_onboarding('.py')
+        onboarding.open_tutorial('.py')
+
+
+class KiteJavascriptTutorial(sublime_plugin.ApplicationCommand):
+    """Command to start the live onboarding.
+    """
+
+    def run(self):
+        onboarding.open_tutorial('.js')
+
+
+class KiteGoTutorial(sublime_plugin.ApplicationCommand):
+    """Command to start the live onboarding.
+    """
+
+    def run(self):
+        onboarding.open_tutorial('.go')
 
 
 class KiteHelp(sublime_plugin.ApplicationCommand):
