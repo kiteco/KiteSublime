@@ -1,10 +1,9 @@
-# Kite Python Plugin for Sublime Text 3
+# Kite Autocomplete Plugin for Sublime Text 3
 
-Kite is an AI-powered programming assistant that helps you write Python code inside Sublime Text 3. Kite helps you write code faster by showing you the right information at the right time. Learn more about how Kite saves you time and effort in Sublime Text at https://kite.com/integrations/sublime-text/.
+Kite is an AI-powered programming assistant that helps you write Python & JavaScript code inside Sublime Text 3. Kite helps you write code faster by saving you keystrokes and showing you the right information at the right time. Learn more about how Kite saves you time and effort in Sublime Text at https://kite.com/integrations/sublime-text/.
 
 At a high level, Kite provides you with:
 * 🧠 __[Line-of-Code Completions](https://kite.com/blog/product/launching-line-of-code-completions-going-cloudless-and-17-million-in-funding/)__ powered by machine learning models trained on the entire open source code universe
-* 📝 __[Intelligent Snippets](https://kite.com/blog/product/announcing-intelligent-snippets-for-python/)__ that automatically provide context-relevant code snippets for your function calls
 * 🔍 __[Instant documentation](https://kite.com/copilot/)__ for the symbol underneath your cursor so you save time searching for Python docs
 
 
@@ -68,7 +67,7 @@ Sublime index as usual.
 
 ### Documentation
 
-Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the [Copilot](https://kite.com/copilot/), Kite's desktop app for Python documentation. The Copilot's search results also follow your cursor as you type.
+Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the [Copilot](https://kite.com/copilot/), Kite's desktop app for Python documentation (JavaScript documentation not yet available). The Copilot's search results also follow your cursor as you type.
 
 ![copilot](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/copilot.png?raw=true)
 
@@ -78,18 +77,18 @@ If a `Def` link is available in the hover popup, clicking on it will jump to the
 
 ### Autocompletions
 
-Simply start typing in a saved Python file and Kite will automatically suggest completions for what you're typing.
+Simply start typing in a saved Python or JavaScript file and Kite will automatically suggest completions for what you're typing.
 
 ![completions](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/completions.png?raw=true)
 
 ### Function Signatures
 
-When you call a function, Kite will show you the arguments required to call it.
+When you call a function in Python, Kite will show you the arguments required to call it.
 
 ![signatures](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/signatures.png?raw=true)
 
 Kite also shows you `How others used this` function, which are the most popular calling patterns inferred from all the
-open source code on the internet.
+open-source Python code on the internet.
 
 ### Commands and Keyboard Shortcuts
 
@@ -117,9 +116,9 @@ be self documenting.
 
 * On Sublime 3200+, the function signature UI is truncated in some situations. ([Issue]( https://github.com/SublimeTextIssues/Core/issues/2711))
 
-## Contact Us
+## Troubleshooting
 
-Feel free to contact us with bug reports, feature requests, or general comments at feedback@kite.com.
+Visit our [help docs](https://help.kite.com) for FAQs and troubleshooting support.
 
 Happy coding!
 
