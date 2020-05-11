@@ -54,7 +54,13 @@ Alternatively, you can `git clone` this repository directly into your Sublime `P
 
 The following is a brief guide to using Kite in its default configuration.
 
-### Hover
+### Autocompletions
+
+Simply start typing in a saved Python or JavaScript file and Kite will automatically suggest completions for what you're typing.
+
+![completions](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/completions.png?raw=true)
+
+### Hover (Python only)
 
 Hover your mouse cursor over a symbol to view a short summary of what the symbol represents.
 
@@ -65,23 +71,17 @@ Sublime index as usual.
 
 ![hover-show-definition](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/hover-show-definition.png?raw=true)
 
-### Documentation
+### Documentation (Python only)
 
 Click on the `Docs` link in the hover popup to open the documentation for the symbol inside the [Copilot](https://kite.com/copilot/), Kite's desktop app for Python documentation (JavaScript documentation not yet available). The Copilot's search results also follow your cursor as you type.
 
 ![copilot](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/copilot.png?raw=true)
 
-### Definitions
+### Definitions (Python only)
 
 If a `Def` link is available in the hover popup, clicking on it will jump to the definition of the symbol.
 
-### Autocompletions
-
-Simply start typing in a saved Python or JavaScript file and Kite will automatically suggest completions for what you're typing.
-
-![completions](https://github.com/kiteco/KiteSublime/blob/master/docs/assets/completions.png?raw=true)
-
-### Function Signatures
+### Function Signatures (Python only)
 
 When you call a function in Python, Kite will show you the arguments required to call it.
 
@@ -105,6 +105,10 @@ Furthermore, Kite comes with the following default keyboard shortcuts:
 |F`u`nction Signatures|`ctrl`+`alt`+`u`|Show the function signature panel|
 |Ke`y`word Arguments|`ctrl`+`alt`+`y`|Show/hide keyword arguments (when function signature panel is shown)|
 |Popula`r` Patterns|`ctrl`+`alt`+`r`|Show/hide popular calling patterns (when function signature panel is shown)|
+|Python Tutorial||Open the Kite Python tutorial file|
+|JavaScript Tutorial||Open the Kite JavaScript tutorial file|
+|Go Tutorial||Open the Kite Go tutorial file|
+
 
 ## Configuration
 
