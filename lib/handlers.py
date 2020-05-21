@@ -297,10 +297,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls.queue_completions(view, [a, b])
 
         if command_name in ('commit_completion', 'insert_best_completion'):
-            if (not on_placeholder and
-                    settings.get('replace_text_after_commit_completion', True)):
-                # TODO: This is a hack that assumes that replace text is only
-                # valid for non-snippets.
+            if settings.get('replace_text_after_commit_completion', True):
                 cls._process_replace_text(view, region)
             cls._last_init_completions = []
             cls._last_init_prefix = None
@@ -324,9 +321,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _process_replace_text(cls, view, region):
-        inserted_completion = cls._find_inserted_completion(view)
+        inserted_completion, is_snippet = cls._find_inserted_completion(view)
 
-        if inserted_completion:
+        if inserted_completion and not is_snippet:
             inserted_text = inserted_completion['snippet']['text']
             replace_begin = inserted_completion['replace']['begin']
 
@@ -344,6 +341,12 @@ class CompletionsHandler(sublime_plugin.EventListener):
             else:
                 cls._process_unmatched_replace_text(view, region,
                                                     inserted_completion)
+
+        elif inserted_completion and is_snippet:
+            replace = inserted_completion['post_commit']['replace']
+            view.run_command('kite_view_erase', {
+                'range': (replace['begin'], replace['end']),
+            })
 
         else:
             logger.debug('no matching completion')
@@ -421,8 +424,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             return None
 
         region = view.sel()[0]
-        if region.a != region.b:
-            return None
+        is_snippet = not region.empty()
 
         def _search(_completions):
             candidates = []
@@ -436,7 +438,24 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     candidates.extend(_search(_c['children']))
             return candidates
 
-        completions = _search(cls._last_received_completions)
+        def _search_snippet(_completions):
+            candidates = []
+            for _c in _completions:
+                if 'post_commit' not in _c:
+                    continue
+                buffer = _c['post_commit']['buffer']
+                text = buffer['text']
+                in_buffer = _get_view_substr(view, buffer['start'],
+                                             buffer['end'])
+                logger.debug('comparing {} to {}'.format(text, in_buffer))
+                if in_buffer == text:
+                    candidates.append(_c)
+                if 'children' in _c:
+                    candidates.extend(_search_snippet(_c['children']))
+            return candidates
+
+        completions = (_search(cls._last_received_completions) if not is_snippet
+                       else _search_snippet(cls._last_received_completions))
         logger.debug('possible matched completions: {}'
                      .format(cls._completions_str(completions)))
 
@@ -447,7 +466,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             elif len(c['snippet']['text']) > len(longest['snippet']['text']):
                 longest = c
 
-        return longest
+        return longest, is_snippet
 
     @staticmethod
     def _is_snippets_enabled():
@@ -466,6 +485,11 @@ class CompletionsHandler(sublime_plugin.EventListener):
         with cls._lock:
             cls._last_received_completions = completions
             cls._last_location = data['position']['end']
+            cls._augment_completions_replace(view, cls._last_location,
+                                             cls._last_received_completions)
+            logger.debug('received completions at cursor {}:\n{}'.format(
+                cls._last_location,
+                cls._completions_str(cls._last_received_completions)))
 
         # Setting the last prefix inside the lock seems to hang on Linux and
         # Windows so we do it outside. Using Sublime's view API inside the
@@ -475,9 +499,34 @@ class CompletionsHandler(sublime_plugin.EventListener):
         cls._run_auto_complete(view)
 
     @classmethod
+    def _augment_completions_replace(cls, view, position, completions):
+        for c in completions:
+            begin = c['replace']['begin']
+            end = c['replace']['end']
+            text = c['snippet']['text']
+            n = len(text)
+
+            if begin >= position and end > begin:
+                c['post_commit'] = {
+                    'replace': {
+                        'begin': begin + n,
+                        'end': end + n,
+                    },
+                    'buffer': {
+                        'start': position,
+                        'end': position + n + end - begin,
+                        'text': '{}{}'.format(text,
+                                              _get_view_substr(view, begin,
+                                                               end)),
+                    },
+                }
+
+    @classmethod
     def _run_auto_complete(cls, view):
         # Don't refresh if Kite doesn't have completions. Sublime will
-        # filter the completions for us automatically.
+        # filter the completions for us automatically. Note that Sublime
+        # performs fuzzy matching so it is possible that Kite will suggest
+        # completions that aren't exactly prefix matched.
         with cls._lock:
             if len(cls._last_received_completions) == 0:
                 return
@@ -596,8 +645,8 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @staticmethod
     def _prune_completion(completion):
-        fields = ('snippet', 'replace', 'display')
-        return {k: completion[k] for k in fields}
+        fields = ('snippet', 'replace', 'display', 'post_commit')
+        return {k: completion.get(k, None) for k in fields}
 
     @classmethod
     def _completions_str(cls, completions):
