@@ -487,9 +487,6 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_location = data['position']['end']
             cls._augment_completions_replace(view, cls._last_location,
                                              cls._last_received_completions)
-            logger.debug('received completions at cursor {}:\n{}'.format(
-                cls._last_location,
-                cls._completions_str(cls._last_received_completions)))
 
         # Setting the last prefix inside the lock seems to hang on Linux and
         # Windows so we do it outside. Using Sublime's view API inside the
