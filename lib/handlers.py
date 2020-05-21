@@ -627,6 +627,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             'filename': realpath(view.file_name()),
             'editor': 'sublime3',
             'text': view.substr(sublime.Region(0, view.size())),
+            'offset_encoding': 'utf-32',
             'position': {
                 'begin': a,
                 'end': b,
