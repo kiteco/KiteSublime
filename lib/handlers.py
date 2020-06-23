@@ -191,7 +191,7 @@ class EventDispatcher(sublime_plugin.EventListener):
             'filename': realpath(view.file_name()),
             'text': text,
             'action': action,
-            'selections': [{'start': r.a, 'end': r.b} for r in view.sel()],
+            'selections': [{'start': r.a, 'end': r.b, 'encoding': 'utf-32'} for r in view.sel()],
             'editor_version': sublime.version(),
             'plugin_version': package_version(),
         }
