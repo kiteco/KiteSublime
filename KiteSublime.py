@@ -19,7 +19,7 @@ if sys.platform not in ('darwin', 'win32', 'linux', 'linux2'):
     raise ImportError('unsupported platform: {}'.format(sys.platform))
 
 from .lib import app_controller, deferred, logger, reporter
-from .lib import compatibility, installer, onboarding, settings
+from .lib import installer, onboarding, settings
 from .lib.commands import *
 from .lib.handlers import *
 
@@ -51,8 +51,6 @@ def plugin_loaded():
 
         if settings.get('show_help_dialog', True):
             onboarding.open_tutorial('.py')
-
-        compatibility.check_anaconda_compatibility()
 
     logger.log('Kite v{} activated'.format(package_version()))
 
