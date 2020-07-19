@@ -5,9 +5,11 @@ import rollbar
 import sys
 import traceback
 
-from ..lib import logger
+from ..lib import logger, settings
 from ..setup import is_development, is_same_package, package_version
 
+
+_CAN_REPORT = None
 
 _MODULE_NAME = None
 
@@ -21,7 +23,25 @@ _ROLLBAR_TOKENS = {
 }
 
 
+def check_reporting_enabled():
+    global _CAN_REPORT
+
+    if not settings.exists('report_errors'):
+        ok = sublime.ok_cancel_dialog(
+            '[Kite] Would you like to enable error reporting for Kite?\n\n' +
+            'Error reporting allows us to find and fix issues with Kite\'s ' +
+            'Sublime plugin so that we can improve your experience with it.\n'
+        )
+        settings.set('report_errors', ok or False)
+
+    _CAN_REPORT = settings.get('report_errors')
+    return _CAN_REPORT
+
+
 def send_rollbar_msg(msg):
+    if not _CAN_REPORT:
+        return
+
     if not _ROLLBAR_IS_INIT:
         _init_rollbar()
 
@@ -32,6 +52,9 @@ def send_rollbar_msg(msg):
 
 
 def send_rollbar_exc(exc):
+    if not _CAN_REPORT:
+        return
+
     if not _ROLLBAR_IS_INIT:
         _init_rollbar()
 
@@ -42,6 +65,9 @@ def send_rollbar_exc(exc):
 
 
 def setup_excepthook():
+    if not _CAN_REPORT:
+        return
+
     global _MODULE_NAME, _excepthook
     _MODULE_NAME = __name__.split('.')[0]
 
