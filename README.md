@@ -105,9 +105,6 @@ Furthermore, Kite comes with the following default keyboard shortcuts:
 |F`u`nction Signatures|`ctrl`+`alt`+`u`|Show the function signature panel|
 |Ke`y`word Arguments|`ctrl`+`alt`+`y`|Show/hide keyword arguments (when function signature panel is shown)|
 |Popula`r` Patterns|`ctrl`+`alt`+`r`|Show/hide popular calling patterns (when function signature panel is shown)|
-|Python Tutorial||Open the Kite Python tutorial file|
-|JavaScript Tutorial||Open the Kite JavaScript tutorial file|
-|Go Tutorial||Open the Kite Go tutorial file|
 
 
 ## Configuration
