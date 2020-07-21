@@ -4,6 +4,16 @@ _BASE_NAME = 'KiteSublime.sublime-settings'
 _SETTINGS = None
 _GLOBAL_SETTINGS = None
 
+def exists(name):
+    if _SETTINGS is None:
+        _init_settings()
+    return _SETTINGS.has(name)
+
+def exists_global(name):
+    if _GLOBAL_SETTINGS is None:
+        _init_settings()
+    return _GLOBAL_SETTINGS.has(name)
+
 def get(name, default=None):
     if _SETTINGS is None:
         _init_settings()

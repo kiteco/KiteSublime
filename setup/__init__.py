@@ -57,19 +57,7 @@ def package_version():
 def _setup_path():
     global _ROOT
     _ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
-    # Modify the path such that our version of jinja2 gets precedence
-    packages_path = os.path.dirname(_ROOT)
-    idx = -1
-    for i, p in enumerate(sys.path):
-        if p == packages_path:
-            idx = i + 1
-            break
-
-    if idx != -1:
-        sys.path.insert(idx, os.path.join(_ROOT, 'vendor'))
-    else:
-        sys.path.append(os.path.join(_ROOT, 'vendor'))
+    sys.path.append(os.path.join(_ROOT, 'vendor'))
 
 
 def _setup_os_version():

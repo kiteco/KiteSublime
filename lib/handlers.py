@@ -15,25 +15,7 @@ from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
 
-# Use the vendored version explicitly in case the user has an older version
-# of jinja2 in his environment e.g. GitGutter uses v2.8, which is outdated.
-import importlib
-
-jinja_mods = [m for m in sys.modules.keys()
-              if m == 'jinja2' or m.startswith('jinja2.')]
-for m in jinja_mods:
-    logger.log('unloading {}'.format(m))
-    del sys.modules[m]
-
 from ..vendor.jinja2 import Template
-
-for m in jinja_mods:
-    if m not in sys.modules:
-        logger.log('reloading {}'.format(m))
-        try:
-            importlib.import_module(m)
-        except ImportError:
-            logger.log('could not load {}'.format(m))
 
 __all__ = [
     'EventDispatcher',
