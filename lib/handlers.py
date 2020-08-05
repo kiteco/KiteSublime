@@ -248,12 +248,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     and cls._last_received_completions):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
-                cls._last_location = None
-                cls._last_prefix = None
-                cls._last_received_completions = []
-                cls._last_init_location = None
-                cls._last_init_prefix = None
-                cls._last_init_completions = []
+                cls._clear_cache()
 
             completions = None
             if (cls._last_location == locations[0] and
@@ -304,12 +299,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     @classmethod
     def hide_completions(cls, view):
         with cls._lock:
-            cls._last_location = None
-            cls._last_prefix = None
-            cls._last_received_completions = []
-            cls._last_init_location = None
-            cls._last_init_prefix = None
-            cls._last_init_completions = []
+            cls._clear_cache()
         view.run_command('hide_auto_complete')
 
     @classmethod
@@ -492,7 +482,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         cls._last_trigger_char = _get_view_substr(view,
                                                   data['position']['end'] - 1,
                                                   data['position']['end'])
-        logger.debug('last trigger char: {}'.format(cls._last_trigger_char))
+        logger.debug('last trigger char: "{}"'.format(cls._last_trigger_char))
 
         cls._run_auto_complete(view)
 
@@ -566,6 +556,16 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 return False
 
         return True
+
+    @classmethod
+    def _clear_cache(cls):
+        cls._last_location = None
+        cls._last_prefix = None
+        cls._last_trigger_char = None
+        cls._last_received_completions = []
+        cls._last_init_location = None
+        cls._last_init_prefix = None
+        cls._last_init_completions = []
 
     @staticmethod
     def _completions_equal(lhs, rhs):
