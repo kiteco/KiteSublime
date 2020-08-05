@@ -248,16 +248,22 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     and cls._last_received_completions):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
+                cls._last_location = None
+                cls._last_prefix = None
+                cls._last_received_completions = []
+                cls._last_init_location = None
+                cls._last_init_prefix = None
+                cls._last_init_completions = []
 
             completions = None
             if (cls._last_location == locations[0] and
                     cls._last_received_completions):
                 completions = self._flatten_completions(
                     cls._last_received_completions)
+                cls._last_init_completions = cls._last_received_completions
+                cls._last_init_location = cls._last_location
+                cls._last_init_prefix = prefix
 
-            cls._last_init_completions = cls._last_received_completions
-            cls._last_init_location = cls._last_location
-            cls._last_init_prefix = prefix
             return completions
 
     def on_post_text_command(self, view, command_name, args):
