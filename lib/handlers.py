@@ -483,7 +483,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # Windows so we do it outside. Using Sublime's view API inside the
         # lock may be the reason.
         cls._last_prefix = _get_word(view, data['position']['end'])
-        cls._last_trigger_char = _get_view_substr(view, data['position']['end'] - 1, data['position']['end'])
+        cls._last_trigger_char = _get_view_substr(view,
+                                                  data['position']['end'] - 1,
+                                                  data['position']['end'])
         logger.debug('last trigger char: {}'.format(cls._last_trigger_char))
 
         cls._run_auto_complete(view)
@@ -529,6 +531,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # However, we only need to refresh the completions UI if the incoming
         # completions contain any completions that were not in the previous
         # list. Otherwise, Sublime will filter the UI automatically.
+        #
+        # We also need to force the completions UI to show when the user
+        # types a space, because Sublime will hide the completions otherwise.
         if not cls._is_completions_subset() or cls._last_trigger_char == ' ':
             view.run_command('hide_auto_complete')
             view.run_command('auto_complete', {
