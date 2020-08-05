@@ -202,6 +202,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
     # or not a new set of completions are initialized.
     _last_received_completions = []
 
+    # The last character that triggered completions. This value gets updated on
+    # every completions request.
+    _last_trigger_char = None
+
     # The last buffer location at which completions were initialized. This
     # value only gets changed when a new set of completions is sent back to
     # the UI.
@@ -244,16 +248,17 @@ class CompletionsHandler(sublime_plugin.EventListener):
                     and cls._last_received_completions):
                 logger.debug('completions location mismatch: {} != {}'
                              .format(cls._last_location, locations[0]))
+                cls._clear_cache()
 
             completions = None
             if (cls._last_location == locations[0] and
                     cls._last_received_completions):
                 completions = self._flatten_completions(
                     cls._last_received_completions)
+                cls._last_init_completions = cls._last_received_completions
+                cls._last_init_location = cls._last_location
+                cls._last_init_prefix = prefix
 
-            cls._last_init_completions = cls._last_received_completions
-            cls._last_init_location = cls._last_location
-            cls._last_init_prefix = prefix
             return completions
 
     def on_post_text_command(self, view, command_name, args):
@@ -284,6 +289,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
             cls._last_init_completions = []
             cls._last_init_prefix = None
             cls._last_location = None
+            logger.debug('cleared completions')
 
     @classmethod
     def queue_completions(cls, view, location):
@@ -293,12 +299,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
     @classmethod
     def hide_completions(cls, view):
         with cls._lock:
-            cls._last_location = None
-            cls._last_prefix = None
-            cls._last_received_completions = []
-            cls._last_init_location = None
-            cls._last_init_prefix = None
-            cls._last_init_completions = []
+            cls._clear_cache()
         view.run_command('hide_auto_complete')
 
     @classmethod
@@ -456,6 +457,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
     @classmethod
     def _request_completions(cls, view, data):
+        logger.debug('fetching completions')
         resp, body = requests.kited_post('/clientapi/editor/complete', data)
 
         if resp.status != 200 or not body:
@@ -464,6 +466,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
 
         resp_data = json.loads(body.decode('utf-8'))
         completions = resp_data['completions'] or []
+        logger.debug('received completions: {}'
+                     .format(cls._completions_str(completions,
+                                                  display_only=True)))
         with cls._lock:
             cls._last_received_completions = completions
             cls._last_location = data['position']['end']
@@ -474,6 +479,10 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # Windows so we do it outside. Using Sublime's view API inside the
         # lock may be the reason.
         cls._last_prefix = _get_word(view, data['position']['end'])
+        cls._last_trigger_char = _get_view_substr(view,
+                                                  data['position']['end'] - 1,
+                                                  data['position']['end'])
+        logger.debug('last trigger char: "{}"'.format(cls._last_trigger_char))
 
         cls._run_auto_complete(view)
 
@@ -508,6 +517,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # completions that aren't exactly prefix matched.
         with cls._lock:
             if len(cls._last_received_completions) == 0:
+                logger.debug('nothing to do: no new completions')
                 return
 
         # It seems like the `auto_complete` command does not always result in
@@ -517,13 +527,18 @@ class CompletionsHandler(sublime_plugin.EventListener):
         # However, we only need to refresh the completions UI if the incoming
         # completions contain any completions that were not in the previous
         # list. Otherwise, Sublime will filter the UI automatically.
-        if not cls._is_completions_subset():
+        #
+        # We also need to force the completions UI to show when the user
+        # types a space, because Sublime will hide the completions otherwise.
+        if not cls._is_completions_subset() or cls._last_trigger_char == ' ':
             view.run_command('hide_auto_complete')
             view.run_command('auto_complete', {
                 'api_completions_only': True,
                 'disable_auto_insert': True,
                 'next_completion_if_showing': False,
             })
+        else:
+            logger.debug('nothing to do: completions are subset')
 
     @classmethod
     def _is_completions_subset(cls):
@@ -541,6 +556,16 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 return False
 
         return True
+
+    @classmethod
+    def _clear_cache(cls):
+        cls._last_location = None
+        cls._last_prefix = None
+        cls._last_trigger_char = None
+        cls._last_received_completions = []
+        cls._last_init_location = None
+        cls._last_init_prefix = None
+        cls._last_init_completions = []
 
     @staticmethod
     def _completions_equal(lhs, rhs):
@@ -624,12 +649,15 @@ class CompletionsHandler(sublime_plugin.EventListener):
         }
 
     @staticmethod
-    def _prune_completion(completion):
-        fields = ('snippet', 'replace', 'display', 'post_commit')
-        return {k: completion.get(k, None) for k in fields}
+    def _prune_completion(completion, display_only=False):
+        if not display_only:
+            fields = ('snippet', 'replace', 'display', 'post_commit')
+            return {k: completion.get(k, None) for k in fields}
+        else:
+            return completion.get('display', None)
 
     @classmethod
-    def _completions_str(cls, completions):
+    def _completions_str(cls, completions, display_only=False):
         def _help(completions, nesting=0):
             if not completions:
                 return []
@@ -642,9 +670,9 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 #
                 # See: https://rollbar.com/Kite/sublime-prod/items/14275/
                 if 'snippet' not in c:
-                    result.append(cls._prune_completion(c))
+                    result.append(cls._prune_completion(c, display_only))
                 else:
-                    result.append(cls._prune_completion(c))
+                    result.append(cls._prune_completion(c, display_only))
                     if 'children' in c:
                         result.extend(_help(c['children'], nesting + 1))
 
