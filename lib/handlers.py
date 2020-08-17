@@ -6,6 +6,7 @@ import htmlmin
 import json
 import sys
 from http.client import CannotSendRequest
+from jinja2 import Template
 from os.path import realpath
 from threading import Lock
 from urllib.parse import quote
@@ -15,7 +16,6 @@ from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
 
-from ..vendor.jinja2 import Template
 
 __all__ = [
     'EventDispatcher',
