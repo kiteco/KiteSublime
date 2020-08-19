@@ -32,7 +32,12 @@ def plugin_loaded():
     instance to handle deferred events, and locates and starts the Kite
     Engine if available.
     """
-    if reporter.check_reporting_enabled():
+    app_controller.locate_kite()
+    kite_installed = app_controller.is_kite_installed()
+
+    if not kite_installed:
+        installer.install_kite()
+    elif reporter.check_reporting_enabled():
         reporter.setup_excepthook()
 
     global _consumer
@@ -40,12 +45,7 @@ def plugin_loaded():
 
     setup_completion_rules()
 
-    app_controller.locate_kite()
-    kite_installed = app_controller.is_kite_installed()
-
-    if not kite_installed:
-        installer.install_kite()
-    else:
+    if kite_installed:
         if settings.get('start_kite_engine_on_startup', True):
             app_controller.launch_kite_if_not_running()
 
