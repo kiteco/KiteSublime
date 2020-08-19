@@ -45,9 +45,6 @@ def plugin_loaded():
 
     setup_completion_rules()
 
-    app_controller.locate_kite()
-    kite_installed = app_controller.is_kite_installed()
-
     if kite_installed:
         if settings.get('start_kite_engine_on_startup', True):
             app_controller.launch_kite_if_not_running()
