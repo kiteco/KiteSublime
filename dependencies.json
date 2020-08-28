@@ -2,7 +2,9 @@
   "*": {
     ">=3142": [
       "python-jinja2",
-      "requests"
+      "requests",
+      "markupsafe",
+      "python-six"
     ]
   }
 }
