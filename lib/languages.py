@@ -4,7 +4,6 @@ class Languages:
     JAVASCRIPT = "JavaScript"
     GO = "Go"
     PYTHON = "Python"
-    UNCATEGORIZED = "Uncategorized"
 
 class Extensions:
     # Existing Models
@@ -61,39 +60,3 @@ SUPPORTED_EXTS = set([
         Extensions.RB,
         Extensions.SH,
 ])
-
-SUPPORTED_EXTS_TO_LANG = {
-    # Existing Models
-    Extensions.PY: Languages.PYTHON,
-    Extensions.GO: Languages.GO,
-    # Modern Web
-    Extensions.JS: Languages.JAVASCRIPT,
-    Extensions.JSX: Languages.JAVASCRIPT,
-    Extensions.VUE: Languages.JAVASCRIPT,
-
-    Extensions.TS: Languages.UNCATEGORIZED,
-    Extensions.TSX: Languages.UNCATEGORIZED,
-    Extensions.CSS: Languages.UNCATEGORIZED,
-    Extensions.LESS: Languages.UNCATEGORIZED,
-    Extensions.HTML: Languages.UNCATEGORIZED,
-    # C Styled
-    Extensions.C: Languages.UNCATEGORIZED,
-    Extensions.CC: Languages.UNCATEGORIZED,
-    Extensions.CPP: Languages.UNCATEGORIZED,
-    Extensions.CS: Languages.UNCATEGORIZED,
-    Extensions.H: Languages.UNCATEGORIZED,
-    Extensions.HPP: Languages.UNCATEGORIZED,
-    Extensions.M: Languages.UNCATEGORIZED,
-    # Java++
-    Extensions.SCALA: Languages.UNCATEGORIZED,
-    Extensions.JAVA: Languages.UNCATEGORIZED,
-    Extensions.KT: Languages.UNCATEGORIZED,
-    # Other
-    Extensions.PHP: Languages.UNCATEGORIZED,
-    Extensions.RB: Languages.UNCATEGORIZED,
-    Extensions.SH: Languages.UNCATEGORIZED,
-}
-
-def ext_to_lang(ext):
-    return SUPPORTED_EXTS_TO_LANG[ext]
-

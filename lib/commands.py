@@ -3,6 +3,7 @@ import sublime_plugin
 
 from ..lib import app_controller, link_opener, logger, onboarding, settings
 from ..lib.handlers import HoverHandler, SignaturesHandler
+from ..lib.languages import Languages
 
 
 class KiteShowHover(sublime_plugin.TextCommand):
@@ -139,7 +140,7 @@ class KitePythonTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.open_tutorial('.py')
+        onboarding.open_tutorial(Languages.PYTHON)
 
 
 class KiteJavascriptTutorial(sublime_plugin.ApplicationCommand):
@@ -147,7 +148,7 @@ class KiteJavascriptTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.open_tutorial('.js')
+        onboarding.open_tutorial(Languages.JAVASCRIPT)
 
 
 class KiteGoTutorial(sublime_plugin.ApplicationCommand):
@@ -155,7 +156,7 @@ class KiteGoTutorial(sublime_plugin.ApplicationCommand):
     """
 
     def run(self):
-        onboarding.open_tutorial('.go')
+        onboarding.open_tutorial(Languages.GO)
 
 
 class KiteHelp(sublime_plugin.ApplicationCommand):
