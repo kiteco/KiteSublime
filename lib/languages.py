@@ -36,6 +36,32 @@ class Extensions:
     RB = ".rb"
     SH = ".sh"
 
+SUPPORTED_EXTS = set([
+        Extensions.PY,
+        Extensions.GO,
+        Extensions.JS,
+        Extensions.JSX,
+        Extensions.VUE,
+        Extensions.TS,
+        Extensions.TSX,
+        Extensions.CSS,
+        Extensions.LESS,
+        Extensions.HTML,
+        Extensions.C,
+        Extensions.CC,
+        Extensions.CPP,
+        Extensions.CS,
+        Extensions.H,
+        Extensions.HPP,
+        Extensions.M,
+        Extensions.SCALA,
+        Extensions.JAVA,
+        Extensions.KT,
+        Extensions.PHP,
+        Extensions.RB,
+        Extensions.SH,
+])
+
 SUPPORTED_EXTS_TO_LANG = {
     # Existing Models
     Extensions.PY: Languages.PYTHON,
