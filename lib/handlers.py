@@ -25,6 +25,7 @@ __all__ = [
     'StatusHandler',
 ]
 
+
 def _is_view_supported(view):
     return view.file_name() is not None and any(
         view.file_name().endswith(ext) for ext in languages.SUPPORTED_EXTS_TO_LANG
@@ -32,8 +33,18 @@ def _is_view_supported(view):
 
 
 def _check_view_size(view):
-    # max file size is 75 kilobytes (75 * 1024)
-    return view.size() <= 76800
+    logger.debug('fetching max file size')
+    max_file_size = 1048576  # 1 MB default
+
+    try:
+        resp, body = requests.kited_get('/clientapi/settings/max_file_size_kb')
+        if resp.status == 200 and body:
+            max_file_size_kb = json.loads(body.decode('utf-8'))
+            max_file_size = max_file_size_kb << 10
+    except:
+        pass
+
+    return view.size() <= max_file_size
 
 
 def _get_view_substr(view, start, end):
@@ -610,7 +621,7 @@ class CompletionsHandler(sublime_plugin.EventListener):
                 # +1 because $0 is the last placeholder
                 index = placeholders.index(p) + 1
                 text = text[:a] + "${{{}:{}}}".format(index, text[a:b]) \
-                       + text[b:]
+                    + text[b:]
         except KeyError:
             return completion['snippet']['text']
         return text
