@@ -16,6 +16,7 @@ from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
 
+MAX_FILE_SIZE = 1048576  # 1 MB default
 
 __all__ = [
     'EventDispatcher',
@@ -23,6 +24,7 @@ __all__ = [
     'SignaturesHandler',
     'HoverHandler',
     'StatusHandler',
+    'MaxFileSizeUpdater',
 ]
 
 
@@ -33,18 +35,7 @@ def _is_view_supported(view):
 
 
 def _check_view_size(view):
-    logger.debug('fetching max file size')
-    max_file_size = 1048576  # 1 MB default
-
-    try:
-        resp, body = requests.kited_get('/clientapi/settings/max_file_size_kb')
-        if resp.status == 200 and body:
-            max_file_size_kb = json.loads(body.decode('utf-8'))
-            max_file_size = max_file_size_kb << 10
-    except:
-        pass
-
-    return view.size() <= max_file_size
+    return view.size() <= MAX_FILE_SIZE
 
 
 def _get_view_substr(view, start, end):
@@ -1149,3 +1140,22 @@ class StatusHandler(sublime_plugin.EventListener):
     @classmethod
     def _brand_status(cls, status):
         return '𝕜𝕚𝕥𝕖: {}'.format(status)
+
+
+class MaxFileSizeUpdater(sublime_plugin.EventListener):
+    """Listener which updates MAX_FILE_SIZE when a file is focused
+    """
+
+    def on_activated(self, view):
+        deferred.defer(self.__class__._handle, view)
+
+    @classmethod
+    def _handle(cls, view):
+        try:
+            resp, body = requests.kited_get(
+                '/clientapi/settings/max_file_size_kb')
+            if resp.status == 200 and body:
+                max_file_size_kb = json.loads(body.decode('utf-8'))
+                MAX_FILE_SIZE = max_file_size_kb << 10
+        except:
+            pass
