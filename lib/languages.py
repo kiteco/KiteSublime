@@ -30,10 +30,6 @@ class Extensions:
     SCALA = ".scala"
     JAVA = ".java"
     KT = ".kt"
-    # Other
-    PHP = ".php"
-    RB = ".rb"
-    SH = ".sh"
 
 SUPPORTED_EXTS = set([
         Extensions.PY,
@@ -56,7 +52,4 @@ SUPPORTED_EXTS = set([
         Extensions.SCALA,
         Extensions.JAVA,
         Extensions.KT,
-        Extensions.PHP,
-        Extensions.RB,
-        Extensions.SH,
 ])
