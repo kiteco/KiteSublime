@@ -6,27 +6,50 @@ class Languages:
     PYTHON = "Python"
 
 class Extensions:
+    # Existing Models
     PY = ".py"
     GO = ".go"
+    # Modern Web
     JS = ".js"
     JSX = ".jsx"
     VUE = ".vue"
+    TS = ".ts"
+    TSX = ".tsx"
+    CSS = ".css"
+    LESS = ".less"
+    HTML = ".html"
+    # C Styled
+    C = ".c"
+    CC = ".cc"
+    CPP = ".cpp"
+    CS = ".cs"
+    H = ".h"
+    HPP = ".hpp"
+    M = ".m"
+    # Java++
+    SCALA = ".scala"
+    JAVA = ".java"
+    KT = ".kt"
 
-LEXICAL_EXTS = (Extensions.GO, Extensions.JS, Extensions.JSX, Extensions.VUE)
-
-SUPPORTED_EXTS_TO_LANG = {
-    Extensions.PY: Languages.PYTHON,
-    Extensions.GO: Languages.GO,
-    Extensions.JS: Languages.JAVASCRIPT,
-    Extensions.JSX: Languages.JAVASCRIPT,
-    Extensions.VUE: Languages.JAVASCRIPT,
-}
-
-_LANG_TO_ENABLED_PATH = {
-    Languages.GO: "/clientapi/settings/kite_lexical_enabled",
-    Languages.JAVASCRIPT: "/clientapi/settings/kite_js_enabled",
-}
-
-def ext_to_lang(ext):
-    return SUPPORTED_EXTS_TO_LANG[ext]
-
+SUPPORTED_EXTS = set([
+        Extensions.PY,
+        Extensions.GO,
+        Extensions.JS,
+        Extensions.JSX,
+        Extensions.VUE,
+        Extensions.TS,
+        Extensions.TSX,
+        Extensions.CSS,
+        Extensions.LESS,
+        Extensions.HTML,
+        Extensions.C,
+        Extensions.CC,
+        Extensions.CPP,
+        Extensions.CS,
+        Extensions.H,
+        Extensions.HPP,
+        Extensions.M,
+        Extensions.SCALA,
+        Extensions.JAVA,
+        Extensions.KT,
+])

@@ -30,7 +30,7 @@ __all__ = [
 
 def _is_view_supported(view):
     return view.file_name() is not None and any(
-        view.file_name().endswith(ext) for ext in languages.SUPPORTED_EXTS_TO_LANG
+        view.file_name().endswith(ext) for ext in languages.SUPPORTED_EXTS
     )
 
 

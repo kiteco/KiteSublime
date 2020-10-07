@@ -1,4 +1,5 @@
 from .setup import *; setup_all()
+from .lib.languages import Languages
 
 import sublime
 
@@ -50,7 +51,7 @@ def plugin_loaded():
             app_controller.launch_kite_if_not_running()
 
         if settings.get('show_help_dialog', True):
-            onboarding.open_tutorial('.py')
+            onboarding.open_tutorial(Languages.PYTHON)
 
     logger.log('Kite v{} activated'.format(package_version()))
 
