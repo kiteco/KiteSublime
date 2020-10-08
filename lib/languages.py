@@ -53,21 +53,3 @@ SUPPORTED_EXTS = set([
         Extensions.JAVA,
         Extensions.KT,
 ])
-
-SUPPRESSED_STATUS = set([
-    Extensions.TS,
-    Extensions.TSX,
-    Extensions.CSS,
-    Extensions.LESS,
-    Extensions.HTML,
-    Extensions.C,
-    Extensions.CC,
-    Extensions.CPP,
-    Extensions.CS,
-    Extensions.H,
-    Extensions.HPP,
-    Extensions.M,
-    Extensions.SCALA,
-    Extensions.JAVA,
-    Extensions.KT
-])
