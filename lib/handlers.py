@@ -33,11 +33,6 @@ def _is_view_supported(view):
         view.file_name().endswith(ext) for ext in languages.SUPPORTED_EXTS
     )
 
-def _is_status_suppressed(view):
-    return view.file_name() is None or any(
-        view.file_name().endswith(ext) for ext in languages.SUPPRESSED_STATUS
-    )
-
 
 def _check_view_size(view):
     return view.size() <= MAX_FILE_SIZE
@@ -1104,10 +1099,6 @@ class StatusHandler(sublime_plugin.EventListener):
     @classmethod
     def _handle(cls, view):
         if not _is_view_supported(view):
-            view.erase_status(cls._status_key)
-            return
-
-        if  _is_status_suppressed(view):
             view.erase_status(cls._status_key)
             return
 
