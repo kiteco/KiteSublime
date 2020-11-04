@@ -32,6 +32,14 @@
     }
   },
   {
+    "caption": "Kite: Find Related Code From File (experimental)",
+    "command": "kite_find_related_code_from_file"
+  },
+  {
+    "caption": "Kite: Find Related Code From Line (experimental)",
+    "command": "kite_find_related_code_from_line"
+  },
+  {
     "caption": "Kite: Python Tutorial",
     "command": "kite_python_tutorial"
   },
