@@ -1,7 +1,8 @@
 import sublime
 import sublime_plugin
 
-from ..lib import app_controller, link_opener, logger, onboarding, settings
+from ..lib import app_controller, link_opener, logger, settings
+from ..lib import onboarding, codenav
 from ..lib.handlers import HoverHandler, SignaturesHandler
 from ..lib.languages import Languages
 
@@ -168,3 +169,16 @@ class KiteHelp(sublime_plugin.ApplicationCommand):
     def run(self):
         link_opener.open_browser_url(self._URL)
 
+class KiteFindRelatedCodeFromFile(sublime_plugin.WindowCommand):
+    """Command to initiate file-based codenav
+    """
+
+    def run(self):
+        codenav.related_code_from_file(self.window.active_view())
+
+class KiteFindRelatedCodeFromLine(sublime_plugin.WindowCommand):
+    """Command to initiate line-based codenav
+    """
+
+    def run(self):
+        codenav.related_code_from_line(self.window.active_view())
