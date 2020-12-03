@@ -76,6 +76,7 @@ def request_related_code(filename, line_no):
     resp = requests.post(url, json=
                 {
                     'editor': 'sublime3',
+                    'editor_install_path': sublime.executable_path(),
                     'location': {
                         'filename': filename,
                         'line': line_no
