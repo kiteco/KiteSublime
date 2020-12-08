@@ -8,6 +8,7 @@ class Languages:
 class Extensions:
     # Existing Models
     PY = ".py"
+    PYW = ".pyw"
     GO = ".go"
     # Modern Web
     JS = ".js"
@@ -37,6 +38,7 @@ class Extensions:
 
 SUPPORTED_EXTS = set([
         Extensions.PY,
+        Extensions.PYW,
         Extensions.GO,
         Extensions.JS,
         Extensions.JSX,
