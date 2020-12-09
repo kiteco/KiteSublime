@@ -11,6 +11,9 @@ class MultipleSelectionError(ExpectedError):
 class EmptyLineSelectionError(ExpectedError):
     pass
 
+class PathHasUnsupportedExtensionError(ExpectedError):
+    pass
+
 class PathNotInSupportedProjectError(ExpectedError):
     pass
 
