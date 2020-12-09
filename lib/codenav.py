@@ -1,3 +1,4 @@
+import os
 import requests
 import sublime
 from collections import defaultdict
@@ -6,6 +7,7 @@ from ..lib import link_opener
 from ..lib import errors
 
 err_to_exception = defaultdict(lambda: errors.GenericRelatedCodeError, {
+    'ErrPathHasUnsupportedExtension': errors.PathHasUnsupportedExtensionError,
     'ErrPathNotInSupportedProject': errors.PathNotInSupportedProjectError,
     'ErrProjectStillIndexing': errors.ProjectStillIndexingError,
 })
@@ -49,6 +51,12 @@ def related_code(precond, filename, line_no):
             "Kite Code Finder Error \n\n" +
             "Kite could not be reached. " +
             "Please check that Kite engine is running."
+        )
+    except errors.PathHasUnsupportedExtensionError:
+        _, ext = os.path.splitext(filename)
+        sublime.error_message(
+            "Kite Code Finder Error \n\n" +
+            " ".join(["Code Finder does not support the", "".join(["`", ext, "`"]), "file extension yet." ])
         )
     except errors.PathNotInSupportedProjectError:
         sublime.error_message(
