@@ -23,8 +23,6 @@ def related_code_from_line(view):
     def precond():
         if len(sels) > 1:
             raise errors.MultipleSelectionError("", "MultipleSelectionError")
-        if (view.classify(start_point) & sublime.CLASS_EMPTY_LINE) != 0:
-            raise errors.EmptyLineSelectionError("", "EmptyLineSeletionError")
 
     related_code(precond, view.file_name(), zero_based_line_no+1)
 
