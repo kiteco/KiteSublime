@@ -1,10 +1,15 @@
 import os
+import sys
+import urllib
 import requests
 import sublime
 from collections import defaultdict
+from string import Template
+
 
 from ..lib import link_opener
 from ..lib import errors
+from ..lib import settings
 
 def related_code_from_file(view):
     related_code(lambda: True, view.file_name(), None)
@@ -37,20 +42,139 @@ def request_related_code(filename, line_no):
     """ Attempts to initiate a related code request
         Raises exceptions from response errors
     """
-    url = 'http://localhost:46624/codenav/editor/related'
-    resp = requests.post(url, json=
-                {
-                    'editor': 'sublime3',
-                    'editor_install_path': sublime.executable_path(),
-                    'location': {
-                        'filename': filename,
-                        'line': line_no
-                    },
-                }
+    try:
+        url = 'http://localhost:46624/codenav/editor/related'
+        resp = requests.post(url, json=
+                    {
+                        'editor': 'sublime3',
+                        'editor_install_path': sublime.executable_path(),
+                        'location': {
+                            'filename': filename,
+                            'line': line_no
+                        },
+                    }
+                )
+        if resp.status_code != 200:
+            err = resp.json()
+            if "message" in err:
+                raise Exception(err["message"])
+            else:
+                raise Exception("Oops! Something went wrong with Code Finder. Please try again later.")
+    except requests.ConnectionError as e:
+        raise Exception("Kite could not be reached. Please check that Kite engine is running.")
+
+class RelatedCodeLinePhantom:
+    """ RelatedCodeLinePhantom ...
+    """
+
+    KEY = "related-code"
+
+    _template_path = 'Packages/KiteSublime/lib/assets/' \
+                     'codenav-phantom.mini.html'
+    _template = None
+
+    def __init__(self):
+        self.html = None
+        self.phantom_set = None
+        self.active_view = None
+        self.line_info = None
+        self.row = None
+
+    def handle_cursor_move(self, view):
+        if not settings.get("enable_codefinder_line_phantom", True):
+            return
+
+        sel_end, show, clear = self._should_show(view)
+        if not show:
+            if clear:
+                self._clear_phantom()
+            return
+
+        applicable = self.line_info is not None and 'project_ready' in self.line_info
+        ready = self.line_info is not None and self.line_info.get('project_ready', False)
+        if self.line_info is None or view != self.active_view or (applicable and not ready):
+            self._reset(view)
+
+        if self.line_info is not None and self.line_info.get('project_ready', False):
+            p = sublime.Phantom(
+                    sublime.Region(sel_end, sel_end+1),
+                    self.html,
+                    sublime.LAYOUT_INLINE,
+                    on_navigate=lambda href: href == RelatedCodeLinePhantom.KEY and related_code_from_line(view)
             )
-    if resp.status_code != 200:
-        err = resp.json()
-        if "message" in err:
-            raise Exception(err["message"])
-        else:
-            raise Exception("Oops! Something went wrong with Code Finder. Please try again later.")
+            self.phantom_set.update([p])
+
+    def _should_show(self, view):
+        """ _should_show determines whether the phantom should be shown
+            and updates the saved row to where the cursor is
+            It returns selection_end, show, clear
+        """
+        selections = view.sel()
+        last_line = view.full_line(view.size())
+        sel_line = view.full_line(selections[0])
+        self.row, old_row = view.rowcol(sel_line.begin())[0], self.row
+
+        # Avoids flickering while moving horizontally
+        if self.row == old_row:
+            # Avoid cursor moving past phantom when deleting entire line
+            clear = view.classify(sel_line.begin()) & sublime.CLASS_EMPTY_LINE != 0
+            return None, False, clear
+
+        if len(selections) != 1:
+            return None, False, True
+
+        # Last line shifts the last character past the phantom
+        # Modiying the phantom region to end_pt+1, end_pt+2 helps,
+        # But the cursor can then move past the phantom, making it
+        # awkward to type. So we don't show it here.
+        if last_line == sel_line:
+            return None, False, True
+
+        # Empty lines the cursor can move past the phantom
+        if (view.classify(sel_line.begin()) & sublime.CLASS_EMPTY_LINE) != 0:
+            return None, False, True
+
+        # Convert to inclusive
+        return sel_line.end()-1, True, False
+
+    def _reset(self, view):
+        self._clear_phantom()
+        self.active_view = view
+        self.phantom_set = sublime.PhantomSet(view, RelatedCodeLinePhantom.KEY)
+        self.line_info = None
+        self.line_info = self._request_line_decoration(view.file_name())
+        if self.line_info is not None:
+            if type(self)._template is None:
+                type(self).load_template()
+            self.html = type(self)._template.substitute(
+                    # text-decoration: none makes whitespace not clickable in a-tags
+                    # https://github.com/sublimehq/sublime_text/issues/3373
+                    inline_message='\u00A0'.join(self.line_info['inline_message'].split(' ')),
+                    logo_src="file://"+os.path.join(
+                            os.path.dirname(os.path.abspath(__file__)),
+                            "assets",
+                            "kite-logo-light-blue.png"
+                    )
+            )
+
+    def _clear_phantom(self):
+        if self.phantom_set is not None:
+            self.phantom_set.update([])
+
+    @classmethod
+    def _request_line_decoration(cls, filename):
+        try:
+            url = 'http://localhost:46624/codenav/decoration/line'
+            resp = requests.post(url, json= { 'filename': filename })
+            if resp.status_code != 200:
+                return None
+            return resp.json()
+        except requests.ConnectionError as e:
+            pass
+        return None
+
+    @classmethod
+    def load_template(cls):
+        t = Template(sublime.load_resource(cls._template_path))
+        with_key = t.safe_substitute(href_key=RelatedCodeLinePhantom.KEY)
+        cls._template = Template(with_key)

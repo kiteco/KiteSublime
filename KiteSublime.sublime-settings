@@ -12,6 +12,9 @@
   // Enable snippet completions.
   "enable_snippets": true,
 
+  // Show a clickable decoration on the cursor line that starts a line-based search for related code.
+  "enable_codefinder_line_phantom": true,
+
   // Show the hover popup when the mouse hovers over a symbol.
   "show_hover": true,
 
