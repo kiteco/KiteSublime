@@ -6,7 +6,6 @@ import sublime
 from collections import defaultdict
 from string import Template
 
-
 from ..lib import link_opener
 from ..lib import errors
 from ..lib import settings
@@ -21,7 +20,7 @@ def related_code_from_line(view):
 
     def precond():
         if len(sels) > 1:
-            raise Exception("Navigation only works for a single selection.")
+            raise Exception('Navigation only works for a single selection.')
 
     related_code(precond, view.file_name(), zero_based_line_no+1)
 
@@ -34,7 +33,7 @@ def related_code(precond, filename, line_no):
         request_related_code(filename, line_no)
     except Exception as e:
         sublime.error_message(
-            "Kite Code Finder Error \n\n" +
+            'Kite Code Finder Error \n\n' +
             str(e)
         )
 
@@ -59,16 +58,15 @@ def request_related_code(filename, line_no):
             if "message" in err:
                 raise Exception(err["message"])
             else:
-                raise Exception("Oops! Something went wrong with Code Finder. Please try again later.")
-    except requests.ConnectionError as e:
-        raise Exception("Kite could not be reached. Please check that Kite engine is running.")
+                raise Exception('Oops! Something went wrong with Code Finder. Please try again later.')
+    except requests.ConnectionError:
+        raise Exception('Kite could not be reached. Please check that Kite engine is running.')
 
 class RelatedCodeLinePhantom:
     """ RelatedCodeLinePhantom ...
     """
 
-    KEY = "related-code"
-
+    _key = 'related-code'
     _template_path = 'Packages/KiteSublime/lib/assets/' \
                      'codenav-phantom.mini.html'
     _template = None
@@ -80,12 +78,12 @@ class RelatedCodeLinePhantom:
         self.line_info = None
         self.row = None
 
-    def handle_cursor_move(self, view):
-        if not settings.get("enable_codefinder_line_phantom", True):
+    def on_selection_modified(self, view):
+        if not settings.get('enable_codefinder_line_phantom', True):
             return
 
-        sel_end, show, clear = self._should_show(view)
-        if not show:
+        sel_end, redraw, clear = self._should_redraw(view)
+        if not redraw:
             if clear:
                 self._clear_phantom()
             return
@@ -100,14 +98,14 @@ class RelatedCodeLinePhantom:
                     sublime.Region(sel_end, sel_end+1),
                     self.html,
                     sublime.LAYOUT_INLINE,
-                    on_navigate=lambda href: href == RelatedCodeLinePhantom.KEY and related_code_from_line(view)
+                    on_navigate=lambda href: href == RelatedCodeLinePhantom._key and related_code_from_line(view)
             )
             self.phantom_set.update([p])
 
-    def _should_show(self, view):
-        """ _should_show determines whether the phantom should be shown
+    def _should_redraw(self, view):
+        """ _should_redraw determines whether the phantom should be shown
             and updates the saved row to where the cursor is
-            It returns selection_end, show, clear
+            It returns selection_end, redraw, clear
         """
         selections = view.sel()
         last_line = view.full_line(view.size())
@@ -140,7 +138,7 @@ class RelatedCodeLinePhantom:
     def _reset(self, view):
         self._clear_phantom()
         self.active_view = view
-        self.phantom_set = sublime.PhantomSet(view, RelatedCodeLinePhantom.KEY)
+        self.phantom_set = sublime.PhantomSet(view, RelatedCodeLinePhantom._key)
         self.line_info = None
         self.line_info = self._request_line_decoration(view.file_name())
         if self.line_info is not None:
@@ -150,10 +148,10 @@ class RelatedCodeLinePhantom:
                     # text-decoration: none makes whitespace not clickable in a-tags
                     # https://github.com/sublimehq/sublime_text/issues/3373
                     inline_message='\u00A0'.join(self.line_info['inline_message'].split(' ')),
-                    logo_src="file://"+os.path.join(
+                    logo_src='file://'+os.path.join(
                             os.path.dirname(os.path.abspath(__file__)),
-                            "assets",
-                            "kite-logo-light-blue.png"
+                            'assets',
+                            'kite-logo-light-blue.png'
                     )
             )
 
@@ -176,5 +174,5 @@ class RelatedCodeLinePhantom:
     @classmethod
     def load_template(cls):
         t = Template(sublime.load_resource(cls._template_path))
-        with_key = t.safe_substitute(href_key=RelatedCodeLinePhantom.KEY)
+        with_key = t.safe_substitute(href_key=RelatedCodeLinePhantom._key)
         cls._template = Template(with_key)
