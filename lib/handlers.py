@@ -1175,3 +1175,6 @@ class RelatedCodePhantomListener(sublime_plugin.EventListener):
 
     def on_selection_modified_async(self, view):
         self.phantom.on_selection_modified(view)
+
+    def on_modified_async(self, view):
+        self.phantom.on_modified(view)

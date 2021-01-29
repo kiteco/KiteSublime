@@ -5,6 +5,7 @@ import requests
 import sublime
 from collections import defaultdict
 from string import Template
+from threading import Timer, Lock
 
 from ..lib import link_opener
 from ..lib import errors
@@ -72,16 +73,40 @@ class RelatedCodeLinePhantom:
     _template = None
 
     def __init__(self):
+        self._lock = Lock()
         self.html = None
         self.phantom_set = None
         self.active_view = None
         self.line_info = None
         self.row = None
+        self.visible = False
+        self.timer = None
+
+    def on_modified(self, view):
+        def timer_decorate(view):
+            with self._lock:
+                self._decorate_locked(view)
+                self.timer = None
+
+        if not settings.get('enable_codefinder_line_phantom', True):
+            return
+        with self._lock:
+            self._clear_phantom()
+            if self.timer is not None:
+                self.timer.cancel()
+            self.timer = Timer(1.0, timer_decorate, [view])
+            self.timer.start()
 
     def on_selection_modified(self, view):
         if not settings.get('enable_codefinder_line_phantom', True):
             return
+        with self._lock:
+            # If a timer exists, the user has recently made an edit
+            # and the timer must expire before movements can decorate again
+            if self.timer is None:
+                self._decorate_locked(view)
 
+    def _decorate_locked(self, view):
         sel_end, redraw, clear = self._should_redraw(view)
         if not redraw:
             if clear:
@@ -101,6 +126,7 @@ class RelatedCodeLinePhantom:
                     on_navigate=lambda href: href == RelatedCodeLinePhantom._key and related_code_from_line(view)
             )
             self.phantom_set.update([p])
+            self.visible = True
 
     def _should_redraw(self, view):
         """ _should_redraw determines whether the phantom should be shown
@@ -113,7 +139,7 @@ class RelatedCodeLinePhantom:
         self.row, old_row = view.rowcol(sel_line.begin())[0], self.row
 
         # Avoids flickering while moving horizontally
-        if self.row == old_row:
+        if self.row == old_row and self.visible:
             # Avoid cursor moving past phantom when deleting entire line
             clear = view.classify(sel_line.begin()) & sublime.CLASS_EMPTY_LINE != 0
             return None, False, clear
@@ -158,6 +184,7 @@ class RelatedCodeLinePhantom:
     def _clear_phantom(self):
         if self.phantom_set is not None:
             self.phantom_set.update([])
+        self.visible = False
 
     @classmethod
     def _request_line_decoration(cls, filename):
