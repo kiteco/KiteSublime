@@ -64,7 +64,9 @@ def request_related_code(filename, line_no):
         raise Exception('Kite could not be reached. Please check that Kite engine is running.')
 
 class RelatedCodeLinePhantom:
-    """ RelatedCodeLinePhantom ...
+    """ RelatedCodeLinePhantom creates an in-line phantom (decoration)
+        that when clicked on, will launch a line-based codenav search
+        by hooking into on_modified and on_selection_modified
     """
 
     _key = 'related-code'
@@ -73,29 +75,33 @@ class RelatedCodeLinePhantom:
     _template = None
 
     def __init__(self):
+        # _lock is used in the public functions on_selection_modified
+        # and on_modified, in which the below variables may be mutated
+        # The locking is relatively coarse to achieve the intended behavior
+        # where buffer changes hide the decoration for at least a second
         self._lock = Lock()
-        self.html = None
-        self.phantom_set = None
-        self.active_view = None
-        self.line_info = None
-        self.row = None
-        self.visible = False
-        self.timer = None
+        self._timer = None
+        self._phantom_set = None
+        self._visible = False
+        self._html = None
+        self._active_view = None
+        self._line_info = None
+        self._row = None
 
     def on_modified(self, view):
         def timer_decorate(view):
             with self._lock:
                 self._decorate_locked(view)
-                self.timer = None
+                self._timer = None
 
         if not settings.get('enable_codefinder_line_phantom', True):
             return
         with self._lock:
             self._clear_phantom()
-            if self.timer is not None:
-                self.timer.cancel()
-            self.timer = Timer(1.0, timer_decorate, [view])
-            self.timer.start()
+            if self._timer is not None:
+                self._timer.cancel()
+            self._timer = Timer(1.0, timer_decorate, [view])
+            self._timer.start()
 
     def on_selection_modified(self, view):
         if not settings.get('enable_codefinder_line_phantom', True):
@@ -103,7 +109,7 @@ class RelatedCodeLinePhantom:
         with self._lock:
             # If a timer exists, the user has recently made an edit
             # and the timer must expire before movements can decorate again
-            if self.timer is None:
+            if self._timer is None:
                 self._decorate_locked(view)
 
     def _decorate_locked(self, view):
@@ -113,20 +119,20 @@ class RelatedCodeLinePhantom:
                 self._clear_phantom()
             return
 
-        applicable = self.line_info is not None and 'project_ready' in self.line_info
-        ready = self.line_info is not None and self.line_info.get('project_ready', False)
-        if self.line_info is None or view != self.active_view or (applicable and not ready):
+        applicable = self._line_info is not None and 'project_ready' in self._line_info
+        ready = self._line_info is not None and self._line_info.get('project_ready', False)
+        if self._line_info is None or view != self._active_view or (applicable and not ready):
             self._reset(view)
 
-        if self.line_info is not None and self.line_info.get('project_ready', False):
+        if self._line_info is not None and self._line_info.get('project_ready', False):
             p = sublime.Phantom(
                     sublime.Region(sel_end, sel_end+1),
-                    self.html,
+                    self._html,
                     sublime.LAYOUT_INLINE,
                     on_navigate=lambda href: href == RelatedCodeLinePhantom._key and related_code_from_line(view)
             )
-            self.phantom_set.update([p])
-            self.visible = True
+            self._phantom_set.update([p])
+            self._visible = True
 
     def _should_redraw(self, view):
         """ _should_redraw determines whether the phantom should be shown
@@ -136,10 +142,10 @@ class RelatedCodeLinePhantom:
         selections = view.sel()
         last_line = view.full_line(view.size())
         sel_line = view.full_line(selections[0])
-        self.row, old_row = view.rowcol(sel_line.begin())[0], self.row
+        self._row, old_row = view.rowcol(sel_line.begin())[0], self._row
 
         # Avoids flickering while moving horizontally
-        if self.row == old_row and self.visible:
+        if self._row == old_row and self._visible:
             # Avoid cursor moving past phantom when deleting entire line
             clear = view.classify(sel_line.begin()) & sublime.CLASS_EMPTY_LINE != 0
             return None, False, clear
@@ -163,17 +169,17 @@ class RelatedCodeLinePhantom:
 
     def _reset(self, view):
         self._clear_phantom()
-        self.active_view = view
-        self.phantom_set = sublime.PhantomSet(view, RelatedCodeLinePhantom._key)
-        self.line_info = None
-        self.line_info = self._request_line_decoration(view.file_name())
-        if self.line_info is not None:
+        self._active_view = view
+        self._phantom_set = sublime.PhantomSet(view, RelatedCodeLinePhantom._key)
+        self._line_info = None
+        self._line_info = self._request_line_decoration(view.file_name())
+        if self._line_info is not None:
             if type(self)._template is None:
                 type(self).load_template()
-            self.html = type(self)._template.substitute(
+            self._html = type(self)._template.substitute(
                     # text-decoration: none makes whitespace not clickable in a-tags
                     # https://github.com/sublimehq/sublime_text/issues/3373
-                    inline_message='\u00A0'.join(self.line_info['inline_message'].split(' ')),
+                    inline_message='\u00A0'.join(self._line_info['inline_message'].split(' ')),
                     logo_src='file://'+os.path.join(
                             os.path.dirname(os.path.abspath(__file__)),
                             'assets',
@@ -182,9 +188,9 @@ class RelatedCodeLinePhantom:
             )
 
     def _clear_phantom(self):
-        if self.phantom_set is not None:
-            self.phantom_set.update([])
-        self.visible = False
+        if self._phantom_set is not None:
+            self._phantom_set.update([])
+        self._visible = False
 
     @classmethod
     def _request_line_decoration(cls, filename):
