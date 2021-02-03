@@ -44,7 +44,7 @@ class KiteDocsAtCursor(sublime_plugin.TextCommand):
     """
 
     def run(self, edit):
-        points, symbol = HoverHandler.symbol_at_cursor(self.view)
+        points, symbol = HoverHandler.symbol_at_cursor(self.view, notify_error=True)
         if symbol:
             link_opener.open_copilot(symbol['id'])
         elif points:

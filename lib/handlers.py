@@ -12,6 +12,7 @@ from threading import Lock
 from urllib.parse import quote
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests, languages
+from ..lib import notification
 from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..setup import is_development, os_version, package_version
@@ -925,7 +926,7 @@ class HoverHandler(sublime_plugin.EventListener):
             deferred.defer(cls._request_hover, view, point)
 
     @classmethod
-    def symbol_at_cursor(cls, view, render=False):
+    def symbol_at_cursor(cls, view, render=False, notify_error=False):
         if (not _is_view_supported(view) or not _check_view_size(view) or
                 len(view.sel()) != 1):
             return (None, None)
@@ -938,6 +939,8 @@ class HoverHandler(sublime_plugin.EventListener):
         resp, body = requests.kited_get(cls._event_url(view, point))
 
         if resp.status != 200 or not body:
+            if notify_error:
+                notification.from_local_requests_error(body)
             return (points, None)
 
         try:

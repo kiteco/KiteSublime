@@ -3,7 +3,7 @@ import requests
 import sublime
 from collections import defaultdict
 
-from ..lib import link_opener
+from ..lib import link_opener, notification
 from ..lib import errors
 
 def related_code_from_file(view):
@@ -35,8 +35,10 @@ def related_code(precond, filename, line_no):
 
 def request_related_code(filename, line_no):
     """ Attempts to initiate a related code request
-        Raises exceptions from response errors
+        Notifies on non-200 responses
     """
+    # This uses the regular requests library instead of the local one
+    # because it needs a long timeout to allow the copilot to launch
     url = 'http://localhost:46624/codenav/editor/related'
     resp = requests.post(url, json=
                 {
@@ -49,8 +51,8 @@ def request_related_code(filename, line_no):
                 }
             )
     if resp.status_code != 200:
-        err = resp.json()
-        if "message" in err:
-            raise Exception(err["message"])
-        else:
-            raise Exception("Oops! Something went wrong with Code Finder. Please try again later.")
+        notification.from_py_requests_error(
+                resp,
+                "Kite Code Finder Error",
+                "Oops! Something went wrong with Code Finder. Please try again later."
+        )
