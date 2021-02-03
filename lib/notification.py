@@ -43,9 +43,9 @@ def _from_data(data, default_title="", default_body=""):
             elif len(buttons) == 2:
                 print(2)
                 _double_custom_button_notify(title, body, buttons)
+            # Sublime's API doesn't support 3 or more custom buttons
             else:
                 _dismiss_only_notify(default_title, default_body)
-            # Sublime's API doesn't support 3 or more custom buttons
         elif "message" in data:
             _dismiss_only_notify(default_title, data["message"])
         else:
