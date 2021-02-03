@@ -15,6 +15,7 @@ from ..lib import deferred, keymap, link_opener, logger, settings, requests, lan
 from ..lib import notification
 from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
+from ..lib.codenav import RelatedCodeLinePhantom
 from ..setup import is_development, os_version, package_version
 
 MAX_FILE_SIZE = 1048576  # 1 MB default
@@ -26,6 +27,7 @@ __all__ = [
     'HoverHandler',
     'StatusHandler',
     'MaxFileSizeUpdater',
+    'RelatedCodePhantomListener',
 ]
 
 
@@ -1162,3 +1164,20 @@ class MaxFileSizeUpdater(sublime_plugin.EventListener):
                 MAX_FILE_SIZE = max_file_size_kb << 10
         except:
             pass
+
+class RelatedCodePhantomListener(sublime_plugin.EventListener):
+    """ Listener that updates the related-code line phantom (decoration)
+    """
+
+    def __init__(self):
+        super()
+        self.phantom = RelatedCodeLinePhantom()
+
+    def on_activated_async(self, view):
+        self.on_selection_modified_async(view)
+
+    def on_selection_modified_async(self, view):
+        self.phantom.on_selection_modified(view)
+
+    def on_modified_async(self, view):
+        self.phantom.on_modified(view)
