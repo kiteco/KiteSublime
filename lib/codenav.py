@@ -142,6 +142,9 @@ class RelatedCodeLinePhantom:
             It returns selection_end, redraw, clear
         """
         selections = view.sel()
+        if len(selections) != 1:
+            return None, False, True
+
         last_line = view.full_line(view.size())
         sel_line = view.full_line(selections[0])
         self._row, old_row = view.rowcol(sel_line.begin())[0], self._row
@@ -151,9 +154,6 @@ class RelatedCodeLinePhantom:
             # Avoid cursor moving past phantom when deleting entire line
             clear = view.classify(sel_line.begin()) & sublime.CLASS_EMPTY_LINE != 0
             return None, False, clear
-
-        if len(selections) != 1:
-            return None, False, True
 
         # Last line shifts the last character past the phantom
         # Modiying the phantom region to end_pt+1, end_pt+2 helps,
