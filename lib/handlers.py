@@ -728,9 +728,9 @@ class SignaturesHandler(sublime_plugin.EventListener):
         return None
 
     @classmethod
-    def queue_signatures(cls, view, location):
+    def queue_signatures(cls, view, location, notify_error=False):
         deferred.defer(cls._request_signatures,
-                       view, cls._event_data(view, location))
+                       view, cls._event_data(view, location), notify_error)
 
     @classmethod
     def hide_signatures(cls, view):
@@ -769,12 +769,14 @@ class SignaturesHandler(sublime_plugin.EventListener):
         return cls._activated
 
     @classmethod
-    def _request_signatures(cls, view, data):
+    def _request_signatures(cls, view, data, notify_error):
         resp, body = requests.kited_post('/clientapi/editor/signatures', data)
 
         if resp.status != 200 or not body:
             if resp.status in (400, 404):
                 cls.hide_signatures(view)
+            if notify_error:
+                notification.from_local_requests_error(body)
             return
 
         resp_data = json.loads(body.decode('utf-8'))

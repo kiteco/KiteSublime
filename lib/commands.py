@@ -17,7 +17,7 @@ class KiteShowHover(sublime_plugin.TextCommand):
     _FLASH_INTERVAL = 100
 
     def run(self, edit):
-        points, symbol = HoverHandler.symbol_at_cursor(self.view, render=True)
+        points, symbol = HoverHandler.symbol_at_cursor(self.view, render=True, notify_error=True)
         if not symbol and points:
             self.__class__.flash_invalid(self.view, points)
 
@@ -60,7 +60,7 @@ class KiteShowSignatures(sublime_plugin.TextCommand):
         if len(self.view.sel()) != 1:
             return None
         r = self.view.sel()[0]
-        SignaturesHandler.queue_signatures(self.view, r.end())
+        SignaturesHandler.queue_signatures(self.view, r.end(), notify_error=True)
 
 
 class KiteToggleKeywordArguments(sublime_plugin.TextCommand):

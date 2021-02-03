@@ -15,7 +15,7 @@ def from_local_requests_error(body):
         print(ex)
 
 def from_py_requests_error(resp, default_title="", default_body=""):
-    """ from_local_requests_error parses the response of a non-200 response
+    """ from_py_requests_error parses the response of a non-200 response
         returned by the python requests library for a notification. If
         one exists, it will create a sublime dialog. If provided defaults, they
         will be used to fill missing information or create a generic notification.
