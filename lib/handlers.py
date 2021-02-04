@@ -12,6 +12,7 @@ from threading import Lock
 from urllib.parse import quote
 
 from ..lib import deferred, keymap, link_opener, logger, settings, requests, languages
+from ..lib import notification
 from ..lib.errors import ExpectedError
 from ..lib.file_system import path_for_url
 from ..lib.codenav import RelatedCodeLinePhantom
@@ -727,9 +728,9 @@ class SignaturesHandler(sublime_plugin.EventListener):
         return None
 
     @classmethod
-    def queue_signatures(cls, view, location):
+    def queue_signatures(cls, view, location, notify_error=False):
         deferred.defer(cls._request_signatures,
-                       view, cls._event_data(view, location))
+                       view, cls._event_data(view, location), notify_error)
 
     @classmethod
     def hide_signatures(cls, view):
@@ -768,12 +769,14 @@ class SignaturesHandler(sublime_plugin.EventListener):
         return cls._activated
 
     @classmethod
-    def _request_signatures(cls, view, data):
+    def _request_signatures(cls, view, data, notify_error):
         resp, body = requests.kited_post('/clientapi/editor/signatures', data)
 
         if resp.status != 200 or not body:
             if resp.status in (400, 404):
                 cls.hide_signatures(view)
+            if notify_error:
+                notification.from_local_requests_error(body)
             return
 
         resp_data = json.loads(body.decode('utf-8'))
@@ -927,7 +930,7 @@ class HoverHandler(sublime_plugin.EventListener):
             deferred.defer(cls._request_hover, view, point)
 
     @classmethod
-    def symbol_at_cursor(cls, view, render=False):
+    def symbol_at_cursor(cls, view, render=False, notify_error=False):
         if (not _is_view_supported(view) or not _check_view_size(view) or
                 len(view.sel()) != 1):
             return (None, None)
@@ -940,6 +943,8 @@ class HoverHandler(sublime_plugin.EventListener):
         resp, body = requests.kited_get(cls._event_url(view, point))
 
         if resp.status != 200 or not body:
+            if notify_error:
+                notification.from_local_requests_error(body)
             return (points, None)
 
         try:

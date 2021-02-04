@@ -7,7 +7,7 @@ from collections import defaultdict
 from string import Template
 from threading import Timer, Lock
 
-from ..lib import link_opener
+from ..lib import link_opener, notification
 from ..lib import errors
 from ..lib import settings
 
@@ -40,9 +40,11 @@ def related_code(precond, filename, line_no):
 
 def request_related_code(filename, line_no):
     """ Attempts to initiate a related code request
-        Raises exceptions from response errors
+        Notifies on non-200 responses
     """
     try:
+        # This uses the regular requests library instead of the local one
+        # because it needs a long timeout to allow the copilot to launch
         url = 'http://localhost:46624/codenav/editor/related'
         resp = requests.post(url, json=
                     {
@@ -55,11 +57,11 @@ def request_related_code(filename, line_no):
                     }
                 )
         if resp.status_code != 200:
-            err = resp.json()
-            if "message" in err:
-                raise Exception(err["message"])
-            else:
-                raise Exception('Oops! Something went wrong with Code Finder. Please try again later.')
+            notification.from_py_requests_error(
+                    resp,
+                    "Kite Code Finder Error",
+                    "Oops! Something went wrong with Code Finder. Please try again later."
+            )
     except requests.ConnectionError:
         raise Exception('Kite could not be reached. Please check that Kite engine is running.')
 
@@ -140,6 +142,9 @@ class RelatedCodeLinePhantom:
             It returns selection_end, redraw, clear
         """
         selections = view.sel()
+        if len(selections) != 1:
+            return None, False, True
+
         last_line = view.full_line(view.size())
         sel_line = view.full_line(selections[0])
         self._row, old_row = view.rowcol(sel_line.begin())[0], self._row
@@ -149,9 +154,6 @@ class RelatedCodeLinePhantom:
             # Avoid cursor moving past phantom when deleting entire line
             clear = view.classify(sel_line.begin()) & sublime.CLASS_EMPTY_LINE != 0
             return None, False, clear
-
-        if len(selections) != 1:
-            return None, False, True
 
         # Last line shifts the last character past the phantom
         # Modiying the phantom region to end_pt+1, end_pt+2 helps,
