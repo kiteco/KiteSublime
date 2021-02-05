@@ -32,11 +32,11 @@
     }
   },
   {
-    "caption": "Kite: Find Related Code From File (experimental)",
+    "caption": "Kite: Find Related Code From File",
     "command": "kite_find_related_code_from_file"
   },
   {
-    "caption": "Kite: Find Related Code From Line (experimental)",
+    "caption": "Kite: Find Related Code From Line",
     "command": "kite_find_related_code_from_line"
   },
   {
