@@ -1,5 +1,7 @@
 # Kite Autocomplete Plugin for Sublime Text 3
 
+[![Report an issue](https://img.shields.io/badge/-Report%20an%20issue-critical)](https://github.com/kiteco/issue-tracker/issues)
+
 Kite is an AI-powered programming assistant that helps you write Python & JavaScript code inside Sublime Text 3. Kite helps you write code faster by saving you keystrokes and showing you the right information at the right time. Learn more about how Kite saves you time and effort in Sublime Text at https://kite.com/integrations/sublime-text/.
 
 At a high level, Kite provides you with:
