@@ -96,7 +96,7 @@ class RelatedCodeLinePhantom:
                 self._decorate_locked(view)
                 self._timer = None
 
-        if not settings.get('enable_codefinder_line_phantom', True):
+        if not settings.get('enable_codefinder_line_phantom', False):
             return
         with self._lock:
             self._clear_phantom()
@@ -106,7 +106,7 @@ class RelatedCodeLinePhantom:
             self._timer.start()
 
     def on_selection_modified(self, view):
-        if not settings.get('enable_codefinder_line_phantom', True):
+        if not settings.get('enable_codefinder_line_phantom', False):
             return
         with self._lock:
             # If a timer exists, the user has recently made an edit
