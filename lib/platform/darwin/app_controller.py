@@ -1,9 +1,10 @@
+import requests
 import subprocess
 import sys
 
 from ....lib import reporter
 
-__all__ = ['_launch_kite', '_locate_kite', '_is_kite_running']
+__all__ = ['_launch_kite', '_locate_kite', '_is_kite_running', '_can_download_kite']
 
 
 def _launch_kite(app):
@@ -35,3 +36,12 @@ def _is_kite_running():
     out = subprocess.check_output(['ps', '-axco', 'command'])
     procs = out.decode('utf-8', 'replace').strip().split('\n') if out else []
     return 'Kite' in procs
+
+
+def _can_download_kite():
+    try:
+        r = requests.head("https://release.kite.com/dls/mac/current", allow_redirects=True, timeout=10)
+        return r.ok
+    except requests.ConnectionError:
+        return False
+    return False
