@@ -41,3 +41,7 @@ def locate_kite():
 
 def is_kite_running():
     return _is_kite_running()
+
+
+def can_download_kite():
+    return _can_download_kite()

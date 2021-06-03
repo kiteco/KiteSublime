@@ -1,10 +1,11 @@
 import os
+import requests
 import subprocess
 import sys
 
 from ....lib import reporter
 
-__all__ = ['_launch_kite', '_locate_kite', '_is_kite_running']
+__all__ = ['_launch_kite', '_locate_kite', '_is_kite_running', '_can_download_kite']
 
 _QUERY = 'reg query "HKEY_LOCAL_MACHINE\\Software\\Kite\\AppData" /v ' \
          'InstallPath /s /reg:64 '
@@ -48,3 +49,12 @@ def _is_kite_running():
         return running
     finally:
         return running
+
+
+def _can_download_kite():
+    try:
+        r = requests.head("https://release.kite.com/dls/windows/current", allow_redirects=True, timeout=10)
+        return r.ok
+    except requests.ConnectionError:
+        return False
+    return False
