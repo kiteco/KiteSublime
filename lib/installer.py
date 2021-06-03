@@ -17,10 +17,14 @@ def install_kite():
     else:
         already_seen_dialog = settings.get('has_seen_download_unavailable_dialog', False)
         if not already_seen_dialog:
-            sublime.message_dialog(
-            'Kite requires the Kite Engine backend to provide completions and\n' +
-            'documentation. However, the Kite Engine is currently unavailable\n' +
-            'for download. When the Kite Engine is available again, you will be\n' +
-            'notified on Sublime startup.'
+            more_info = sublime.ok_cancel_dialog(
+            'Kite requires the Kite Engine application to function. Unfortunately\n' +
+            'the Kite Engine is unavailable to download for the next few weeks.\n' +
+            'This plugin will let you know when it is available.\n\n' +
+            "For more information, click the 'More Info' button below.",
+            ok_title='More Info'
             )
             settings.set('has_seen_download_unavailable_dialog', True)
+            if more_info:
+                link_opener.open_browser_url(
+                    'https://kite.com/kite-is-temporarily-unavailable/?source=sublime-plugin')
